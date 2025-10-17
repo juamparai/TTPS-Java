@@ -117,7 +117,8 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
         List<Usuario> usuarios;
         try {
             usuarios = em.createQuery("SELECT m FROM " +
-                            this.getPersistentClass().getSimpleName() + " m ORDER BY m." + columnOrder, Usuario.class)
+                            this.getPersistentClass().getSimpleName() +
+                            " m ORDER BY m." + columnOrder, Usuario.class)
                     .getResultList();
         } catch (Exception e) {
             usuarios = null;
