@@ -18,7 +18,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
 
     @Override
     public T persist(T entity) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         EntityTransaction tx = null;
         try {
             tx = em.getTransaction();
@@ -36,7 +36,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
 
     @Override
     public T update(T entity) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         EntityTransaction etx = em.getTransaction();
         etx.begin();
         T entityMerged = em.merge(entity);
@@ -48,7 +48,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
     @Override
     public void delete(T entity) {
         EntityTransaction tx = null;
-        try(EntityManager em = EMF.getEMF().createEntityManager()){
+        try(EntityManager em = EMF.getTestEMF().createEntityManager()){
             tx = em.getTransaction();
             tx.begin();
             em.remove(em.merge(entity));
@@ -62,7 +62,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
     @Override
     public void delete(Long id) {
         EntityTransaction tx = null;
-        try(EntityManager em = EMF.getEMF().createEntityManager()){
+        try(EntityManager em = EMF.getTestEMF().createEntityManager()){
             tx = em.getTransaction();
             tx.begin();
             T entity = em.find(getPersistentClass(), id);
@@ -78,7 +78,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
 
     @Override
     public T get(Long id) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         T entity = em.find(getPersistentClass(), id);
         em.close();
         return entity;
@@ -87,7 +87,7 @@ public class GenericDAOHibernateJPA<T> implements GenericDAO<T> {
     @Override
     public List<T> getAll(String columnOrder) {
         Query consulta =
-                EMF.getEMF().createEntityManager()
+                EMF.getTestEMF().createEntityManager()
                         .createQuery("SELECT e FROM "+
                                 getPersistentClass().getSimpleName() +
                                 " e order by e." + columnOrder);
