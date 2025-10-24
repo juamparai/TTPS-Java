@@ -9,4 +9,5 @@ public interface UsuarioDAO<T> extends GenericDAO<T>{
     public T authenticate(String email, String password);
     public List<T> getByBarrio(String barrio);
     public List<T> getByCiudad(String ciudad);
+    public List<T> getByPuntos();
 }

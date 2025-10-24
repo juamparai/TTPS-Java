@@ -11,7 +11,7 @@ public class EMF {
 
     static {
         try {
-            em = Persistence.createEntityManagerFactory("unlp");
+            em = Persistence.createEntityManagerFactory("miUP");
         } catch (PersistenceException e) {
             System.err.println("Error al crear EntityManagerFactory: "+e.getMessage());
             e.printStackTrace();

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import models.hibernate.UsuarioDAOHibernateJPA;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
 class UsuarioDAOHibernateJPATest {
 
@@ -13,6 +14,16 @@ class UsuarioDAOHibernateJPATest {
     @BeforeEach
     void setup() {
         dao = new UsuarioDAOHibernateJPA();
+        // Limpiar la tabla de usuarios para que las pruebas sean deterministas
+        List<Usuario> existentes = dao.getAll("id");
+        if (existentes != null) {
+            for (Usuario u : existentes) {
+                try {
+                    dao.delete(u.getId());
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     @Test
@@ -54,5 +65,23 @@ class UsuarioDAOHibernateJPATest {
 
         Usuario deleted = dao.get(id.longValue());
         assertNull(deleted);
+    }
+
+    @Test
+    void testGetByPuntos() {
+        Usuario u1 = new Usuario();
+        u1.setNombre("User1");
+        u1.setPuntos(15);
+        dao.persist(u1);
+
+        Usuario u2 = new Usuario();
+        u2.setNombre("User2");
+        u2.setPuntos(20);
+        dao.persist(u2);
+
+        List<Usuario> usuarios = dao.getByPuntos();
+        assertEquals(2, usuarios.size());
+        assertEquals("User2", usuarios.get(0).getNombre());
+        assertEquals("User1", usuarios.get(1).getNombre());
     }
 }

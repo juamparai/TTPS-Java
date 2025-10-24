@@ -11,7 +11,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public Usuario getByDni(int dni) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         Usuario usr;
         try {
             usr = (Usuario) em.createQuery("SELECT m FROM " +
@@ -27,7 +27,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public Usuario getByEmail(String mail) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         Usuario usr;
         try {
             usr = (Usuario) em.createQuery("SELECT m FROM " +
@@ -43,7 +43,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public Usuario authenticate(String email, String password) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         Usuario usr;
         try {
             usr = (Usuario) em.createQuery("SELECT m FROM " +
@@ -61,7 +61,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public List<Usuario> getByNombreAndApellido(String nombre, String apellido) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         List<Usuario> usuarios;
         try {
             usuarios = em.createQuery("SELECT m FROM " +
@@ -79,7 +79,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public List<Usuario> getByBarrio(String barrio) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         List<Usuario> usuarios;
         try {
             usuarios = em.createQuery("SELECT m FROM " +
@@ -96,7 +96,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public List<Usuario> getByCiudad(String ciudad) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         List<Usuario> usuarios;
         try {
             usuarios = em.createQuery("SELECT m FROM " +
@@ -113,7 +113,7 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
 
     @Override
     public List<Usuario> getAll(String columnOrder) {
-        EntityManager em = EMF.getEMF().createEntityManager();
+        EntityManager em = EMF.getTestEMF().createEntityManager();
         List<Usuario> usuarios;
         try {
             usuarios = em.createQuery("SELECT m FROM " +
@@ -128,5 +128,21 @@ public class UsuarioDAOHibernateJPA extends GenericDAOHibernateJPA<Usuario> impl
         return usuarios;
     }
 
-}
+    @Override
+    public List<Usuario> getByPuntos() {
+        EntityManager em = EMF.getTestEMF().createEntityManager();
+        List<Usuario> usuarios;
+        try {
+            usuarios = em.createQuery("SELECT m FROM " +
+                            this.getPersistentClass().getSimpleName() +
+                            " m ORDER BY m.puntos DESC", Usuario.class)
+                    .getResultList();
+        } catch (Exception e) {
+            usuarios = null;
+        } finally {
+            em.close();
+        }
+        return usuarios;
+    }
 
+}
