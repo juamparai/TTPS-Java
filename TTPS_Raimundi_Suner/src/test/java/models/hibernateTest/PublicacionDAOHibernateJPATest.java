@@ -2,18 +2,22 @@ package models.hibernateTest;
 
 import models.clases.Publicacion;
 import org.junit.jupiter.api.*;
-import models.hibernate.PublicacionDAOHibernateJPA;
+import models.DAO.PublicacionDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import config.TestConfig;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 class PublicacionDAOHibernateJPATest {
 
-    private PublicacionDAOHibernateJPA dao;
-
-    @BeforeEach
-    void setup() {
-        dao = new PublicacionDAOHibernateJPA();
-    }
+    @Autowired
+    private PublicacionDAO<Publicacion> dao;
 
     @Test
     void testAlta() {
@@ -47,9 +51,9 @@ class PublicacionDAOHibernateJPATest {
         dao.persist(p);
         Long id = p.getId();
 
-        dao.delete(id.longValue());
+        dao.delete(id);
 
-        Publicacion deleted = dao.get(id.longValue());
+        Publicacion deleted = dao.get(id);
         assertNull(deleted);
     }
 }

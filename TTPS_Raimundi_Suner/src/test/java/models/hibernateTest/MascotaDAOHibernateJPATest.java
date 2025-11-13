@@ -2,18 +2,21 @@ package models.hibernateTest;
 
 import models.clases.Mascota;
 import org.junit.jupiter.api.*;
-import models.hibernate.MascotaDAOHibernateJPA;
-
+import models.DAO.MascotaDAO;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import config.TestConfig;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 class MascotaDAOHibernateJPATest {
 
-    private MascotaDAOHibernateJPA mascotaDAO;
-
-    @BeforeEach
-    void setup() {
-        mascotaDAO = new MascotaDAOHibernateJPA();
-    }
+    @Autowired
+    private MascotaDAO<Mascota> mascotaDAO;
 
     @Test
     void testAlta() {

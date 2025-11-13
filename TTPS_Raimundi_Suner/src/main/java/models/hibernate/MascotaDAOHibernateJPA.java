@@ -5,7 +5,9 @@ import jakarta.persistence.EntityManager;
 import models.DAO.MascotaDAO;
 import models.clases.Mascota;
 import models.clases.EstadoMascota;
+import org.springframework.stereotype.Repository;
 
+@Repository("mascotaDAO")
 public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> implements MascotaDAO<Mascota> {
     public MascotaDAOHibernateJPA() {
         super(Mascota.class);
@@ -13,7 +15,6 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
 
     @Override
     public List<Mascota> getByNombre(String nombre) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             lista = em.createQuery("SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.nombre = :nombre", Mascota.class)
@@ -21,15 +22,12 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Mascota> getByTipo(String tipo) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             lista = em.createQuery("SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.tipo = :tipo", Mascota.class)
@@ -37,15 +35,12 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Mascota> getByRaza(String raza) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             lista = em.createQuery("SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.raza = :raza", Mascota.class)
@@ -53,15 +48,12 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Mascota> getByColor(String color) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             lista = em.createQuery("SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.color = :color", Mascota.class)
@@ -69,15 +61,12 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Mascota> getByEstado(String estado) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             EstadoMascota est = EstadoMascota.valueOf(estado);
@@ -86,15 +75,12 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Mascota> getByUsuario(Long usuarioId) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Mascota> lista;
         try {
             lista = em.createQuery("SELECT m FROM " + this.getPersistentClass().getSimpleName() + " m WHERE m.usuario.id = :usuarioId", Mascota.class)
@@ -102,10 +88,7 @@ public class MascotaDAOHibernateJPA extends GenericDAOHibernateJPA<Mascota> impl
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 }
-

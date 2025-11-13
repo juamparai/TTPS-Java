@@ -1,126 +1,154 @@
 package controllers;
 
 import models.clases.Usuario;
-import models.hibernate.UsuarioDAOHibernateJPA;
+import services.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/usuarios")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
-    private final UsuarioDAOHibernateJPA usuarioDAO;
-
-    public UsuarioController() {
-        this.usuarioDAO = new UsuarioDAOHibernateJPA();
-    }
+    @Autowired
+    private UsuarioService usuarioService;
 
     /**
-     * POST /usuario - Crear nuevo usuario
-     * @return 201 Created si es creado exitosamente
+     * Registración de Usuario
+     * POST /api/usuarios/registro
      */
-    @PostMapping("/usuario")
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
+    @PostMapping("/registro")
+    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
-            usuarioDAO.persist(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+            Usuario nuevoUsuario = usuarioService.registrarUsuario(usuario);
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Usuario registrado exitosamente");
+            response.put("usuario", nuevoUsuario);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al registrar usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
     /**
-     * POST /autenticacion - Autenticar usuario
-     * @return 200 OK con header token: {idUsuario}+'123456' si es exitoso, 403 Forbidden si falla
+     * Login del sistema
+     * POST /api/usuarios/login
      */
-    @PostMapping("/autenticacion")
-    public ResponseEntity<Usuario> autenticar(@RequestBody Usuario credenciales) {
-        Usuario usuario = usuarioDAO.authenticate(credenciales.getEmail(), credenciales.getPassword());
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+        try {
+            String email = credentials.get("email");
+            String password = credentials.get("password");
 
-        if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (email == null || password == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Email y password son requeridos");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Usuario usuario = usuarioService.autenticar(email, password);
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Login exitoso");
+            response.put("usuario", usuario);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error en login: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        String token = usuario.getId() + "123456";
-
-        return ResponseEntity.ok()
-                .header("token", token)
-                .body(usuario);
     }
 
     /**
-     * GET /usuario/:id - Obtener usuario por ID
-     * @return 200 OK, 401 Unauthorized si no hay token, 404 Not Found si no existe
+     * Edición del Perfil de un Usuario
+     * PUT /api/usuarios/{id}
      */
-    @GetMapping("/usuario/{id}")
-    public ResponseEntity<Usuario> obtenerUsuario(
-            @PathVariable Long id,
-            @RequestHeader(value = "token", required = false) String token) {
-
-        if (token == null || token.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarPerfil(@PathVariable Long id, @RequestBody Usuario usuario) {
+        try {
+            usuario.setId(id);
+            Usuario usuarioActualizado = usuarioService.actualizarPerfil(usuario);
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Perfil actualizado exitosamente");
+            response.put("usuario", usuarioActualizado);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al actualizar perfil: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        Usuario usuario = usuarioDAO.get(id);
-
-        if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.ok(usuario);
     }
 
     /**
-     * PUT /usuario/:id - Actualizar usuario
-     * En el header enviar token: {idUsuario}+'123456'
-     * @return 200 OK si actualiza, 401 Unauthorized si token inválido, 404 Not Found si no existe
+     * Obtener usuario por ID
+     * GET /api/usuarios/{id}
      */
-    @PutMapping("/usuario/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(
-            @PathVariable Long id,
-            @RequestHeader(value = "token", required = false) String token,
-            @RequestBody Usuario usuarioActualizado) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerUsuario(@PathVariable Long id) {
+        try {
+            Usuario usuario = usuarioService.obtenerPorId(id);
+            if (usuario == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Usuario no encontrado");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al obtener usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 
-        String expectedToken = id + "123456";
-        if (token == null || !token.equals(expectedToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    /**
+     * Listar todos los usuarios
+     * GET /api/usuarios
+     */
+    @GetMapping
+    public ResponseEntity<?> listarUsuarios() {
+        try {
+            List<Usuario> usuarios = usuarioService.obtenerTodos();
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al listar usuarios: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
+    }
 
-        Usuario usuario = usuarioDAO.get(id);
-
-        if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    /**
+     * Obtener ranking de usuarios por puntos
+     * GET /api/usuarios/ranking
+     */
+    @GetMapping("/ranking")
+    public ResponseEntity<?> obtenerRanking() {
+        try {
+            List<Usuario> ranking = usuarioService.obtenerPorPuntos();
+            return ResponseEntity.ok(ranking);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al obtener ranking: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        // Actualizar campos
-        if (usuarioActualizado.getNombre() != null) {
-            usuario.setNombre(usuarioActualizado.getNombre());
-        }
-        if (usuarioActualizado.getApellido() != null) {
-            usuario.setApellido(usuarioActualizado.getApellido());
-        }
-        if (usuarioActualizado.getEmail() != null) {
-            usuario.setEmail(usuarioActualizado.getEmail());
-        }
-        if (usuarioActualizado.getPassword() != null) {
-            usuario.setPassword(usuarioActualizado.getPassword());
-        }
-        if (usuarioActualizado.getTelefono() != null) {
-            usuario.setTelefono(usuarioActualizado.getTelefono());
-        }
-        if (usuarioActualizado.getBarrio() != null) {
-            usuario.setBarrio(usuarioActualizado.getBarrio());
-        }
-        if (usuarioActualizado.getCiudad() != null) {
-            usuario.setCiudad(usuarioActualizado.getCiudad());
-        }
-        if (usuarioActualizado.getEstado() != null) {
-            usuario.setEstado(usuarioActualizado.getEstado());
-        }
-
-        usuarioDAO.update(usuario);
-
-        return ResponseEntity.ok(usuario);
     }
 }
+

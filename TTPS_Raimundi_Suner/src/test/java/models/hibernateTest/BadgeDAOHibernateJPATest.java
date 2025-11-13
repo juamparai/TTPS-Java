@@ -2,18 +2,22 @@ package models.hibernateTest;
 
 import models.clases.Badge;
 import org.junit.jupiter.api.*;
-import models.hibernate.BadgeDAOHibernateJPA;
+import models.DAO.BadgeDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import config.TestConfig;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 class BadgeDAOHibernateJPATest {
 
-    private BadgeDAOHibernateJPA dao;
-
-    @BeforeEach
-    void setup() {
-        dao = new BadgeDAOHibernateJPA();
-    }
+    @Autowired
+    private BadgeDAO<Badge> dao;
 
     @Test
     void testAlta() {

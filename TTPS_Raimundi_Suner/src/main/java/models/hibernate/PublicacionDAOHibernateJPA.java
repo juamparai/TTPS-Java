@@ -10,7 +10,9 @@ import jakarta.persistence.EntityManager;
 import models.DAO.PublicacionDAO;
 import models.clases.Publicacion;
 import models.clases.EstadoPublicacion;
+import org.springframework.stereotype.Repository;
 
+@Repository("publicacionDAO")
 public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicacion> implements PublicacionDAO<Publicacion> {
 
     public PublicacionDAOHibernateJPA() {
@@ -20,28 +22,21 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
     @Override
     public List<Publicacion> getByUsuario(Long usuarioId) {
         if (usuarioId == null) return Collections.emptyList();
-        EntityManager em = null;
         try {
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.usuario.id = :usuarioId", Publicacion.class)
                     .setParameter("usuarioId", usuarioId)
                     .getResultList();
         } catch (Exception e) {
-            // TODO: usar logger
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Publicacion> getByMascota(Long mascotaId) {
         if (mascotaId == null) return Collections.emptyList();
-        EntityManager em = null;
         try {
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.mascota.id = :mascotaId", Publicacion.class)
                     .setParameter("mascotaId", mascotaId)
@@ -49,15 +44,12 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Publicacion> getByEstado(String estado) {
         if (estado == null) return Collections.emptyList();
-        EntityManager em = null;
         try {
             EstadoPublicacion est;
             try {
@@ -65,7 +57,6 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
             } catch (IllegalArgumentException iae) {
                 return Collections.emptyList();
             }
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.estadoPublicacion = :estado", Publicacion.class)
                     .setParameter("estado", est)
@@ -73,17 +64,13 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Publicacion> getByFecha(LocalDate fecha) {
         if (fecha == null) return Collections.emptyList();
-        EntityManager em = null;
         try {
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.fecha = :fecha", Publicacion.class)
                     .setParameter("fecha", fecha)
@@ -91,17 +78,13 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Publicacion> getByFechaRange(LocalDate fechaInicio, LocalDate fechaFin) {
         if (fechaInicio == null || fechaFin == null) return Collections.emptyList();
-        EntityManager em = null;
         try {
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.fecha BETWEEN :inicio AND :fin", Publicacion.class)
                     .setParameter("inicio", fechaInicio)
@@ -110,16 +93,12 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 
     @Override
     public List<Publicacion> getPublicacionesActivas() {
-        EntityManager em = null;
         try {
-            em = EMF.getEMF().createEntityManager();
             return em.createQuery("SELECT p FROM " + this.getPersistentClass().getSimpleName() +
                     " p WHERE p.estadoPublicacion = :activa", Publicacion.class)
                     .setParameter("activa", EstadoPublicacion.ACTIVA)
@@ -127,8 +106,6 @@ public class PublicacionDAOHibernateJPA extends GenericDAOHibernateJPA<Publicaci
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
-        } finally {
-            if (em != null && em.isOpen()) em.close();
         }
     }
 }

@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import jakarta.persistence.EntityManager;
 import models.DAO.AvistamientoDAO;
 import models.clases.Avistamiento;
+import org.springframework.stereotype.Repository;
 
+@Repository("avistamientoDAO")
 public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistamiento> implements AvistamientoDAO<Avistamiento> {
     public AvistamientoDAOHibernateJPA() {
         super(Avistamiento.class);
@@ -13,7 +15,6 @@ public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistami
 
     @Override
     public List<Avistamiento> getByFecha(LocalDate fecha) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Avistamiento> lista;
         try {
             lista = em.createQuery("SELECT a FROM " + this.getPersistentClass().getSimpleName() + " a WHERE a.fecha = :fecha", Avistamiento.class)
@@ -21,15 +22,12 @@ public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistami
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Avistamiento> getByFechaRange(LocalDate fechaInicio, LocalDate fechaFin) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Avistamiento> lista;
         try {
             lista = em.createQuery("SELECT a FROM " + this.getPersistentClass().getSimpleName() + " a WHERE a.fecha BETWEEN :inicio AND :fin", Avistamiento.class)
@@ -38,15 +36,12 @@ public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistami
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Avistamiento> getByMascota(Long mascotaId) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Avistamiento> lista;
         try {
             lista = em.createQuery("SELECT a FROM " + this.getPersistentClass().getSimpleName() + " a WHERE a.mascota.id = :mascotaId", Avistamiento.class)
@@ -54,15 +49,12 @@ public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistami
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 
     @Override
     public List<Avistamiento> getByUsuario(Long usuarioId) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         List<Avistamiento> lista;
         try {
             lista = em.createQuery("SELECT a FROM " + this.getPersistentClass().getSimpleName() + " a WHERE a.usuario.id = :usuarioId", Avistamiento.class)
@@ -70,10 +62,7 @@ public class AvistamientoDAOHibernateJPA extends GenericDAOHibernateJPA<Avistami
                     .getResultList();
         } catch (Exception e) {
             lista = null;
-        } finally {
-            em.close();
         }
         return lista;
     }
 }
-

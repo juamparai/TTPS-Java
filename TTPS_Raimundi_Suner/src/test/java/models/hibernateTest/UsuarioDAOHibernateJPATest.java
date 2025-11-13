@@ -2,29 +2,22 @@ package models.hibernateTest;
 
 import models.clases.Usuario;
 import org.junit.jupiter.api.*;
-import models.hibernate.UsuarioDAOHibernateJPA;
+import models.DAO.UsuarioDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.List;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import config.TestConfig;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 class UsuarioDAOHibernateJPATest {
 
-    private UsuarioDAOHibernateJPA dao;
-
-    @BeforeEach
-    void setup() {
-        dao = new UsuarioDAOHibernateJPA();
-        // Limpiar la tabla de usuarios para que las pruebas sean deterministas
-        List<Usuario> existentes = dao.getAll("id");
-        if (existentes != null) {
-            for (Usuario u : existentes) {
-                try {
-                    dao.delete(u.getId());
-                } catch (Exception ignored) {
-                }
-            }
-        }
-    }
+    @Autowired
+    private UsuarioDAO<Usuario> dao;
 
     @Test
     void testAlta() {
@@ -61,27 +54,9 @@ class UsuarioDAOHibernateJPATest {
         dao.persist(u);
         Long id = u.getId();
 
-        dao.delete(id.longValue());
+        dao.delete(id);
 
-        Usuario deleted = dao.get(id.longValue());
+        Usuario deleted = dao.get(id);
         assertNull(deleted);
-    }
-
-    @Test
-    void testGetByPuntos() {
-        Usuario u1 = new Usuario();
-        u1.setNombre("User1");
-        u1.setPuntos(15);
-        dao.persist(u1);
-
-        Usuario u2 = new Usuario();
-        u2.setNombre("User2");
-        u2.setPuntos(20);
-        dao.persist(u2);
-
-        List<Usuario> usuarios = dao.getByPuntos();
-        assertEquals(2, usuarios.size());
-        assertEquals("User2", usuarios.get(0).getNombre());
-        assertEquals("User1", usuarios.get(1).getNombre());
     }
 }

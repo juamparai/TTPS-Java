@@ -2,18 +2,22 @@ package models.hibernateTest;
 
 import models.clases.Avistamiento;
 import org.junit.jupiter.api.*;
-import models.hibernate.AvistamientoDAOHibernateJPA;
+import models.DAO.AvistamientoDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.extension.ExtendWith;
+import config.TestConfig;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 class AvistamientoDAOHibernateJPATest {
 
-    private AvistamientoDAOHibernateJPA dao;
-
-    @BeforeEach
-    void setup() {
-        dao = new AvistamientoDAOHibernateJPA();
-    }
+    @Autowired
+    private AvistamientoDAO<Avistamiento> dao;
 
     @Test
     void testAlta() {

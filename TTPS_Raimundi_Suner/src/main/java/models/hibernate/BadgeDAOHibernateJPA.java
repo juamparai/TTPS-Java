@@ -3,7 +3,9 @@ package models.hibernate;
 import jakarta.persistence.EntityManager;
 import models.DAO.BadgeDAO;
 import models.clases.Badge;
+import org.springframework.stereotype.Repository;
 
+@Repository("badgeDAO")
 public class BadgeDAOHibernateJPA extends GenericDAOHibernateJPA<Badge> implements BadgeDAO<Badge> {
     public BadgeDAOHibernateJPA() {
         super(Badge.class);
@@ -11,18 +13,14 @@ public class BadgeDAOHibernateJPA extends GenericDAOHibernateJPA<Badge> implemen
 
     @Override
     public Badge getByNombre(String nombre) {
-        EntityManager em = EMF.getEMF().createEntityManager();
         Badge badge;
         try {
-            badge = (Badge) em.createQuery("SELECT b FROM " + this.getPersistentClass().getSimpleName() + " b WHERE b.nombre = :nombre")
+            badge = em.createQuery("SELECT b FROM " + this.getPersistentClass().getSimpleName() + " b WHERE b.nombre = :nombre", Badge.class)
                     .setParameter("nombre", nombre)
                     .getSingleResult();
         } catch (Exception e) {
             badge = null;
-        } finally {
-            em.close();
         }
         return badge;
     }
 }
-
