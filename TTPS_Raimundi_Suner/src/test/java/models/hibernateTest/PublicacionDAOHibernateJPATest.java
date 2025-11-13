@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Publicacion;
+import APP.models.clases.Publicacion;
 import org.junit.jupiter.api.*;
-import models.DAO.PublicacionDAO;
+import APP.models.dao.PublicacionDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,16 +17,16 @@ import config.TestConfig;
 class PublicacionDAOHibernateJPATest {
 
     @Autowired
-    private PublicacionDAO<Publicacion> dao;
+    private PublicacionDAO dao;
 
     @Test
     void testAlta() {
         Publicacion p = new Publicacion();
         p.setDescripcion("Nueva publicacion de prueba");
 
-        Publicacion saved = dao.persist(p);
+        Publicacion saved = dao.save(p);
 
-        Publicacion found = dao.get(saved.getId());
+        Publicacion found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("Nueva publicacion de prueba", found.getDescripcion());
     }
@@ -35,12 +35,12 @@ class PublicacionDAOHibernateJPATest {
     void testModificacion() {
         Publicacion p = new Publicacion();
         p.setDescripcion("Desc inicial");
-        dao.persist(p);
+        dao.save(p);
 
         p.setDescripcion("Desc modificada");
-        Publicacion updated = dao.update(p);
+        Publicacion updated = dao.save(p);
 
-        Publicacion found = dao.get(updated.getId());
+        Publicacion found = dao.findById(updated.getId()).orElse(null);
         assertEquals("Desc modificada", found.getDescripcion());
     }
 
@@ -48,12 +48,12 @@ class PublicacionDAOHibernateJPATest {
     void testBaja() {
         Publicacion p = new Publicacion();
         p.setDescripcion("Para borrar");
-        dao.persist(p);
+        dao.save(p);
         Long id = p.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Publicacion deleted = dao.get(id);
+        Publicacion deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

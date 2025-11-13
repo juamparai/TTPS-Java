@@ -9,13 +9,13 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <!-- Entidades del modelo -->
-        <class>models.clases.Usuario</class>
-        <class>models.clases.Mascota</class>
-        <class>models.clases.Publicacion</class>
-        <class>models.clases.Avistamiento</class>
-        <class>models.clases.Ubicacion</class>
-        <class>models.clases.Badge</class>
-        <class>models.clases.Rol</class>
+        <class>APP.models.clases.Usuario</class>
+        <class>APP.models.clases.Mascota</class>
+        <class>APP.models.clases.Publicacion</class>
+        <class>APP.models.clases.Avistamiento</class>
+        <class>APP.models.clases.Ubicacion</class>
+        <class>APP.models.clases.Badge</class>
+        <class>APP.models.clases.Rol</class>
 
         <properties>
             <!-- H2 Database Configuration -->

@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Mascota;
+import APP.models.clases.Mascota;
 import org.junit.jupiter.api.*;
-import models.DAO.MascotaDAO;
+import APP.models.dao.MascotaDAO;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,7 +16,7 @@ import config.TestConfig;
 class MascotaDAOHibernateJPATest {
 
     @Autowired
-    private MascotaDAO<Mascota> mascotaDAO;
+    private MascotaDAO dao;
 
     @Test
     void testAlta() {
@@ -24,9 +24,9 @@ class MascotaDAOHibernateJPATest {
         mascota.setNombre("Firulais");
         mascota.setTipo("Perro");
 
-        Mascota saved = mascotaDAO.persist(mascota);
+        Mascota saved = dao.save(mascota);
 
-        Mascota found = mascotaDAO.get(saved.getId());
+        Mascota found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("Firulais", found.getNombre());
     }
@@ -37,12 +37,12 @@ class MascotaDAOHibernateJPATest {
         mascota.setNombre("Michi");
         mascota.setTipo("Gato");
 
-        mascotaDAO.persist(mascota);
+        dao.save(mascota);
 
         mascota.setNombre("Michu");
-        Mascota updated = mascotaDAO.update(mascota);
+        Mascota updated = dao.save(mascota);
 
-        Mascota found = mascotaDAO.get(updated.getId());
+        Mascota found = dao.findById(updated.getId()).orElse(null);
         assertEquals("Michu", found.getNombre());
     }
 
@@ -52,12 +52,12 @@ class MascotaDAOHibernateJPATest {
         mascota.setNombre("Rex");
         mascota.setTipo("Perro");
 
-        mascotaDAO.persist(mascota);
+        dao.save(mascota);
         Long id = mascota.getId();
 
-        mascotaDAO.delete(id);
+        dao.deleteById(id);
 
-        Mascota deleted = mascotaDAO.get(id);
+        Mascota deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

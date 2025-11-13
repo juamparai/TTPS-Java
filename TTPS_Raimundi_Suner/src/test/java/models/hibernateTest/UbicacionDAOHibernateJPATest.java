@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Ubicacion;
+import APP.models.clases.Ubicacion;
 import org.junit.jupiter.api.*;
-import models.DAO.UbicacionDAO;
+import APP.models.dao.UbicacionDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +17,7 @@ import config.TestConfig;
 class UbicacionDAOHibernateJPATest {
 
     @Autowired
-    private UbicacionDAO<Ubicacion> dao;
+    private UbicacionDAO dao;
 
     @Test
     void testAlta() {
@@ -26,9 +26,9 @@ class UbicacionDAOHibernateJPATest {
         u.setLng( -58.3816 );
         u.setBarrio("Centro");
 
-        Ubicacion saved = dao.persist(u);
+        Ubicacion saved = dao.save(u);
 
-        Ubicacion found = dao.get(saved.getId());
+        Ubicacion found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("Centro", found.getBarrio());
     }
@@ -39,12 +39,12 @@ class UbicacionDAOHibernateJPATest {
         u.setLat(0.0);
         u.setLng(0.0);
         u.setBarrio("Old");
-        dao.persist(u);
+        dao.save(u);
 
         u.setBarrio("NewBarrio");
-        Ubicacion updated = dao.update(u);
+        Ubicacion updated = dao.save(u);
 
-        Ubicacion found = dao.get(updated.getId());
+        Ubicacion found = dao.findById(updated.getId()).orElse(null);
         assertEquals("NewBarrio", found.getBarrio());
     }
 
@@ -53,12 +53,12 @@ class UbicacionDAOHibernateJPATest {
         Ubicacion u = new Ubicacion();
         u.setLat(1.0);
         u.setLng(1.0);
-        dao.persist(u);
+        dao.save(u);
         Long id = u.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Ubicacion deleted = dao.get(id);
+        Ubicacion deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Badge;
+import APP.models.clases.Badge;
 import org.junit.jupiter.api.*;
-import models.DAO.BadgeDAO;
+import APP.models.dao.BadgeDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +17,7 @@ import config.TestConfig;
 class BadgeDAOHibernateJPATest {
 
     @Autowired
-    private BadgeDAO<Badge> dao;
+    private BadgeDAO dao;
 
     @Test
     void testAlta() {
@@ -25,9 +25,9 @@ class BadgeDAOHibernateJPATest {
         b.setNombre("Helper");
         b.setDescripcion("Badge de ayuda");
 
-        Badge saved = dao.persist(b);
+        Badge saved = dao.save(b);
 
-        Badge found = dao.get(saved.getId());
+        Badge found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("Helper", found.getNombre());
     }
@@ -36,12 +36,12 @@ class BadgeDAOHibernateJPATest {
     void testModificacion() {
         Badge b = new Badge();
         b.setNombre("Member");
-        dao.persist(b);
+        dao.save(b);
 
         b.setNombre("MemberPlus");
-        Badge updated = dao.update(b);
+        Badge updated = dao.save(b);
 
-        Badge found = dao.get(updated.getId());
+        Badge found = dao.findById(updated.getId()).orElse(null);
         assertEquals("MemberPlus", found.getNombre());
     }
 
@@ -49,12 +49,12 @@ class BadgeDAOHibernateJPATest {
     void testBaja() {
         Badge b = new Badge();
         b.setNombre("ToDelete");
-        dao.persist(b);
+        dao.save(b);
         Long id = b.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Badge deleted = dao.get(id);
+        Badge deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

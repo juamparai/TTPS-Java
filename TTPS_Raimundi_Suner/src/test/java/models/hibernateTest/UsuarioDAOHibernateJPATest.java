@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Usuario;
+import APP.models.clases.Usuario;
 import org.junit.jupiter.api.*;
-import models.DAO.UsuarioDAO;
+import APP.models.dao.UsuarioDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +17,7 @@ import config.TestConfig;
 class UsuarioDAOHibernateJPATest {
 
     @Autowired
-    private UsuarioDAO<Usuario> dao;
+    private UsuarioDAO dao;
 
     @Test
     void testAlta() {
@@ -25,9 +25,9 @@ class UsuarioDAOHibernateJPATest {
         u.setNombre("UsuarioTest");
         u.setPuntos(0);
 
-        Usuario saved = dao.persist(u);
+        Usuario saved = dao.save(u);
 
-        Usuario found = dao.get(saved.getId());
+        Usuario found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("UsuarioTest", found.getNombre());
     }
@@ -37,12 +37,12 @@ class UsuarioDAOHibernateJPATest {
         Usuario u = new Usuario();
         u.setNombre("UserA");
         u.setPuntos(5);
-        dao.persist(u);
+        dao.save(u);
 
         u.setNombre("UserB");
-        Usuario updated = dao.update(u);
+        Usuario updated = dao.save(u);
 
-        Usuario found = dao.get(updated.getId());
+        Usuario found = dao.findById(updated.getId()).orElse(null);
         assertEquals("UserB", found.getNombre());
     }
 
@@ -51,12 +51,12 @@ class UsuarioDAOHibernateJPATest {
         Usuario u = new Usuario();
         u.setNombre("ToDelete");
         u.setPuntos(1);
-        dao.persist(u);
+        dao.save(u);
         Long id = u.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Usuario deleted = dao.get(id);
+        Usuario deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

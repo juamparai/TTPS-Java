@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Rol;
+import APP.models.clases.Rol;
 import org.junit.jupiter.api.*;
-import models.DAO.RolDAO;
+import APP.models.dao.RolDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,16 +17,16 @@ import config.TestConfig;
 class RolDAOHibernateJPATest {
 
     @Autowired
-    private RolDAO<Rol> dao;
+    private RolDAO dao;
 
     @Test
     void testAlta() {
         Rol r = new Rol();
         r.setNombre("TEST_ROLE");
 
-        Rol saved = dao.persist(r);
+        Rol saved = dao.save(r);
 
-        Rol found = dao.get(saved.getId());
+        Rol found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("TEST_ROLE", found.getNombre());
     }
@@ -35,12 +35,12 @@ class RolDAOHibernateJPATest {
     void testModificacion() {
         Rol r = new Rol();
         r.setNombre("ROLE_A");
-        dao.persist(r);
+        dao.save(r);
 
         r.setNombre("ROLE_B");
-        Rol updated = dao.update(r);
+        Rol updated = dao.save(r);
 
-        Rol found = dao.get(updated.getId());
+        Rol found = dao.findById(updated.getId()).orElse(null);
         assertEquals("ROLE_B", found.getNombre());
     }
 
@@ -48,12 +48,12 @@ class RolDAOHibernateJPATest {
     void testBaja() {
         Rol r = new Rol();
         r.setNombre("ROLE_DEL");
-        dao.persist(r);
+        dao.save(r);
         Long id = r.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Rol deleted = dao.get(id);
+        Rol deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }

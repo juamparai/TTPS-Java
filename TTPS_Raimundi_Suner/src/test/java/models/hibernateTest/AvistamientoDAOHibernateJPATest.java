@@ -1,8 +1,8 @@
 package models.hibernateTest;
 
-import models.clases.Avistamiento;
+import APP.models.clases.Avistamiento;
 import org.junit.jupiter.api.*;
-import models.DAO.AvistamientoDAO;
+import APP.models.dao.AvistamientoDAO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,16 +17,16 @@ import config.TestConfig;
 class AvistamientoDAOHibernateJPATest {
 
     @Autowired
-    private AvistamientoDAO<Avistamiento> dao;
+    private AvistamientoDAO dao;
 
     @Test
     void testAlta() {
         Avistamiento a = new Avistamiento();
         a.setComentario("Primer avistamiento");
 
-        Avistamiento saved = dao.persist(a);
+        Avistamiento saved = dao.save(a);
 
-        Avistamiento found = dao.get(saved.getId());
+        Avistamiento found = dao.findById(saved.getId()).orElse(null);
         assertNotNull(found);
         assertEquals("Primer avistamiento", found.getComentario());
     }
@@ -36,12 +36,12 @@ class AvistamientoDAOHibernateJPATest {
         Avistamiento a = new Avistamiento();
         a.setComentario("Comentario inicial");
 
-        dao.persist(a);
+        dao.save(a);
 
         a.setComentario("Comentario modificado");
-        Avistamiento updated = dao.update(a);
+        Avistamiento updated = dao.save(a);
 
-        Avistamiento found = dao.get(updated.getId());
+        Avistamiento found = dao.findById(updated.getId()).orElse(null);
         assertEquals("Comentario modificado", found.getComentario());
     }
 
@@ -50,12 +50,12 @@ class AvistamientoDAOHibernateJPATest {
         Avistamiento a = new Avistamiento();
         a.setComentario("Para borrar");
 
-        dao.persist(a);
+        dao.save(a);
         Long id = a.getId();
 
-        dao.delete(id);
+        dao.deleteById(id);
 
-        Avistamiento deleted = dao.get(id);
+        Avistamiento deleted = dao.findById(id).orElse(null);
         assertNull(deleted);
     }
 }
