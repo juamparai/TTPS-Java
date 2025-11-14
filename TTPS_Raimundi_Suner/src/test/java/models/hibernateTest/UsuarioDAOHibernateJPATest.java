@@ -10,10 +10,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.transaction.annotation.Transactional;
 import config.TestConfig;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@Transactional
 class UsuarioDAOHibernateJPATest {
 
     @Autowired
@@ -43,6 +45,7 @@ class UsuarioDAOHibernateJPATest {
         Usuario updated = dao.save(u);
 
         Usuario found = dao.findById(updated.getId()).orElse(null);
+        assertNotNull(found);
         assertEquals("UserB", found.getNombre());
     }
 

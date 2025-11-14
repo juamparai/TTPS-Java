@@ -10,10 +10,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.transaction.annotation.Transactional;
 import config.TestConfig;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@Transactional
 class PublicacionDAOHibernateJPATest {
 
     @Autowired
@@ -41,6 +43,7 @@ class PublicacionDAOHibernateJPATest {
         Publicacion updated = dao.save(p);
 
         Publicacion found = dao.findById(updated.getId()).orElse(null);
+        assertNotNull(found);
         assertEquals("Desc modificada", found.getDescripcion());
     }
 
