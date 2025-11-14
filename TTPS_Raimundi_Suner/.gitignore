@@ -36,3 +36,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Local configuration
+application-local.properties
+.env
+
+# Sensitive data - NO subir credenciales
+**/application.properties
+!**/application.properties.example
