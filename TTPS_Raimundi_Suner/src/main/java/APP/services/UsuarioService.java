@@ -9,12 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class UsuarioService {
 
     @Autowired
     private UsuarioDAO usuarioDAO;
 
+    @Transactional
     public Usuario registrarUsuario(Usuario usuario) {
         // Validar que el email no exista
         Usuario existente = usuarioDAO.findByEmail(usuario.getEmail()).orElse(null);
@@ -33,6 +33,7 @@ public class UsuarioService {
         return usuarioDAO.save(usuario);
     }
 
+    @Transactional
     public Usuario actualizarPerfil(Usuario usuario) {
         if (!usuarioDAO.existsById(usuario.getId())) {
             throw new IllegalArgumentException("Usuario no encontrado");

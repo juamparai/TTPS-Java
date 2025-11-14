@@ -10,12 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class MascotaService {
 
     @Autowired
     private MascotaDAO mascotaDAO;
 
+    @Transactional
     public Mascota crearMascota(Mascota mascota) {
         // Validaciones básicas
         if (mascota.getNombre() == null || mascota.getNombre().isEmpty()) {
@@ -24,6 +24,7 @@ public class MascotaService {
         return mascotaDAO.save(mascota);
     }
 
+    @Transactional
     public Mascota actualizarMascota(Mascota mascota) {
         if (!mascotaDAO.existsById(mascota.getId())) {
             throw new IllegalArgumentException("Mascota no encontrada");
@@ -31,6 +32,7 @@ public class MascotaService {
         return mascotaDAO.save(mascota);
     }
 
+    @Transactional
     public void eliminarMascota(Long id) {
         mascotaDAO.deleteById(id);
     }
@@ -77,6 +79,7 @@ public class MascotaService {
         return perdidas;
     }
 
+    @Transactional
     public void cambiarEstado(Long mascotaId, EstadoMascota nuevoEstado) {
         Mascota mascota = mascotaDAO.findById(mascotaId).orElse(null);
         if (mascota != null) {

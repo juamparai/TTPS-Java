@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@Transactional
 public class AvistamientoService {
 
     @Autowired
@@ -24,6 +23,7 @@ public class AvistamientoService {
     @Autowired
     private UsuarioDAO usuarioDAO;
 
+    @Transactional
     public Avistamiento crearAvistamiento(Avistamiento avistamiento) {
         // Validaciones
         if (avistamiento.getMascota() == null) {
@@ -39,6 +39,7 @@ public class AvistamientoService {
         return avistamientoDAO.save(avistamiento);
     }
 
+    @Transactional
     public Avistamiento actualizarAvistamiento(Avistamiento avistamiento) {
         if (!avistamientoDAO.existsById(avistamiento.getId())) {
             throw new IllegalArgumentException("Avistamiento no encontrado");
@@ -46,9 +47,11 @@ public class AvistamientoService {
         return avistamientoDAO.save(avistamiento);
     }
 
+    @Transactional
     public void eliminarAvistamiento(Long id) {
         avistamientoDAO.deleteById(id);
     }
+
 
     public Avistamiento obtenerPorId(Long id) {
         return avistamientoDAO.findById(id).orElse(null);

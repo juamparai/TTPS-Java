@@ -9,16 +9,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
+
 public class PublicacionService {
 
     @Autowired
     private PublicacionDAO publicacionDAO;
 
+    @Transactional
     public Publicacion crearPublicacion(Publicacion publicacion) {
         return publicacionDAO.save(publicacion);
     }
 
+    @Transactional
     public Publicacion actualizarPublicacion(Publicacion publicacion) {
         if (!publicacionDAO.existsById(publicacion.getId())) {
             throw new IllegalArgumentException("Publicación no encontrada");
@@ -26,6 +28,7 @@ public class PublicacionService {
         return publicacionDAO.save(publicacion);
     }
 
+    @Transactional
     public void eliminarPublicacion(Long id) {
         publicacionDAO.deleteById(id);
     }

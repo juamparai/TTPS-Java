@@ -12,6 +12,9 @@ target/
 *.iml
 *.ipr
 
+## Credenciales
+
+src/main/resources/application.properties
 ### Eclipse ###
 .apt_generated
 .classpath
