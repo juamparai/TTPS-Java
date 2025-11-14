@@ -1,5 +1,6 @@
 package APP.models.clases;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.awt.image.BufferedImage;
 import java.time.LocalDate;
@@ -19,10 +20,12 @@ public class Mascota {
     String descripcion;
     LocalDate fechaNac;
     @Transient
+    @JsonIgnore
     List<BufferedImage> fotos;
     @Enumerated(EnumType.STRING)
     EstadoMascota estadoMascota;
     @OneToMany(mappedBy = "mascota")
+    @JsonIgnore
     List<Avistamiento> avistamientos; //0 o mas
     @ManyToOne
     @JoinColumn(name = "usuario_id")

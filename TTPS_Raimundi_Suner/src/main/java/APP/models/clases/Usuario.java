@@ -1,5 +1,6 @@
 package APP.models.clases;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -19,13 +20,18 @@ public class Usuario {
     String telefono;//para saber +54 +51 etc
     String barrio;
     String ciudad;
-    Boolean estado;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean estado;
+
     int puntos;
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore
     List<Publicacion> publicaciones;
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore
     List<Mascota> mascotas;
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore
     List<Avistamiento> avistamientos; //0 o mas
     @ManyToMany
     @JoinTable(
@@ -33,6 +39,7 @@ public class Usuario {
         joinColumns = @JoinColumn(name = "usuario_id"),
         inverseJoinColumns = @JoinColumn(name = "badge_id")
     )
+    @JsonIgnore
     List<Badge> medallero;
 
     public Long getId() {

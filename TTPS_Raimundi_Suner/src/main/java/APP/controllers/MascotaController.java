@@ -1,8 +1,16 @@
 package APP.controllers;
 
+import APP.dto.MascotaDTO;
 import APP.models.clases.Mascota;
 import APP.models.clases.EstadoMascota;
+import APP.models.clases.Usuario;
 import APP.services.MascotaService;
+import APP.services.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Mascotas", description = "API para gestión de mascotas perdidas y encontradas")
 @RestController
 @RequestMapping("/api/mascotas")
 @CrossOrigin(origins = "*")
@@ -20,13 +29,41 @@ public class MascotaController {
     @Autowired
     private MascotaService mascotaService;
 
-    /**
-     * Crear una nueva mascota
-     * POST /api/mascotas
-     */
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Operation(summary = "Crear una nueva mascota",
+               description = "Registra una nueva mascota en el sistema. Usa usuarioId para asociarla a un usuario.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Mascota creada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos de la mascota inválidos"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping
-    public ResponseEntity<?> crearMascota(@RequestBody Mascota mascota) {
+    public ResponseEntity<?> crearMascota(@RequestBody MascotaDTO dto) {
         try {
+            Mascota mascota = new Mascota();
+            mascota.setNombre(dto.getNombre());
+            mascota.setTipo(dto.getTipo());
+            mascota.setRaza(dto.getRaza());
+            mascota.setColor(dto.getColor());
+            mascota.setTamanio(dto.getTamanio());
+            mascota.setDescripcion(dto.getDescripcion());
+
+            if (dto.getEstadoMascota() != null) {
+                mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+            }
+
+            if (dto.getUsuarioId() != null) {
+                Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
+                if (usuario == null) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+                mascota.setUsuario(usuario);
+            }
+
             Mascota nuevaMascota = mascotaService.crearMascota(mascota);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Mascota creada exitosamente");
@@ -35,22 +72,57 @@ public class MascotaController {
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
+            error.put("detalle", "Validación fallida");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error al crear mascota: " + e.getMessage());
+            error.put("tipo", e.getClass().getSimpleName());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
-    /**
-     * Editar una mascota existente
-     * PUT /api/mascotas/{id}
-     */
+    @Operation(summary = "Actualizar una mascota existente",
+               description = "Actualiza los datos de una mascota específica por su ID. Usa usuarioId para cambiar el propietario.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Mascota actualizada exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Mascota no encontrada"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> editarMascota(@PathVariable Long id, @RequestBody Mascota mascota) {
+    public ResponseEntity<?> editarMascota(
+            @Parameter(description = "ID de la mascota a actualizar") @PathVariable Long id,
+            @RequestBody MascotaDTO dto) {
         try {
-            mascota.setId(id);
+            Mascota mascota = mascotaService.obtenerPorId(id);
+            if (mascota == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Mascota no encontrada con ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            mascota.setNombre(dto.getNombre());
+            mascota.setTipo(dto.getTipo());
+            mascota.setRaza(dto.getRaza());
+            mascota.setColor(dto.getColor());
+            mascota.setTamanio(dto.getTamanio());
+            mascota.setDescripcion(dto.getDescripcion());
+
+            if (dto.getEstadoMascota() != null) {
+                mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+            }
+
+            if (dto.getUsuarioId() != null) {
+                Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
+                if (usuario == null) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+                mascota.setUsuario(usuario);
+            }
+
             Mascota mascotaActualizada = mascotaService.actualizarMascota(mascota);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Mascota actualizada exitosamente");
@@ -67,12 +139,15 @@ public class MascotaController {
         }
     }
 
-    /**
-     * Eliminar una mascota
-     * DELETE /api/mascotas/{id}
-     */
+    @Operation(summary = "Eliminar una mascota",
+               description = "Elimina permanentemente una mascota del sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Mascota eliminada exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarMascota(@PathVariable Long id) {
+    public ResponseEntity<?> eliminarMascota(
+            @Parameter(description = "ID de la mascota a eliminar") @PathVariable Long id) {
         try {
             mascotaService.eliminarMascota(id);
             Map<String, String> response = new HashMap<>();
@@ -85,12 +160,16 @@ public class MascotaController {
         }
     }
 
-    /**
-     * Obtener una mascota por ID
-     * GET /api/mascotas/{id}
-     */
+    @Operation(summary = "Obtener una mascota por ID",
+               description = "Recupera los detalles completos de una mascota específica")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Mascota encontrada"),
+        @ApiResponse(responseCode = "404", description = "Mascota no encontrada"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerMascota(@PathVariable Long id) {
+    public ResponseEntity<?> obtenerMascota(
+            @Parameter(description = "ID de la mascota") @PathVariable Long id) {
         try {
             Mascota mascota = mascotaService.obtenerPorId(id);
             if (mascota == null) {
@@ -106,12 +185,15 @@ public class MascotaController {
         }
     }
 
-    /**
-     * Listar mascotas de un usuario
-     * GET /api/mascotas/usuario/{usuarioId}
-     */
+    @Operation(summary = "Listar mascotas de un usuario",
+               description = "Obtiene todas las mascotas registradas por un usuario específico")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de mascotas obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<?> listarMascotasDeUsuario(@PathVariable Long usuarioId) {
+    public ResponseEntity<?> listarMascotasDeUsuario(
+            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
         try {
             List<Mascota> mascotas = mascotaService.obtenerPorUsuario(usuarioId);
             return ResponseEntity.ok(mascotas);
@@ -122,10 +204,12 @@ public class MascotaController {
         }
     }
 
-    /**
-     * Listar todas las mascotas perdidas
-     * GET /api/mascotas/perdidas
-     */
+    @Operation(summary = "Listar todas las mascotas perdidas",
+               description = "Obtiene todas las mascotas que están marcadas con estado PERDIDO")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de mascotas perdidas obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("/perdidas")
     public ResponseEntity<?> listarMascotasPerdidas() {
         try {
@@ -138,10 +222,12 @@ public class MascotaController {
         }
     }
 
-    /**
-     * Listar todas las mascotas
-     * GET /api/mascotas
-     */
+    @Operation(summary = "Listar todas las mascotas",
+               description = "Obtiene el listado completo de todas las mascotas registradas en el sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de mascotas obtenida exitosamente"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping
     public ResponseEntity<?> listarTodasLasMascotas() {
         try {

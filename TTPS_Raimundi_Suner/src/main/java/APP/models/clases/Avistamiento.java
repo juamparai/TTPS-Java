@@ -1,5 +1,6 @@
 package APP.models.clases;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.awt.image.BufferedImage;
@@ -15,6 +16,7 @@ public class Avistamiento {
     @Column(length = 1000)
     String comentario;
     @Transient
+    @JsonIgnore
     List<BufferedImage> fotos;
     @ManyToOne
     @JoinColumn(name = "mascota_id")
@@ -22,9 +24,9 @@ public class Avistamiento {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     Usuario usuario;
-    @ManyToOne
-    @JoinColumn(name = "ubicacion_id")
-    Ubicacion ubicacion;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "ubicacion_id", referencedColumnName = "id")
+    private Ubicacion ubicacion;
 
     public Long getId() {
         return id;

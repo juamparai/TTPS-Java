@@ -2,6 +2,11 @@ package APP.controllers;
 
 import APP.models.clases.Usuario;
 import APP.services.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Usuarios", description = "API para gestión de usuarios del sistema")
 @RestController
 @RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
@@ -19,11 +25,14 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    /**
-     * Registración de Usuario
-     * POST /api/usuarios/registro
-     */
-    @PostMapping("/registro")
+    @Operation(summary = "Registrar un nuevo usuario",
+               description = "Crea una cuenta de usuario nueva en el sistema")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos del usuario inválidos"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PostMapping(value = "/registro", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
             Usuario nuevoUsuario = usuarioService.registrarUsuario(usuario);
@@ -42,10 +51,14 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Login del sistema
-     * POST /api/usuarios/login
-     */
+    @Operation(summary = "Iniciar sesión",
+               description = "Autentica un usuario con email y contraseña")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Login exitoso"),
+        @ApiResponse(responseCode = "400", description = "Credenciales faltantes"),
+        @ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
@@ -74,12 +87,17 @@ public class UsuarioController {
         }
     }
 
-    /**
-     * Edición del Perfil de un Usuario
-     * PUT /api/usuarios/{id}
-     */
+    @Operation(summary = "Actualizar perfil de usuario",
+               description = "Actualiza los datos del perfil de un usuario existente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Perfil actualizado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarPerfil(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<?> actualizarPerfil(
+            @Parameter(description = "ID del usuario") @PathVariable Long id,
+            @RequestBody Usuario usuario) {
         try {
             usuario.setId(id);
             Usuario usuarioActualizado = usuarioService.actualizarPerfil(usuario);

@@ -23,7 +23,7 @@ public class UsuarioService {
         }
 
         // Inicializar valores por defecto
-        if (usuario.getPuntos() == 0) {
+        if (usuario.getPuntos() == 0 || usuario.getPuntos() < 0) {
             usuario.setPuntos(0);
         }
         if (usuario.getEstado() == null) {

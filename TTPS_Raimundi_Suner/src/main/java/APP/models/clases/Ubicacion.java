@@ -8,6 +8,7 @@ public class Ubicacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String barrio;
+    String direccion;
     double lat;
     double lng;
 
@@ -25,6 +26,14 @@ public class Ubicacion {
 
     public void setBarrio(String barrio) {
         this.barrio = barrio;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public double getLat() {
