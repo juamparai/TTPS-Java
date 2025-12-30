@@ -48,11 +48,26 @@ public class AvistamientoController {
     @PostMapping
     public ResponseEntity<?> crearAvistamiento(@RequestBody AvistamientoDTO dto) {
         try {
-            Avistamiento avistamiento = new Avistamiento();
-            avistamiento.setComentario(dto.getComentario());
+            if (dto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (AvistamientoDTO) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
 
             if (dto.getFecha() != null) {
-                avistamiento.setFecha(LocalDate.parse(dto.getFecha()));
+                try {
+                    LocalDate.parse(dto.getFecha());
+                } catch (Exception ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de fecha inválido: " + dto.getFecha());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getMascotaId() != null && dto.getMascotaId() <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "mascotaId debe ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
             if (dto.getMascotaId() != null) {
@@ -62,7 +77,12 @@ public class AvistamientoController {
                     error.put("error", "Mascota no encontrada con ID: " + dto.getMascotaId());
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
-                avistamiento.setMascota(mascota);
+            }
+
+            if (dto.getUsuarioId() != null && dto.getUsuarioId() <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "usuarioId debe ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
             if (dto.getUsuarioId() != null) {
@@ -72,6 +92,37 @@ public class AvistamientoController {
                     error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
+            }
+
+            if (dto.getUbicacion() != null) {
+                Double lat = dto.getUbicacion().getLat();
+                Double lng = dto.getUbicacion().getLng();
+                if (lat == null || lng == null) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Latitud y longitud de la ubicacion son requeridas");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+                if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Coordenadas inválidas");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            Avistamiento avistamiento = new Avistamiento();
+            avistamiento.setComentario(dto.getComentario());
+
+            if (dto.getFecha() != null) {
+                avistamiento.setFecha(LocalDate.parse(dto.getFecha()));
+            }
+
+            if (dto.getMascotaId() != null) {
+                Mascota mascota = mascotaService.obtenerPorId(dto.getMascotaId());
+                avistamiento.setMascota(mascota);
+            }
+
+            if (dto.getUsuarioId() != null) {
+                Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
                 avistamiento.setUsuario(usuario);
             }
 
@@ -130,6 +181,11 @@ public class AvistamientoController {
     public ResponseEntity<?> obtenerAvistamiento(
             @Parameter(description = "ID del avistamiento") @PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de avistamiento inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             Avistamiento avistamiento = avistamientoService.obtenerPorId(id);
             if (avistamiento == null) {
                 Map<String, String> error = new HashMap<>();
@@ -154,6 +210,11 @@ public class AvistamientoController {
     public ResponseEntity<?> listarAvistamientosDeMascota(
             @Parameter(description = "ID de la mascota") @PathVariable Long mascotaId) {
         try {
+            if (mascotaId == null || mascotaId <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de mascota inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             List<Avistamiento> avistamientos = avistamientoService.obtenerPorMascota(mascotaId);
             return ResponseEntity.ok(avistamientos);
         } catch (Exception e) {
@@ -170,6 +231,11 @@ public class AvistamientoController {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<?> listarAvistamientosDeUsuario(@PathVariable Long usuarioId) {
         try {
+            if (usuarioId == null || usuarioId <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             List<Avistamiento> avistamientos = avistamientoService.obtenerPorUsuario(usuarioId);
             return ResponseEntity.ok(avistamientos);
         } catch (Exception e) {
@@ -186,6 +252,11 @@ public class AvistamientoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarAvistamiento(@PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de avistamiento inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             avistamientoService.eliminarAvistamiento(id);
             Map<String, String> response = new HashMap<>();
             response.put("mensaje", "Avistamiento eliminado exitosamente");
@@ -197,4 +268,3 @@ public class AvistamientoController {
         }
     }
 }
-

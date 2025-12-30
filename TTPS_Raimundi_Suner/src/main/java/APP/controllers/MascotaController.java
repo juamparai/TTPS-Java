@@ -42,6 +42,24 @@ public class MascotaController {
     @PostMapping
     public ResponseEntity<?> crearMascota(@RequestBody MascotaDTO dto) {
         try {
+            if (dto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (MascotaDTO) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "El nombre de la mascota es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getUsuarioId() != null && dto.getUsuarioId() <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "usuarioId debe ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Mascota mascota = new Mascota();
             mascota.setNombre(dto.getNombre());
             mascota.setTipo(dto.getTipo());
@@ -49,9 +67,16 @@ public class MascotaController {
             mascota.setColor(dto.getColor());
             mascota.setTamanio(dto.getTamanio());
             mascota.setDescripcion(dto.getDescripcion());
+            mascota.setFechaNac(dto.getFechaNac());
 
             if (dto.getEstadoMascota() != null) {
-                mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+                try {
+                    mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+                } catch (IllegalArgumentException ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "estadoMascota inválido: " + dto.getEstadoMascota());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
             }
 
             if (dto.getUsuarioId() != null) {
@@ -75,7 +100,6 @@ public class MascotaController {
             error.put("detalle", "Validación fallida");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
-            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error al crear mascota: " + e.getMessage());
             error.put("tipo", e.getClass().getSimpleName());
@@ -95,11 +119,29 @@ public class MascotaController {
             @Parameter(description = "ID de la mascota a actualizar") @PathVariable Long id,
             @RequestBody MascotaDTO dto) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de mascota inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (MascotaDTO) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Mascota mascota = mascotaService.obtenerPorId(id);
             if (mascota == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Mascota no encontrada con ID: " + id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "El nombre de la mascota es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
             mascota.setNombre(dto.getNombre());
@@ -110,10 +152,21 @@ public class MascotaController {
             mascota.setDescripcion(dto.getDescripcion());
 
             if (dto.getEstadoMascota() != null) {
-                mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+                try {
+                    mascota.setEstadoMascota(EstadoMascota.valueOf(dto.getEstadoMascota()));
+                } catch (IllegalArgumentException ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "estadoMascota inválido: " + dto.getEstadoMascota());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
             }
 
             if (dto.getUsuarioId() != null) {
+                if (dto.getUsuarioId() <= 0) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "usuarioId debe ser un número positivo");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
                 Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
                 if (usuario == null) {
                     Map<String, String> error = new HashMap<>();
@@ -149,6 +202,12 @@ public class MascotaController {
     public ResponseEntity<?> eliminarMascota(
             @Parameter(description = "ID de la mascota a eliminar") @PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de mascota inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             mascotaService.eliminarMascota(id);
             Map<String, String> response = new HashMap<>();
             response.put("mensaje", "Mascota eliminada exitosamente");
@@ -171,6 +230,11 @@ public class MascotaController {
     public ResponseEntity<?> obtenerMascota(
             @Parameter(description = "ID de la mascota") @PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de mascota inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             Mascota mascota = mascotaService.obtenerPorId(id);
             if (mascota == null) {
                 Map<String, String> error = new HashMap<>();
@@ -195,6 +259,11 @@ public class MascotaController {
     public ResponseEntity<?> listarMascotasDeUsuario(
             @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
         try {
+            if (usuarioId == null || usuarioId <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             List<Mascota> mascotas = mascotaService.obtenerPorUsuario(usuarioId);
             return ResponseEntity.ok(mascotas);
         } catch (Exception e) {
@@ -247,6 +316,18 @@ public class MascotaController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<?> cambiarEstado(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de mascota inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (body == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             String estadoStr = body.get("estado");
             if (estadoStr == null) {
                 Map<String, String> error = new HashMap<>();
@@ -254,7 +335,15 @@ public class MascotaController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
-            EstadoMascota estado = EstadoMascota.valueOf(estadoStr);
+            EstadoMascota estado;
+            try {
+                estado = EstadoMascota.valueOf(estadoStr);
+            } catch (IllegalArgumentException ex) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Estado inválido: " + estadoStr);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             mascotaService.cambiarEstado(id, estado);
 
             Map<String, String> response = new HashMap<>();
@@ -271,4 +360,3 @@ public class MascotaController {
         }
     }
 }
-

@@ -18,7 +18,8 @@ public class MascotaService {
     @Transactional
     public Mascota crearMascota(Mascota mascota) {
         // Validaciones básicas
-        if (mascota.getNombre() == null || mascota.getNombre().isEmpty()) {
+        if (
+                mascota.getNombre() == null || mascota.getNombre().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la mascota es requerido");
         }
         return mascotaDAO.save(mascota);

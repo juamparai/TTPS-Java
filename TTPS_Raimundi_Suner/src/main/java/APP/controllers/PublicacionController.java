@@ -48,6 +48,72 @@ public class PublicacionController {
     @PostMapping
     public ResponseEntity<?> crearPublicacion(@RequestBody PublicacionDTO dto) {
         try {
+            if (dto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (PublicacionDTO) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getFecha() != null) {
+                try {
+                    LocalDate.parse(dto.getFecha());
+                } catch (Exception ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de fecha inválido: " + dto.getFecha());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getFechaCierre() != null) {
+                try {
+                    LocalDate.parse(dto.getFechaCierre());
+                } catch (Exception ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de fechaCierre inválido: " + dto.getFechaCierre());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getEstadoPublicacion() != null) {
+                try {
+                    EstadoPublicacion.valueOf(dto.getEstadoPublicacion());
+                } catch (IllegalArgumentException ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "estadoPublicacion inválido: " + dto.getEstadoPublicacion());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getMascotaId() != null && dto.getMascotaId() <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "mascotaId debe ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getMascotaId() != null) {
+                Mascota mascota = mascotaService.obtenerPorId(dto.getMascotaId());
+                if (mascota == null) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Mascota no encontrada con ID: " + dto.getMascotaId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getUsuarioId() != null && dto.getUsuarioId() <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "usuarioId debe ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto.getUsuarioId() != null) {
+                Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
+                if (usuario == null) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
             Publicacion publicacion = new Publicacion();
             publicacion.setDescripcion(dto.getDescripcion());
 
@@ -65,21 +131,11 @@ public class PublicacionController {
 
             if (dto.getMascotaId() != null) {
                 Mascota mascota = mascotaService.obtenerPorId(dto.getMascotaId());
-                if (mascota == null) {
-                    Map<String, String> error = new HashMap<>();
-                    error.put("error", "Mascota no encontrada con ID: " + dto.getMascotaId());
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-                }
                 publicacion.setMascota(mascota);
             }
 
             if (dto.getUsuarioId() != null) {
                 Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
-                if (usuario == null) {
-                    Map<String, String> error = new HashMap<>();
-                    error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-                }
                 publicacion.setUsuario(usuario);
             }
 
@@ -103,11 +159,53 @@ public class PublicacionController {
             @Parameter(description = "ID de la publicación") @PathVariable Long id,
             @RequestBody PublicacionDTO dto) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de publicación inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (dto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (PublicacionDTO) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Publicacion publicacion = publicacionService.obtenerPorId(id);
             if (publicacion == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Publicación no encontrada con ID: " + id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            if (dto.getFecha() != null) {
+                try {
+                    LocalDate.parse(dto.getFecha());
+                } catch (Exception ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de fecha inválido: " + dto.getFecha());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getFechaCierre() != null) {
+                try {
+                    LocalDate.parse(dto.getFechaCierre());
+                } catch (Exception ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de fechaCierre inválido: " + dto.getFechaCierre());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (dto.getEstadoPublicacion() != null) {
+                try {
+                    publicacion.setEstadoPublicacion(EstadoPublicacion.valueOf(dto.getEstadoPublicacion()));
+                } catch (IllegalArgumentException ex) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "estadoPublicacion inválido: " + dto.getEstadoPublicacion());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
             }
 
             publicacion.setDescripcion(dto.getDescripcion());
@@ -120,21 +218,35 @@ public class PublicacionController {
                 publicacion.setFechaCierre(LocalDate.parse(dto.getFechaCierre()));
             }
 
-            if (dto.getEstadoPublicacion() != null) {
-                publicacion.setEstadoPublicacion(EstadoPublicacion.valueOf(dto.getEstadoPublicacion()));
-            }
-
             if (dto.getMascotaId() != null) {
+                if (dto.getMascotaId() <= 0) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "mascotaId debe ser un número positivo");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
                 Mascota mascota = mascotaService.obtenerPorId(dto.getMascotaId());
                 if (mascota != null) {
                     publicacion.setMascota(mascota);
+                } else {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Mascota no encontrada con ID: " + dto.getMascotaId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
             }
 
             if (dto.getUsuarioId() != null) {
+                if (dto.getUsuarioId() <= 0) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "usuarioId debe ser un número positivo");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
                 Usuario usuario = usuarioService.obtenerPorId(dto.getUsuarioId());
                 if (usuario != null) {
                     publicacion.setUsuario(usuario);
+                } else {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Usuario no encontrado con ID: " + dto.getUsuarioId());
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
             }
 
@@ -154,6 +266,12 @@ public class PublicacionController {
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPublicacion(@Parameter(description = "ID de la publicación") @PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de publicación inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Publicacion publicacion = publicacionService.obtenerPorId(id);
             if (publicacion == null) {
                 Map<String, String> error = new HashMap<>();
@@ -185,6 +303,11 @@ public class PublicacionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarPublicacion(@Parameter(description = "ID de la publicación") @PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de publicación inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
             publicacionService.eliminarPublicacion(id);
             Map<String, String> response = new HashMap<>();
             response.put("mensaje", "Publicación eliminada exitosamente");
@@ -196,4 +319,3 @@ public class PublicacionController {
         }
     }
 }
-

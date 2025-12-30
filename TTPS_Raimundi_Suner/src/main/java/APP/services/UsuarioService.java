@@ -38,6 +38,19 @@ public class UsuarioService {
         if (!usuarioDAO.existsById(usuario.getId())) {
             throw new IllegalArgumentException("Usuario no encontrado");
         }
+
+        // Validación: si se proporciona un email nuevo, asegurar que no esté en uso por otro usuario
+        String nuevoEmail = usuario.getEmail();
+        if (nuevoEmail != null) {
+            nuevoEmail = nuevoEmail.trim();
+            if (!nuevoEmail.isEmpty()) {
+                Usuario existente = usuarioDAO.findByEmail(nuevoEmail).orElse(null);
+                if (existente != null && !existente.getId().equals(usuario.getId())) {
+                    throw new IllegalArgumentException("El email ya está registrado por otro usuario");
+                }
+            }
+        }
+
         return usuarioDAO.save(usuario);
     }
 

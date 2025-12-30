@@ -1,5 +1,7 @@
 package APP.dto;
 
+import java.time.LocalDate;
+
 public class MascotaDTO {
     private String nombre;
     private String tipo;
@@ -7,6 +9,7 @@ public class MascotaDTO {
     private String color;
     private String tamanio;
     private String descripcion;
+    private LocalDate fechaNac;
     private String estadoMascota;
     private Long usuarioId;
 
@@ -57,6 +60,12 @@ public class MascotaDTO {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public LocalDate getFechaNac() { return fechaNac; }
+
+    public void setFechaNac(LocalDate fechaNac) {
+        this.fechaNac = fechaNac;
     }
 
     public String getEstadoMascota() {

@@ -1,5 +1,6 @@
 package APP.controllers;
 
+import APP.dto.UsuarioDTO;
 import APP.models.clases.Usuario;
 import APP.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Tag(name = "Usuarios", description = "API para gestión de usuarios del sistema")
 @RestController
@@ -33,12 +35,36 @@ public class UsuarioController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping(value = "/registro", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> registrarUsuario(@RequestBody UsuarioDTO usuarioDto) {
         try {
-            Usuario nuevoUsuario = usuarioService.registrarUsuario(usuario);
+            if (usuarioDto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (Usuario) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            // Validaciones de formato únicamente (el resto lo maneja el service)
+            if (usuarioDto.getEmail() != null) {
+                String email = usuarioDto.getEmail().trim();
+                if (!email.contains("@") || !email.contains(".")) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de email inválido");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Formato de password inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Usuario usuarioEntity = usuarioDto.toUsuario();
+            Usuario nuevoUsuario = usuarioService.registrarUsuario(usuarioEntity);
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Usuario registrado exitosamente");
-            response.put("usuario", nuevoUsuario);
+            response.put("usuario", UsuarioDTO.fromUsuario(nuevoUsuario));
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -60,21 +86,38 @@ public class UsuarioController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
+    public ResponseEntity<?> login(@RequestBody UsuarioDTO credentials) {
         try {
-            String email = credentials.get("email");
-            String password = credentials.get("password");
-
-            if (email == null || password == null) {
+            if (credentials == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Email y password son requeridos");
+                error.put("error", "Cuerpo de la petición (credentials) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            String email = credentials.getEmail();
+            String password = credentials.getPassword();
+
+            // Validaciones de formato únicamente
+            if (email != null) {
+                email = email.trim();
+                if (!email.contains("@") || !email.contains(".")) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de email inválido");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (password != null && password.trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Formato de password inválido");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
             Usuario usuario = usuarioService.autenticar(email, password);
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Login exitoso");
-            response.put("usuario", usuario);
+            response.put("usuario", UsuarioDTO.fromUsuario(usuario));
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -97,13 +140,43 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarPerfil(
             @Parameter(description = "ID del usuario") @PathVariable Long id,
-            @RequestBody Usuario usuario) {
+            @RequestBody UsuarioDTO usuarioDto) {
         try {
-            usuario.setId(id);
-            Usuario usuarioActualizado = usuarioService.actualizarPerfil(usuario);
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (usuarioDto == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición (Usuario) es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            usuarioDto.setId(id);
+
+            // Solo validaciones de formato (el service aplicará el resto)
+            if (usuarioDto.getEmail() != null) {
+                String email = usuarioDto.getEmail().trim();
+                if (!email.contains("@") || !email.contains(".")) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Formato de email inválido");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
+            }
+
+            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Formato de password inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Usuario usuarioEntity = usuarioDto.toUsuario();
+            Usuario usuarioActualizado = usuarioService.actualizarPerfil(usuarioEntity);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Perfil actualizado exitosamente");
-            response.put("usuario", usuarioActualizado);
+            response.put("usuario", UsuarioDTO.fromUsuario(usuarioActualizado));
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -123,13 +196,19 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerUsuario(@PathVariable Long id) {
         try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
             Usuario usuario = usuarioService.obtenerPorId(id);
             if (usuario == null) {
                 Map<String, String> error = new HashMap<>();
                 error.put("error", "Usuario no encontrado");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
             }
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok(UsuarioDTO.fromUsuario(usuario));
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error al obtener usuario: " + e.getMessage());
@@ -145,7 +224,8 @@ public class UsuarioController {
     public ResponseEntity<?> listarUsuarios() {
         try {
             List<Usuario> usuarios = usuarioService.obtenerTodos();
-            return ResponseEntity.ok(usuarios);
+            List<UsuarioDTO> dtos = usuarios.stream().map(UsuarioDTO::fromUsuario).collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error al listar usuarios: " + e.getMessage());
@@ -161,7 +241,8 @@ public class UsuarioController {
     public ResponseEntity<?> obtenerRanking() {
         try {
             List<Usuario> ranking = usuarioService.obtenerPorPuntos();
-            return ResponseEntity.ok(ranking);
+            List<UsuarioDTO> dtos = ranking.stream().map(UsuarioDTO::fromUsuario).collect(Collectors.toList());
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Error al obtener ranking: " + e.getMessage());
@@ -169,4 +250,3 @@ public class UsuarioController {
         }
     }
 }
-
