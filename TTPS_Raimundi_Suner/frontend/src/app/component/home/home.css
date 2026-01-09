@@ -1,0 +1,14 @@
+.home {
+	padding: 2rem 0;
+}
+
+.home__title {
+	margin: 0;
+	font-size: 2rem;
+	letter-spacing: -0.02em;
+}
+
+.home__subtitle {
+	margin: 0.5rem 0 0;
+	color: #3b4341;
+}

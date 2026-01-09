@@ -1,0 +1,111 @@
+/* Nature-inspired green + gray */
+:host {
+	--nb-forest-900: #0b2a1a;
+	--nb-forest-800: #103623;
+	--nb-forest-700: #165036;
+	--nb-sage-100: #e9f1ed;
+	--nb-stone-50: #f6f7f7;
+	--nb-stone-200: #d7dbda;
+	--nb-stone-700: #3b4341;
+	display: block;
+}
+
+.navbar {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background: linear-gradient(90deg, var(--nb-forest-900), var(--nb-forest-800));
+	border-bottom: 1px solid color-mix(in srgb, var(--nb-stone-200) 40%, transparent);
+}
+
+.navbar__inner {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 0.75rem 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.brand {
+	min-width: 0;
+	flex: 1;
+	display: flex;
+	justify-content: center;
+}
+
+.brand__title {
+	color: var(--nb-sage-100);
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.icon-btn {
+	width: 42px;
+	height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
+	background: color-mix(in srgb, var(--nb-stone-50) 6%, transparent);
+	color: var(--nb-sage-100);
+}
+
+.icon-btn:hover {
+	background: color-mix(in srgb, var(--nb-stone-50) 12%, transparent);
+}
+
+.icon-btn:focus-visible,
+.btn:focus-visible {
+	outline: 2px solid color-mix(in srgb, var(--nb-sage-100) 55%, transparent);
+	outline-offset: 2px;
+}
+
+.hamburger {
+	width: 18px;
+	height: 14px;
+	display: inline-flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.hamburger span {
+	height: 2px;
+	width: 100%;
+	background: var(--nb-sage-100);
+	border-radius: 999px;
+}
+
+.btn {
+	padding: 0.6rem 0.9rem;
+	border-radius: 999px;
+	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
+	background: color-mix(in srgb, var(--nb-stone-50) 10%, transparent);
+	color: var(--nb-sage-100);
+	font-weight: 600;
+}
+
+.btn:hover {
+	background: color-mix(in srgb, var(--nb-stone-50) 16%, transparent);
+}
+
+@media (max-width: 520px) {
+	.brand {
+		justify-content: flex-start;
+	}
+
+	.brand__title {
+		font-size: 0.95rem;
+	}
+
+	.btn {
+		padding: 0.55rem 0.75rem;
+		font-size: 0.9rem;
+	}
+}
