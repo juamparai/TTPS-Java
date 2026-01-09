@@ -1,0 +1,12 @@
+package APP.models.dao;
+
+import APP.models.clases.Badge;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface BadgeDAO extends JpaRepository<Badge, Long> {
+    Optional<Badge> findByNombre(String nombre);
+}
