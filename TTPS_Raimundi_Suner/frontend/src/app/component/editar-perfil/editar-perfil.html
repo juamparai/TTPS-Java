@@ -1,0 +1,203 @@
+<main class="page">
+  <section class="card" aria-label="Editar Perfil">
+    <h1 class="title">Editar Perfil</h1>
+
+    <form class="form" (ngSubmit)="submit()" [formGroup]="form">
+      <div class="grid">
+        <label class="field">
+          <span class="label">Nombre</span>
+          <input class="input" type="text" autocomplete="given-name" formControlName="nombre" />
+          @if ((submitted || form.controls.nombre.touched) && form.controls.nombre.invalid) {
+            @if (form.controls.nombre.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.nombre.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+
+        <label class="field">
+          <span class="label">Apellido</span>
+          <input class="input" type="text" autocomplete="family-name" formControlName="apellido" />
+          @if ((submitted || form.controls.apellido.touched) && form.controls.apellido.invalid) {
+            @if (form.controls.apellido.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.apellido.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Email</span>
+        <input
+          class="input"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          placeholder="tuemail@dominio.com"
+          formControlName="email"
+        />
+        @if ((submitted || form.controls.email.touched) && form.controls.email.invalid) {
+          @if (form.controls.email.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.email.errors?.['server'] }}</span>
+          }
+          @if (form.controls.email.errors?.['required']) {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+          @if (form.controls.email.errors?.['pattern']) {
+            <span class="hint error-hint">Debe tener formato correo{{'@'}}dominio.com</span>
+          }
+        }
+      </label>
+
+      <div class="grid">
+        <label class="field">
+          <span class="label">Teléfono</span>
+          <input
+            class="input"
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="tel"
+            placeholder="Ej: 1144445555"
+            formControlName="telefono"
+            (input)="sanitizeTelefono()"
+          />
+          @if ((submitted || form.controls.telefono.touched) && form.controls.telefono.invalid) {
+            @if (form.controls.telefono.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.telefono.errors?.['server'] }}</span>
+            }
+            @if (form.controls.telefono.errors?.['pattern']) {
+              <span class="hint error-hint">Solo números</span>
+            }
+            @if (form.controls.telefono.errors?.['required']) {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+
+        <label class="field">
+          <span class="label">Provincia</span>
+          <select class="input" formControlName="provincia">
+            <option value="">
+              @if (loadingProvincias()) {
+                Cargando provincias...
+              } @else {
+                Seleccioná una provincia
+              }
+            </option>
+            @for (provincia of provincias(); track provincia.id) {
+              <option [value]="provincia.id">{{ provincia.nombre }}</option>
+            }
+          </select>
+          @if ((submitted || form.controls.provincia.touched) && form.controls.provincia.invalid) {
+            @if (form.controls.provincia.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.provincia.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Ciudad / Departamento</span>
+        <select
+          class="input"
+          formControlName="ciudad"
+          [disabled]="!form.controls.provincia.value || loadingDepartamentos()"
+        >
+          <option value="">
+            @if (!form.controls.provincia.value) {
+              Primero seleccioná una provincia
+            } @else if (loadingDepartamentos()) {
+              Cargando departamentos...
+            } @else if (departamentos().length === 0) {
+              No hay departamentos disponibles
+            } @else {
+              Seleccioná un departamento
+            }
+          </option>
+          @for (depto of departamentos(); track depto.id) {
+            <option [value]="depto.nombre">{{ depto.nombre }}</option>
+          }
+        </select>
+        @if ((submitted || form.controls.ciudad.touched) && form.controls.ciudad.invalid) {
+          @if (form.controls.ciudad.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.ciudad.errors?.['server'] }}</span>
+          } @else {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+        }
+      </label>
+
+      <label class="field">
+        <span class="label">Barrio / Localidad</span>
+        <select
+          class="input"
+          formControlName="barrio"
+          [disabled]="!form.controls.ciudad.value || loadingLocalidades()"
+        >
+          <option value="">
+            @if (!form.controls.ciudad.value) {
+              Primero seleccioná un departamento
+            } @else if (loadingLocalidades()) {
+              Cargando localidades...
+            } @else if (localidades().length === 0) {
+              No hay localidades disponibles
+            } @else {
+              Seleccioná una localidad
+            }
+          </option>
+          @for (localidad of localidades(); track localidad.id) {
+            <option [value]="localidad.nombre">{{ localidad.nombre }}</option>
+          }
+        </select>
+        @if ((submitted || form.controls.barrio.touched) && form.controls.barrio.invalid) {
+          @if (form.controls.barrio.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.barrio.errors?.['server'] }}</span>
+          } @else {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+        }
+      </label>
+
+      @if (errorMsg) {
+        <p class="error">{{ errorMsg }}</p>
+      }
+
+      <div class="actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancelar()"
+          [disabled]="loading"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner"></span>
+            Guardando...
+          } @else {
+            Guardar Cambios
+          }
+        </button>
+      </div>
+    </form>
+
+    <button
+      type="button"
+      class="btn btn-link"
+      (click)="cambiarPassword()"
+    >
+      Cambiar contraseña
+    </button>
+  </section>
+</main>

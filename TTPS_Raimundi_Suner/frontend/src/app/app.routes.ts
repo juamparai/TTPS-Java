@@ -3,6 +3,9 @@ import { Home } from './component/home/home';
 import { Login } from './component/login/login';
 import { Registro } from './component/registro/registro';
 import { CrearPublicacion } from './component/crear-publicacion/crear-publicacion';
+import { Perfil } from './component/perfil/perfil';
+import { EditarPerfil } from './component/editar-perfil/editar-perfil';
+import { CambiarPassword } from './component/cambiar-password/cambiar-password';
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 
 export const routes: Routes = [
@@ -10,4 +13,7 @@ export const routes: Routes = [
     { path: 'login', component: Login, canActivate: [authRedirectGuard] },
     { path: 'registro', component: Registro, canActivate: [authRedirectGuard] },
     { path: 'publicaciones/crear', component: CrearPublicacion },
+    { path: 'perfil', component: Perfil },
+    { path: 'perfil/editar', component: EditarPerfil },
+    { path: 'cambiar-password', component: CambiarPassword },
 ];

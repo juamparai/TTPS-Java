@@ -84,7 +84,7 @@ export class AuthService {
     return this.currentUser();
   }
 
-  private setCurrentUser(user: UsuarioDTO): void {
+  setCurrentUser(user: UsuarioDTO): void {
     this.currentUser.set(user);
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('currentUser', JSON.stringify(user));

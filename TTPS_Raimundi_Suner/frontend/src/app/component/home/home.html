@@ -101,17 +101,17 @@
 	@if (loading()) {
 		<div class="home__loading">
 			<i class="fa-solid fa-spinner fa-spin"></i>
-			<p>Cargando mascotas...</p>
+			<p>Cargando publicaciones...</p>
 		</div>
-	} @else if (mascotasFiltradas().length === 0) {
+	} @else if (publicacionesFiltradas().length === 0) {
 		<div class="home__empty">
 			<i class="fa-solid fa-paw"></i>
-			<p>No hay mascotas que coincidan con los filtros seleccionados</p>
+			<p>No hay publicaciones que coincidan con los filtros seleccionados</p>
 		</div>
 	} @else {
 		<div class="home__grid">
-			@for (mascota of mascotasFiltradas(); track mascota.id) {
-				<app-mascota-card [mascota]="mascota"></app-mascota-card>
+			@for (publicacion of publicacionesFiltradas(); track publicacion.id) {
+				<app-publicacion-card [publicacion]="publicacion"></app-publicacion-card>
 			}
 		</div>
 	}

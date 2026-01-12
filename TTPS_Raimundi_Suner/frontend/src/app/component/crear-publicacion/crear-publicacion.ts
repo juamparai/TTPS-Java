@@ -28,7 +28,6 @@ export class CrearPublicacion implements OnInit {
   readonly submitted = signal(false);
   readonly loading = signal(false);
 
-  // Opciones para los dropdowns
   readonly estadosPublicacion = ['ACTIVA', 'FINALIZADA', 'CANCELADA'];
 
   readonly provincias = signal<Provincia[]>([]);
@@ -50,6 +49,15 @@ export class CrearPublicacion implements OnInit {
       estadoPublicacion: ['ACTIVA', Validators.required],
       esMascotaExistente: [false],
       mascotaId: [{ value: '', disabled: true }],
+      // Campos para nueva mascota
+      nuevaMascotaTipo: [{ value: '', disabled: true }],
+      nuevaMascotaColor: [{ value: '', disabled: true }],
+      nuevaMascotaDescripcion: [{ value: '', disabled: true }],
+      nuevaMascotaEsPropia: [{ value: false, disabled: true }],
+      nuevaMascotaNombre: [{ value: '', disabled: true }],
+      nuevaMascotaRaza: [{ value: '', disabled: true }],
+      nuevaMascotaTamanio: [{ value: '', disabled: true }],
+      // Ubicación
       provinciaId: ['', Validators.required],
       departamentoId: ['', Validators.required],
       localidadId: ['', Validators.required],
@@ -58,21 +66,77 @@ export class CrearPublicacion implements OnInit {
       usuarioId: [currentUser?.id || null, Validators.required],
     });
 
-    // Manejar el toggle del switch
     this.form.get('esMascotaExistente')?.valueChanges.subscribe((value) => {
       const mascotaControl = this.form.get('mascotaId');
+      const tipoControl = this.form.get('nuevaMascotaTipo');
+      const colorControl = this.form.get('nuevaMascotaColor');
+      const descripcionMascotaControl = this.form.get('nuevaMascotaDescripcion');
+      const esPropiaControl = this.form.get('nuevaMascotaEsPropia');
+      const nombreControl = this.form.get('nuevaMascotaNombre');
+      const razaControl = this.form.get('nuevaMascotaRaza');
+      const tamanioControl = this.form.get('nuevaMascotaTamanio');
+
       if (value) {
+        // Es mascota existente
         mascotaControl?.enable();
         mascotaControl?.setValidators(Validators.required);
+
+        // Deshabilitar campos de nueva mascota
+        tipoControl?.disable();
+        tipoControl?.clearValidators();
+        colorControl?.disable();
+        colorControl?.clearValidators();
+        descripcionMascotaControl?.disable();
+        descripcionMascotaControl?.clearValidators();
+        esPropiaControl?.disable();
+        nombreControl?.disable();
+        nombreControl?.clearValidators();
+        razaControl?.disable();
+        tamanioControl?.disable();
+        tamanioControl?.clearValidators();
       } else {
+        // Es mascota nueva
         mascotaControl?.disable();
         mascotaControl?.clearValidators();
         mascotaControl?.setValue('');
+
+        // Habilitar campos de nueva mascota
+        tipoControl?.enable();
+        tipoControl?.setValidators(Validators.required);
+        colorControl?.enable();
+        colorControl?.setValidators(Validators.required);
+        descripcionMascotaControl?.enable();
+        descripcionMascotaControl?.setValidators([Validators.required, Validators.minLength(5)]);
+        esPropiaControl?.enable();
+        razaControl?.enable();
+        tamanioControl?.enable();
+        tamanioControl?.setValidators(Validators.required);
       }
+
       mascotaControl?.updateValueAndValidity();
+      tipoControl?.updateValueAndValidity();
+      colorControl?.updateValueAndValidity();
+      descripcionMascotaControl?.updateValueAndValidity();
+      esPropiaControl?.updateValueAndValidity();
+      nombreControl?.updateValueAndValidity();
+      razaControl?.updateValueAndValidity();
+      tamanioControl?.updateValueAndValidity();
     });
 
-    // Manejar cambios en provincia
+    // Manejar el toggle de "es propia"
+    this.form.get('nuevaMascotaEsPropia')?.valueChanges.subscribe((value) => {
+      const nombreControl = this.form.get('nuevaMascotaNombre');
+      if (value) {
+        nombreControl?.enable();
+        nombreControl?.setValidators(Validators.required);
+      } else {
+        nombreControl?.disable();
+        nombreControl?.clearValidators();
+        nombreControl?.setValue('');
+      }
+      nombreControl?.updateValueAndValidity();
+    });
+
     this.form.get('provinciaId')?.valueChanges.subscribe((provinciaId) => {
       this.form.patchValue({ departamentoId: '', localidadId: '' });
       this.departamentos.set([]);
@@ -83,7 +147,6 @@ export class CrearPublicacion implements OnInit {
       }
     });
 
-    // Manejar cambios en departamento
     this.form.get('departamentoId')?.valueChanges.subscribe((departamentoId) => {
       this.form.patchValue({ localidadId: '' });
       this.localidades.set([]);
@@ -96,7 +159,6 @@ export class CrearPublicacion implements OnInit {
   }
 
   ngOnInit(): void {
-    // Verificar que el usuario esté logueado
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
       this.toast.error('Debes iniciar sesión para crear una publicación', { title: 'Error' });
@@ -160,7 +222,6 @@ export class CrearPublicacion implements OnInit {
     this.loadingMascotas.set(true);
     this.http.get<any[]>(`${API_BASE}/mascotas`).subscribe({
       next: (data) => {
-        // Filtrar solo las mascotas del usuario actual
         this.mascotas.set(data.filter(m => m.usuarioId === currentUser.id));
         this.loadingMascotas.set(false);
       },
@@ -182,17 +243,55 @@ export class CrearPublicacion implements OnInit {
 
     this.loading.set(true);
 
+    // Si no es mascota existente, primero crear la mascota
+    if (!this.form.value.esMascotaExistente) {
+      this.crearMascotaYPublicacion();
+    } else {
+      this.crearPublicacion(this.form.value.mascotaId);
+    }
+  }
+
+  private crearMascotaYPublicacion(): void {
+    const currentUser = this.authService.getCurrentUser();
+    const esPropia = this.form.value.nuevaMascotaEsPropia;
+
+    const mascotaPayload = {
+      nombre: esPropia ? this.form.value.nuevaMascotaNombre : 'Desconocido',
+      tipo: this.form.value.nuevaMascotaTipo,
+      color: this.form.value.nuevaMascotaColor,
+      descripcion: this.form.value.nuevaMascotaDescripcion,
+      raza: this.form.value.nuevaMascotaRaza || null,
+      tamanio: this.form.value.nuevaMascotaTamanio,
+      estadoMascota: esPropia ? 'PERDIDA_PROPIA' : 'PERDIDA_AJENA',
+      usuarioId: esPropia ? currentUser?.id : null,
+    };
+
+    this.http.post<any>(`${API_BASE}/mascotas`, mascotaPayload).subscribe({
+      next: (mascotaResponse) => {
+        const mascotaId = mascotaResponse.mascota?.id || mascotaResponse.id;
+        this.crearPublicacion(mascotaId);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error al crear mascota:', err);
+        const errorMsg = err.error?.error || 'No se pudo crear la mascota';
+        this.toast.error(errorMsg, { title: 'Error' });
+      },
+    });
+  }
+
+  private crearPublicacion(mascotaId: number | null): void {
     const payload = {
       descripcion: this.form.value.descripcion,
       estadoPublicacion: this.form.value.estadoPublicacion,
       lat: this.form.value.lat || null,
       lng: this.form.value.lng || null,
       usuarioId: this.form.value.usuarioId,
-      mascotaId: this.form.value.esMascotaExistente ? this.form.value.mascotaId : null,
+      mascotaId: mascotaId,
     };
 
     this.http.post<any>(`${API_BASE}/publicaciones`, payload).subscribe({
-      next: (res) => {
+      next: () => {
         this.loading.set(false);
         this.toast.success('Publicación creada exitosamente', { title: 'Éxito' });
         this.router.navigate(['/']);
@@ -210,4 +309,3 @@ export class CrearPublicacion implements OnInit {
     this.router.navigate(['/']);
   }
 }
-

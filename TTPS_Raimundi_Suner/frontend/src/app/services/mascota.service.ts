@@ -28,5 +28,8 @@ export class MascotaService {
   getMascotaById(id: number): Observable<Mascota> {
     return this.http.get<Mascota>(`${API_BASE}/mascotas/${id}`);
   }
-}
 
+  getMascotasByUsuario(usuarioId: number): Observable<Mascota[]> {
+    return this.http.get<Mascota[]>(`${API_BASE}/mascotas/usuario/${usuarioId}`);
+  }
+}

@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 export type Mascota = {
   id?: number;
@@ -25,17 +26,27 @@ export type Mascota = {
 })
 export class MascotaCard {
   @Input() mascota!: Mascota;
+  @Input() showEditButton: boolean = false;
 
-  constructor(private router: Router) {}
+  private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
-  verDetalle(): void {
+  editarMascota(): void {
     if (this.mascota.id) {
-      this.router.navigateByUrl(`/mascota/${this.mascota.id}`);
+      this.router.navigateByUrl(`/mascotas/${this.mascota.id}/editar`);
     }
   }
 
   get inicialNombre(): string {
     return this.mascota.nombre?.charAt(0).toUpperCase() || '?';
   }
-}
 
+  get isOwner(): boolean {
+    const currentUser = this.auth.currentUser();
+    return currentUser?.id === this.mascota.usuarioId;
+  }
+
+  get shouldShowEditButton(): boolean {
+    return this.showEditButton && this.isOwner;
+  }
+}

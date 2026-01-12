@@ -2,24 +2,27 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MascotaCard, type Mascota } from '../mascota-card/mascota-card';
-import { MascotaService } from '../../services/mascota.service';
+import { PublicacionCard, type Publicacion } from '../publicacion-card/publicacion-card';
 import { ToastService } from '../../shared/toast/toast.service';
 import { GeorefService, type Provincia, type Departamento, type Localidad } from '../../services/georef.service';
+import { HttpClient } from '@angular/common/http';
+
+const API_BASE = 'http://localhost:8080/api';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, MascotaCard, FormsModule],
+  standalone: true,
+  imports: [CommonModule, PublicacionCard, FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  private readonly mascotaService = inject(MascotaService);
   private readonly toast = inject(ToastService);
   private readonly georefService = inject(GeorefService);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
-  readonly mascotas = signal<Mascota[]>([]);
+  readonly publicaciones = signal<Publicacion[]>([]);
   readonly loading = signal(true);
 
   // Filtros
@@ -35,43 +38,87 @@ export class Home implements OnInit {
 
   // Tipos de mascotas únicos
   readonly tiposMascota = computed(() => {
-    const tipos = new Set(this.mascotas().map(m => m.tipo).filter(Boolean));
+    const tipos = new Set(this.publicaciones().map(p => p.mascotaTipo).filter(Boolean));
     return Array.from(tipos).sort();
   });
 
-  // Mascotas filtradas
-  readonly mascotasFiltradas = computed(() => {
-    let resultado = this.mascotas();
+  // Publicaciones filtradas
+  readonly publicacionesFiltradas = computed(() => {
+    let resultado = this.publicaciones();
 
     // Filtrar por tipo
     if (this.tipoFiltro()) {
-      resultado = resultado.filter(m => m.tipo === this.tipoFiltro());
+      resultado = resultado.filter(p => p.mascotaTipo === this.tipoFiltro());
     }
 
-    // TODO: Filtrar por ubicación cuando tengamos esos datos en Mascota
+    // TODO: Filtrar por ubicación cuando tengamos esos datos en Publicacion
     // Por ahora solo filtramos por tipo
 
     return resultado;
   });
 
   ngOnInit(): void {
-    this.cargarMascotas();
+    this.cargarPublicaciones();
     this.cargarProvincias();
   }
 
-  cargarMascotas(): void {
+  cargarPublicaciones(): void {
     this.loading.set(true);
-    this.mascotaService.getMascotas().subscribe({
-      next: (data) => {
-        this.mascotas.set(data);
+    this.http.get<any[]>(`${API_BASE}/publicaciones`).subscribe({
+      next: async (data) => {
+        // Filtrar solo publicaciones activas
+        const publicacionesActivas = data.filter(p => p.estadoPublicacion === 'ACTIVA');
+
+        // Enriquecer con nombres de ubicación
+        const publicacionesEnriquecidas = await Promise.all(
+          publicacionesActivas.map(async (pub) => {
+            let nombreLocalidad = 'Ubicación desconocida';
+
+            // Obtener el nombre de la localidad desde Georef si tenemos los IDs
+            if (pub.usuario?.provinciaId && pub.usuario?.departamentoId && pub.usuario?.localidadId) {
+              try {
+                const localidades = await this.georefService.getLocalidades(
+                  pub.usuario.provinciaId,
+                  pub.usuario.departamentoId
+                ).toPromise();
+
+                const localidad = localidades?.find(l => l.id === pub.usuario.localidadId);
+                if (localidad) {
+                  nombreLocalidad = localidad.nombre;
+                }
+              } catch (err) {
+                console.error('Error al obtener nombre de localidad:', err);
+              }
+            }
+
+            return {
+              ...pub,
+              mascotaNombre: pub.mascota?.nombre || 'Sin nombre',
+              mascotaTipo: pub.mascota?.tipo || 'Desconocido',
+              localidad: nombreLocalidad,
+            };
+          })
+        );
+
+        this.publicaciones.set(publicacionesEnriquecidas);
         this.loading.set(false);
       },
       error: (err) => {
         this.loading.set(false);
-        console.error('Error al cargar mascotas:', err);
-        this.toast.error('No se pudieron cargar las mascotas', { title: 'Error' });
+        console.error('Error al cargar publicaciones:', err);
+        this.toast.error('No se pudieron cargar las publicaciones', { title: 'Error' });
       },
     });
+  }
+
+  private async enrichPublicacion(pub: any): Promise<Publicacion> {
+    // Este método ya no es necesario, pero lo dejamos por compatibilidad
+    return {
+      ...pub,
+      mascotaNombre: pub.mascota?.nombre || 'Sin nombre',
+      mascotaTipo: pub.mascota?.tipo || 'Desconocido',
+      localidad: pub.usuario?.localidadId || 'Ubicación desconocida',
+    };
   }
 
   cargarProvincias(): void {

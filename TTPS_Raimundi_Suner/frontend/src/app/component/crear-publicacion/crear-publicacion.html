@@ -73,6 +73,118 @@
         </label>
       }
 
+      <!-- Formulario de nueva mascota (solo si NO es mascota existente) -->
+      @if (!form.value.esMascotaExistente) {
+        <div class="nueva-mascota-section">
+          <h3 class="subsection-title">Datos de la Mascota</h3>
+
+          <!-- Tipo de Mascota -->
+          <label class="field">
+            <span class="label">Tipo de Mascota</span>
+            <select class="input" formControlName="nuevaMascotaTipo">
+              <option value="">Seleccioná el tipo</option>
+              <option value="Perro">Perro</option>
+              <option value="Gato">Gato</option>
+              <option value="Otro">Otro</option>
+            </select>
+            @if ((submitted() || form.controls['nuevaMascotaTipo'].touched) && form.controls['nuevaMascotaTipo'].invalid) {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          </label>
+
+          <div class="grid">
+            <!-- Color -->
+            <label class="field">
+              <span class="label">Color</span>
+              <input
+                class="input"
+                type="text"
+                placeholder="Ej: Negro, Blanco, Marrón"
+                formControlName="nuevaMascotaColor"
+              />
+              @if ((submitted() || form.controls['nuevaMascotaColor'].touched) && form.controls['nuevaMascotaColor'].invalid) {
+                <span class="hint error-hint">Campo requerido</span>
+              }
+            </label>
+
+            <!-- Tamaño -->
+            <label class="field">
+              <span class="label">Tamaño</span>
+              <select class="input" formControlName="nuevaMascotaTamanio">
+                <option value="">Seleccioná el tamaño</option>
+                <option value="Pequeño">Pequeño</option>
+                <option value="Mediano">Mediano</option>
+                <option value="Grande">Grande</option>
+              </select>
+              @if ((submitted() || form.controls['nuevaMascotaTamanio'].touched) && form.controls['nuevaMascotaTamanio'].invalid) {
+                <span class="hint error-hint">Campo requerido</span>
+              }
+            </label>
+          </div>
+
+          <!-- Descripción de la Mascota -->
+          <label class="field">
+            <span class="label">Descripción de la Mascota</span>
+            <textarea
+              class="input textarea"
+              rows="3"
+              placeholder="Describí características físicas, comportamiento, etc."
+              formControlName="nuevaMascotaDescripcion"
+            ></textarea>
+            @if ((submitted() || form.controls['nuevaMascotaDescripcion'].touched) && form.controls['nuevaMascotaDescripcion'].invalid) {
+              @if (form.controls['nuevaMascotaDescripcion'].errors?.['required']) {
+                <span class="hint error-hint">Campo requerido</span>
+              }
+              @if (form.controls['nuevaMascotaDescripcion'].errors?.['minlength']) {
+                <span class="hint error-hint">Mínimo 5 caracteres</span>
+              }
+            }
+          </label>
+
+          <!-- Raza (opcional) -->
+          <label class="field">
+            <span class="label">Raza (opcional)</span>
+            <input
+              class="input"
+              type="text"
+              placeholder="Ej: Labrador, Siamés, etc."
+              formControlName="nuevaMascotaRaza"
+            />
+            <span class="hint">Este campo es opcional</span>
+          </label>
+
+          <!-- Toggle: Es propia -->
+          <div class="field">
+            <label class="toggle-label">
+              <input
+                type="checkbox"
+                class="toggle-input"
+                formControlName="nuevaMascotaEsPropia"
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">¿Es tu mascota?</span>
+            </label>
+            <span class="hint">Si es tu mascota perdida, activá esta opción</span>
+          </div>
+
+          <!-- Nombre (solo si es propia) -->
+          @if (form.value.nuevaMascotaEsPropia) {
+            <label class="field">
+              <span class="label">Nombre de la Mascota</span>
+              <input
+                class="input"
+                type="text"
+                placeholder="Ej: Max, Luna, etc."
+                formControlName="nuevaMascotaNombre"
+              />
+              @if ((submitted() || form.controls['nuevaMascotaNombre'].touched) && form.controls['nuevaMascotaNombre'].invalid) {
+                <span class="hint error-hint">El nombre es requerido si es tu mascota</span>
+              }
+            </label>
+          }
+        </div>
+      }
+
       <div class="divider"></div>
       <h2 class="section-title">Ubicación</h2>
 
@@ -199,4 +311,3 @@
     </form>
   </section>
 </main>
-

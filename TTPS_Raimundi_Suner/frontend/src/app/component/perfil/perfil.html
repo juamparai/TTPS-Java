@@ -1,0 +1,67 @@
+<div class="perfil-container">
+  <!-- Sección de información del usuario -->
+  <div class="perfil-header">
+    <div class="perfil-avatar">
+      <div class="avatar-circle">
+        {{ iniciales }}
+      </div>
+    </div>
+    <div class="perfil-info">
+      <h1 class="perfil-nombre">{{ nombreCompleto }}</h1>
+      @if (user()?.email) {
+        <p class="perfil-email">{{ user()?.email }}</p>
+      }
+      @if (user()?.telefono) {
+        <p class="perfil-telefono">
+          <i class="icon-phone"></i> {{ user()?.telefono }}
+        </p>
+      }
+      @if (user()?.puntos !== undefined) {
+        <p class="perfil-puntos">
+          <span class="puntos-badge">⭐ {{ user()?.puntos }} puntos</span>
+        </p>
+      }
+    </div>
+    <div class="perfil-actions">
+      <button class="btn-editar" type="button" (click)="editarPerfil()">
+        Editar Perfil
+      </button>
+    </div>
+  </div>
+
+  <!-- Sección de mascotas -->
+  <div class="mascotas-section">
+    <div class="mascotas-header">
+      <h2 class="section-title">Mis Mascotas</h2>
+      <button class="btn-agregar" type="button" (click)="agregarMascota()">
+        + Agregar Mascota
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando mascotas...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <p class="error-message">{{ error() }}</p>
+      </div>
+    } @else if (mascotas().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🐾</div>
+        <h3>No tienes mascotas registradas</h3>
+        <p>Agrega tu primera mascota para comenzar a crear publicaciones</p>
+        <button class="btn-primary" type="button" (click)="agregarMascota()">
+          Agregar mi primera mascota
+        </button>
+      </div>
+    } @else {
+      <div class="mascotas-grid">
+        @for (mascota of mascotas(); track mascota.id) {
+          <app-mascota-card [mascota]="mascota" />
+        }
+      </div>
+    }
+  </div>
+</div>

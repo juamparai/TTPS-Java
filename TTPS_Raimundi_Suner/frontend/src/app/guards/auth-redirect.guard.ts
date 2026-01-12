@@ -21,4 +21,3 @@ export const authRedirectGuard: CanActivateFn = () => {
   // Usuario no está logueado, permitir acceso a la ruta
   return true;
 };
-
