@@ -40,13 +40,7 @@
         }
       </label>
 
-      @if (errorMsg) {
-        <div class="error" role="alert">{{ errorMsg }}</div>
-      }
-
-      <button class="btn" type="submit" [disabled]="loading">
-        {{ loading ? 'Ingresando…' : 'Ingresar' }}
-      </button>
+      <button class="btn" type="submit">Ingresar</button>
 
       <p class="footer">
         ¿No tenés cuenta?

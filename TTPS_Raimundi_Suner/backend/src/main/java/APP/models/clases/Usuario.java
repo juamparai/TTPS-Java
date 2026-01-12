@@ -18,8 +18,9 @@ public class Usuario {
     @JoinColumn(name = "rol_id")
     Rol rol;
     String telefono;//para saber +54 +51 etc
-    String barrio;
-    String ciudad;
+    String provinciaId;
+    String departamentoId;
+    String localidadId;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean estado = true;
 
@@ -98,20 +99,28 @@ public class Usuario {
         this.telefono = telefono;
     }
 
-    public String getBarrio() {
-        return barrio;
+    public String getProvinciaId() {
+        return provinciaId;
     }
 
-    public void setBarrio(String barrio) {
-        this.barrio = barrio;
+    public void setProvinciaId(String provinciaId) {
+        this.provinciaId = provinciaId;
     }
 
-    public String getCiudad() {
-        return ciudad;
+    public String getDepartamentoId() {
+        return departamentoId;
     }
 
-    public void setCiudad(String ciudad) {
-        this.ciudad = ciudad;
+    public void setDepartamentoId(String departamentoId) {
+        this.departamentoId = departamentoId;
+    }
+
+    public String getLocalidadId() {
+        return localidadId;
+    }
+
+    public void setLocalidadId(String localidadId) {
+        this.localidadId = localidadId;
     }
 
     public Boolean getEstado() {
@@ -162,4 +171,3 @@ public class Usuario {
         this.medallero = medallero;
     }
 }
-

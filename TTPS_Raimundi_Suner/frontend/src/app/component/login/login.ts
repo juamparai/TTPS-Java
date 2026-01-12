@@ -17,8 +17,6 @@ export class Login {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
 
-  errorMsg = '';
-  loading = false;
   submitted = false;
 
   form = new FormGroup({
@@ -33,7 +31,6 @@ export class Login {
   });
 
   submit(): void {
-    this.errorMsg = '';
     this.submitted = true;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -41,26 +38,26 @@ export class Login {
       return;
     }
 
-    this.loading = true;
     const { email, password } = this.form.getRawValue();
 
-    this.auth.login({ email, password }).subscribe({
-      next: () => {
-        this.loading = false;
-        this.toast.success('Sesión iniciada correctamente', { title: 'Login' });
-        this.router.navigateByUrl('/');
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg =
-          err?.error?.error ??
-          err?.error?.message ??
-          (typeof err?.error === 'string' ? err.error : null) ??
-          'No se pudo iniciar sesión';
+    this.auth
+      .login({ email, password })
+      .subscribe({
+        next: (res: any) => {
+          const name = res?.usuario?.nombre ?? res?.usuario?.email ?? 'Usuario';
+          this.toast.success('Sesión iniciada correctamente', { title: `Bienvenido ${name}` });
+          this.router.navigateByUrl('/');
+        },
+        error: (err) => {
+          const errorMsg =
+            err?.error?.error ??
+            err?.error?.message ??
+            (typeof err?.error === 'string' ? err.error : null) ??
+            'No se pudo iniciar sesión';
 
-        this.form.markAllAsTouched();
-        this.toast.error(this.errorMsg, { title: 'Login' });
-      },
-    });
+          this.form.markAllAsTouched();
+          this.toast.error(errorMsg, { title: 'Inicio de sesión' });
+        },
+      });
   }
 }

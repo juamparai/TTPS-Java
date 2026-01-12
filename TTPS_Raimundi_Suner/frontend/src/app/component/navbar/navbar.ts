@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -20,7 +20,23 @@ export class Navbar {
     return name || u.email || 'Usuario';
   });
 
+  readonly dropdownOpen = signal(false);
+
+  toggleDropdown(): void {
+    this.dropdownOpen.update(v => !v);
+  }
+
+  closeDropdown(): void {
+    this.dropdownOpen.set(false);
+  }
+
+  goToProfile(): void {
+    this.closeDropdown();
+    this.router.navigateByUrl('/perfil');
+  }
+
   logout(): void {
+    this.closeDropdown();
     this.auth.logout();
     this.router.navigateByUrl('/login');
   }

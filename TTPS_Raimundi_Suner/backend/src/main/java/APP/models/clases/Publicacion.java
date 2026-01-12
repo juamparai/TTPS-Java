@@ -14,6 +14,8 @@ public class Publicacion {
     String descripcion;
     @Enumerated(EnumType.STRING)
     EstadoPublicacion estadoPublicacion;
+    Double lat;
+    Double lng;
     @ManyToOne
     @JoinColumn(name = "mascota_id")
     Mascota mascota;
@@ -76,6 +78,20 @@ public class Publicacion {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
 }
-
-

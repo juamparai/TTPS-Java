@@ -1,4 +1,118 @@
 <section class="home">
-	<h1 class="home__title">Bienvenido</h1>
-	<p class="home__subtitle">Explorá la app desde el menú superior.</p>
+	<div class="home__header">
+		<div class="home__header-content">
+			<div class="home__title-group">
+				<h1 class="home__title">Mascotas Perdidas</h1>
+				<p class="home__subtitle">Ayudá a estas mascotas a volver a casa</p>
+			</div>
+			<button class="home__create-btn" (click)="crearPublicacion()">
+				<i class="fa-solid fa-plus"></i>
+				Crear Publicación
+			</button>
+		</div>
+	</div>
+
+	<!-- Filtros -->
+	<div class="home__filters">
+		<div class="filters__container">
+			<div class="filter-group">
+				<label for="tipo-filter" class="filter-label">
+					<i class="fa-solid fa-paw"></i>
+					Tipo de Mascota
+				</label>
+				<select
+					id="tipo-filter"
+					[(ngModel)]="tipoFiltro"
+					class="filter-select"
+				>
+					<option value="">Todos los tipos</option>
+					@for (tipo of tiposMascota(); track tipo) {
+						<option [value]="tipo">{{ tipo }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="filter-group">
+				<label for="provincia-filter" class="filter-label">
+					<i class="fa-solid fa-map-marker-alt"></i>
+					Provincia
+				</label>
+				<select
+					id="provincia-filter"
+					[(ngModel)]="provinciaIdFiltro"
+					(ngModelChange)="onProvinciaChange()"
+					class="filter-select"
+				>
+					<option value="">Todas las provincias</option>
+					@for (provincia of provincias(); track provincia.id) {
+						<option [value]="provincia.id">{{ provincia.nombre }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="filter-group">
+				<label for="departamento-filter" class="filter-label">
+					<i class="fa-solid fa-location-dot"></i>
+					Departamento
+				</label>
+				<select
+					id="departamento-filter"
+					[(ngModel)]="departamentoIdFiltro"
+					(ngModelChange)="onDepartamentoChange()"
+					class="filter-select"
+					[disabled]="!provinciaIdFiltro()"
+				>
+					<option value="">Todos los departamentos</option>
+					@for (departamento of departamentos(); track departamento.id) {
+						<option [value]="departamento.id">{{ departamento.nombre }}</option>
+					}
+				</select>
+			</div>
+
+			<div class="filter-group">
+				<label for="localidad-filter" class="filter-label">
+					<i class="fa-solid fa-map-pin"></i>
+					Localidad
+				</label>
+				<select
+					id="localidad-filter"
+					[(ngModel)]="localidadIdFiltro"
+					class="filter-select"
+					[disabled]="!departamentoIdFiltro()"
+				>
+					<option value="">Todas las localidades</option>
+					@for (localidad of localidades(); track localidad.id) {
+						<option [value]="localidad.id">{{ localidad.nombre }}</option>
+					}
+				</select>
+			</div>
+
+			<button
+				class="filter-clear-btn"
+				(click)="limpiarFiltros()"
+				[disabled]="!tipoFiltro() && !provinciaIdFiltro() && !departamentoIdFiltro() && !localidadIdFiltro()"
+			>
+				<i class="fa-solid fa-times"></i>
+				Limpiar Filtros
+			</button>
+		</div>
+	</div>
+
+	@if (loading()) {
+		<div class="home__loading">
+			<i class="fa-solid fa-spinner fa-spin"></i>
+			<p>Cargando mascotas...</p>
+		</div>
+	} @else if (mascotasFiltradas().length === 0) {
+		<div class="home__empty">
+			<i class="fa-solid fa-paw"></i>
+			<p>No hay mascotas que coincidan con los filtros seleccionados</p>
+		</div>
+	} @else {
+		<div class="home__grid">
+			@for (mascota of mascotasFiltradas(); track mascota.id) {
+				<app-mascota-card [mascota]="mascota"></app-mascota-card>
+			}
+		</div>
+	}
 </section>

@@ -1,0 +1,32 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export type Mascota = {
+  id?: number;
+  nombre: string;
+  tipo: string;
+  raza?: string;
+  color?: string;
+  tamanio?: string;
+  descripcion?: string;
+  fechaNac?: string;
+  estadoMascota?: string;
+  usuarioId?: number;
+};
+
+const API_BASE = 'http://localhost:8080/api';
+
+@Injectable({ providedIn: 'root' })
+export class MascotaService {
+  private readonly http = inject(HttpClient);
+
+  getMascotas(): Observable<Mascota[]> {
+    return this.http.get<Mascota[]>(`${API_BASE}/mascotas`);
+  }
+
+  getMascotaById(id: number): Observable<Mascota> {
+    return this.http.get<Mascota>(`${API_BASE}/mascotas/${id}`);
+  }
+}
+

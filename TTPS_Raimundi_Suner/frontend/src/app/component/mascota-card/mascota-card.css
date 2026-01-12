@@ -1,0 +1,164 @@
+/* Card inspirada en la imagen con estética verde y moderna */
+.mascota-card {
+	background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+	border: 4px solid #4a5f4d;
+	border-radius: 16px;
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	min-width: 280px;
+	max-width: 320px;
+}
+
+.mascota-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.mascota-card__header {
+	width: 100%;
+	text-align: center;
+	padding: 0.5rem;
+}
+
+.mascota-card__nombre {
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	color: #6b7c6e;
+	text-transform: capitalize;
+	letter-spacing: 0.5px;
+}
+
+.mascota-card__image-container {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	padding: 1rem 0;
+}
+
+.mascota-card__image {
+	width: 200px;
+	height: 200px;
+	border-radius: 24px;
+	background: #e0e0e0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	border: 3px solid #ffffff;
+}
+
+.mascota-card__placeholder {
+	font-size: 5rem;
+	font-weight: 700;
+	color: #9e9e9e;
+	user-select: none;
+}
+
+.mascota-card__ubicacion {
+	width: 100%;
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #6b7c6e;
+	padding: 0.5rem;
+	text-transform: capitalize;
+}
+
+.mascota-card__btn {
+	background: #d4d4d4;
+	border: none;
+	border-radius: 12px;
+	padding: 0.75rem 2rem;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #333;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	text-transform: lowercase;
+}
+
+.mascota-card__btn:hover {
+	background: #c0c0c0;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.mascota-card__btn:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.mascota-card__btn:focus-visible {
+	outline: 3px solid #4a5f4d;
+	outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.mascota-card {
+		min-width: 240px;
+		max-width: 280px;
+		padding: 1.25rem;
+	}
+
+	.mascota-card__nombre {
+		font-size: 1.75rem;
+	}
+
+	.mascota-card__image {
+		width: 160px;
+		height: 160px;
+	}
+
+	.mascota-card__placeholder {
+		font-size: 4rem;
+	}
+
+	.mascota-card__ubicacion {
+		font-size: 1.25rem;
+	}
+
+	.mascota-card__btn {
+		font-size: 1rem;
+		padding: 0.65rem 1.75rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.mascota-card {
+		min-width: 200px;
+		max-width: 240px;
+		padding: 1rem;
+	}
+
+	.mascota-card__nombre {
+		font-size: 1.5rem;
+	}
+
+	.mascota-card__image {
+		width: 140px;
+		height: 140px;
+	}
+
+	.mascota-card__placeholder {
+		font-size: 3.5rem;
+	}
+
+	.mascota-card__ubicacion {
+		font-size: 1.1rem;
+	}
+
+	.mascota-card__btn {
+		font-size: 0.95rem;
+		padding: 0.6rem 1.5rem;
+	}
+}
+

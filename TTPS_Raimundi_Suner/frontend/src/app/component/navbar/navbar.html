@@ -1,27 +1,135 @@
 <header class="navbar" role="banner">
 	<div class="navbar__inner">
-		<button class="icon-btn" type="button" aria-label="Abrir menú (próximamente)" title="Próximamente">
-			<span class="hamburger" aria-hidden="true">
-				<span></span>
-				<span></span>
-				<span></span>
-			</span>
-		</button>
-
-		<div class="brand" aria-label="Título de la aplicación">
+		<!-- Logo/Brand - clickable home button -->
+		<a class="brand" routerLink="/" aria-label="Ir al inicio">
+			<i class="fa-solid fa-paw brand__icon"></i>
 			<span class="brand__title">donde estas? , vuelve a casa</span>
-		</div>
+		</a>
 
-		<nav class="actions" aria-label="Acciones">
+		<!-- Desktop navigation -->
+		<nav class="actions actions--desktop" aria-label="Acciones">
 			@if (user()) {
-				<span class="user-chip" aria-label="Usuario logueado">
-					{{ displayName() }}
-				</span>
-				<button class="btn btn--ghost" type="button" (click)="logout()">Cerrar sesión</button>
+				<div class="user-menu">
+					<button
+						class="user-chip user-chip--clickable"
+						type="button"
+						(click)="toggleDropdown()"
+						[attr.aria-expanded]="dropdownOpen()"
+						aria-haspopup="true"
+						aria-label="Menú de usuario">
+						{{ displayName() }}
+						<span class="chevron" [class.chevron--open]="dropdownOpen()">
+							<i class="fa-solid fa-chevron-down"></i>
+						</span>
+					</button>
+
+					@if (dropdownOpen()) {
+						<div class="dropdown" role="menu">
+							<button
+								class="dropdown__item"
+								type="button"
+								(click)="goToProfile()"
+								role="menuitem">
+								<span class="dropdown__icon">
+									<i class="fa-solid fa-user"></i>
+								</span>
+								Mi perfil
+							</button>
+							<button
+								class="dropdown__item dropdown__item--danger"
+								type="button"
+								(click)="logout()"
+								role="menuitem">
+								<span class="dropdown__icon">
+									<i class="fa-solid fa-right-from-bracket"></i>
+								</span>
+								Cerrar sesión
+							</button>
+						</div>
+					}
+				</div>
 			} @else {
 				<a class="btn" routerLink="/login" routerLinkActive="is-active">Iniciar sesión</a>
 				<a class="btn btn--ghost" routerLink="/registro" routerLinkActive="is-active">Registrarse</a>
 			}
 		</nav>
+
+		<!-- Mobile user menu icon -->
+		<div class="user-menu user-menu--mobile">
+			@if (user()) {
+				<button
+					class="icon-btn user-icon-btn"
+					type="button"
+					(click)="toggleDropdown()"
+					[attr.aria-expanded]="dropdownOpen()"
+					aria-haspopup="true"
+					aria-label="Menú de usuario">
+					<i class="fa-solid fa-user"></i>
+				</button>
+
+				@if (dropdownOpen()) {
+					<div class="dropdown dropdown--mobile" role="menu">
+						<div class="dropdown__user-header">
+							<i class="fa-solid fa-user-circle"></i>
+							<span>{{ displayName() }}</span>
+						</div>
+						<div class="dropdown__divider"></div>
+						<button
+							class="dropdown__item"
+							type="button"
+							(click)="goToProfile()"
+							role="menuitem">
+							<span class="dropdown__icon">
+								<i class="fa-solid fa-user"></i>
+							</span>
+							Mi perfil
+						</button>
+						<button
+							class="dropdown__item dropdown__item--danger"
+							type="button"
+							(click)="logout()"
+							role="menuitem">
+							<span class="dropdown__icon">
+								<i class="fa-solid fa-right-from-bracket"></i>
+							</span>
+							Cerrar sesión
+						</button>
+					</div>
+				}
+			} @else {
+				<button
+					class="icon-btn user-icon-btn"
+					type="button"
+					(click)="toggleDropdown()"
+					[attr.aria-expanded]="dropdownOpen()"
+					aria-haspopup="true"
+					aria-label="Menú de navegación">
+					<i class="fa-solid fa-ellipsis-vertical"></i>
+				</button>
+
+				@if (dropdownOpen()) {
+					<div class="dropdown dropdown--mobile" role="menu">
+						<a
+							class="dropdown__item"
+							routerLink="/login"
+							(click)="closeDropdown()">
+							<span class="dropdown__icon">
+								<i class="fa-solid fa-right-to-bracket"></i>
+							</span>
+							Iniciar sesión
+						</a>
+						<a
+							class="dropdown__item"
+							routerLink="/registro"
+							(click)="closeDropdown()">
+							<span class="dropdown__icon">
+								<i class="fa-solid fa-user-plus"></i>
+							</span>
+							Registrarse
+						</a>
+					</div>
+				}
+			}
+		</div>
 	</div>
 </header>

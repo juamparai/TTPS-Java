@@ -43,15 +43,20 @@ public class UsuarioService {
         }
         usuario.setTelefono(usuario.getTelefono().trim());
 
-        if (usuario.getBarrio() == null || usuario.getBarrio().trim().isEmpty()) {
-            throw new IllegalArgumentException("El barrio es requerido");
+        if (usuario.getProvinciaId() == null || usuario.getProvinciaId().trim().isEmpty()) {
+            throw new IllegalArgumentException("La provincia es requerida");
         }
-        usuario.setBarrio(usuario.getBarrio().trim());
+        usuario.setProvinciaId(usuario.getProvinciaId().trim());
 
-        if (usuario.getCiudad() == null || usuario.getCiudad().trim().isEmpty()) {
-            throw new IllegalArgumentException("La ciudad es requerida");
+        if (usuario.getDepartamentoId() == null || usuario.getDepartamentoId().trim().isEmpty()) {
+            throw new IllegalArgumentException("El departamento es requerido");
         }
-        usuario.setCiudad(usuario.getCiudad().trim());
+        usuario.setDepartamentoId(usuario.getDepartamentoId().trim());
+
+        if (usuario.getLocalidadId() == null || usuario.getLocalidadId().trim().isEmpty()) {
+            throw new IllegalArgumentException("La localidad es requerida");
+        }
+        usuario.setLocalidadId(usuario.getLocalidadId().trim());
 
         String email = usuario.getEmail();
         if (email == null || email.trim().isEmpty()) {
@@ -185,12 +190,16 @@ public class UsuarioService {
         return usuarioDAO.findAll();
     }
 
-    public List<Usuario> obtenerPorBarrio(String barrio) {
-        return usuarioDAO.findByBarrio(barrio);
+    public List<Usuario> obtenerPorProvinciaId(String provinciaId) {
+        return usuarioDAO.findByProvinciaId(provinciaId);
     }
 
-    public List<Usuario> obtenerPorCiudad(String ciudad) {
-        return usuarioDAO.findByCiudad(ciudad);
+    public List<Usuario> obtenerPorDepartamentoId(String departamentoId) {
+        return usuarioDAO.findByDepartamentoId(departamentoId);
+    }
+
+    public List<Usuario> obtenerPorLocalidadId(String localidadId) {
+        return usuarioDAO.findByLocalidadId(localidadId);
     }
 
     public List<Usuario> obtenerPorPuntos() {

@@ -1,25 +1,54 @@
-import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../shared/toast/toast.service';
+import { GeorefService, type Provincia, type Departamento, type Localidad } from '../../services/georef.service';
 
 const EMAIL_COM_REGEX = /^[^@\s]+@[^@\s]+\.com$/i;
 
+// Validador personalizado para contraseñas coincidentes
+function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
+  const password = control.get('password');
+  const repeatPassword = control.get('repeatPassword');
+
+  if (!password || !repeatPassword) {
+    return null;
+  }
+
+  if (repeatPassword.value === '') {
+    return null;
+  }
+
+  return password.value === repeatPassword.value ? null : { passwordsMismatch: true };
+}
+
 @Component({
   selector: 'app-registro',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
-export class Registro {
+export class Registro implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly georef = inject(GeorefService);
 
   errorMsg = '';
   loading = false;
   submitted = false;
+
+  readonly provincias = signal<Provincia[]>([]);
+  readonly departamentos = signal<Departamento[]>([]);
+  readonly localidades = signal<Localidad[]>([]);
+  readonly loadingProvincias = signal(true);
+  readonly loadingDepartamentos = signal(false);
+  readonly loadingLocalidades = signal(false);
+
+  // Guardar el ID de la provincia seleccionada para usarlo en la carga de localidades
+  private provinciaSeleccionadaId = '';
 
   form = new FormGroup({
     nombre: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -32,13 +61,103 @@ export class Registro {
       nonNullable: true,
       validators: [Validators.required, Validators.minLength(7)],
     }),
+    repeatPassword: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
     telefono: new FormControl('', {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(/^\d+$/)],
     }),
-    barrio: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    provincia: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     ciudad: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-  });
+    barrio: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  }, { validators: passwordsMatchValidator });
+
+  ngOnInit(): void {
+    this.cargarProvincias();
+
+    // Escuchar cambios en provincia para cargar departamentos
+    this.form.controls.provincia.valueChanges.subscribe((provinciaId) => {
+      if (provinciaId) {
+        this.provinciaSeleccionadaId = provinciaId;
+        this.cargarDepartamentos(provinciaId);
+      } else {
+        this.provinciaSeleccionadaId = '';
+        this.departamentos.set([]);
+        this.localidades.set([]);
+        this.form.controls.ciudad.setValue('');
+        this.form.controls.barrio.setValue('');
+      }
+    });
+
+    // Escuchar cambios en ciudad/departamento para cargar localidades
+    this.form.controls.ciudad.valueChanges.subscribe((departamentoNombre) => {
+      if (departamentoNombre && this.provinciaSeleccionadaId) {
+        // Buscar el ID del departamento por su nombre
+        const departamento = this.departamentos().find(d => d.nombre === departamentoNombre);
+        if (departamento) {
+          this.cargarLocalidades(this.provinciaSeleccionadaId, departamento.id);
+        }
+      } else {
+        this.localidades.set([]);
+        this.form.controls.barrio.setValue('');
+      }
+    });
+  }
+
+  cargarProvincias(): void {
+    this.loadingProvincias.set(true);
+    this.georef.getProvincias().subscribe({
+      next: (data) => {
+        this.provincias.set(data);
+        this.loadingProvincias.set(false);
+      },
+      error: (err) => {
+        this.loadingProvincias.set(false);
+        console.error('Error al cargar provincias:', err);
+        this.toast.error('No se pudieron cargar las provincias', { title: 'Error' });
+      },
+    });
+  }
+
+  cargarDepartamentos(provinciaId: string): void {
+    this.loadingDepartamentos.set(true);
+    this.form.controls.ciudad.setValue('');
+    this.form.controls.barrio.setValue('');
+    this.departamentos.set([]);
+    this.localidades.set([]);
+
+    this.georef.getDepartamentos(provinciaId).subscribe({
+      next: (data) => {
+        this.departamentos.set(data);
+        this.loadingDepartamentos.set(false);
+      },
+      error: (err) => {
+        this.loadingDepartamentos.set(false);
+        console.error('Error al cargar departamentos:', err);
+        this.toast.error('No se pudieron cargar los departamentos', { title: 'Error' });
+      },
+    });
+  }
+
+  cargarLocalidades(provinciaId: string, departamentoId: string): void {
+    this.loadingLocalidades.set(true);
+    this.form.controls.barrio.setValue('');
+    this.localidades.set([]);
+
+    this.georef.getLocalidades(provinciaId, departamentoId).subscribe({
+      next: (data) => {
+        this.localidades.set(data);
+        this.loadingLocalidades.set(false);
+      },
+      error: (err) => {
+        this.loadingLocalidades.set(false);
+        console.error('Error al cargar localidades:', err);
+        this.toast.error('No se pudieron cargar las localidades', { title: 'Error' });
+      },
+    });
+  }
 
   sanitizeTelefono(): void {
     const current = this.form.controls.telefono.value;
@@ -97,8 +216,12 @@ export class Registro {
       setServerError('barrio');
       return;
     }
-    if (lower.includes('ciudad')) {
+    if (lower.includes('ciudad') || lower.includes('departamento')) {
       setServerError('ciudad');
+      return;
+    }
+    if (lower.includes('provincia')) {
+      setServerError('provincia');
       return;
     }
   }
@@ -114,9 +237,22 @@ export class Registro {
     }
 
     this.loading = true;
-    const { nombre, apellido, email, password, telefono, barrio, ciudad } = this.form.getRawValue();
+    const { nombre, apellido, email, password, telefono, provincia, ciudad, barrio } = this.form.getRawValue();
 
-    this.auth.registro({ nombre, apellido, email, password, telefono, barrio, ciudad }).subscribe({
+    // Buscar el ID del departamento seleccionado
+    const departamento = this.departamentos().find(d => d.nombre === ciudad);
+    const localidad = this.localidades().find(l => l.nombre === barrio);
+
+    this.auth.registro({
+      nombre,
+      apellido,
+      email,
+      password,
+      telefono,
+      provinciaId: provincia,
+      departamentoId: departamento?.id,
+      localidadId: localidad?.id
+    }).subscribe({
       next: () => {
         this.loading = false;
         this.toast.success('Usuario registrado exitosamente', { title: 'Registro' });

@@ -10,8 +10,9 @@ export type UsuarioDTO = {
   apellido?: string;
   email?: string;
   telefono?: string;
-  barrio?: string;
-  ciudad?: string;
+  provinciaId?: string;
+  departamentoId?: string;
+  localidadId?: string;
   estado?: boolean;
   puntos?: number;
   rolId?: number;
@@ -28,8 +29,9 @@ export type RegistroRequest = {
   email: string;
   password: string;
   telefono?: string;
-  barrio?: string;
-  ciudad?: string;
+  provinciaId?: string;
+  departamentoId?: string;
+  localidadId?: string;
 };
 
 type ApiResponse<T> = {

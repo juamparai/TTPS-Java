@@ -11,8 +11,9 @@ public class UsuarioDTO {
     private String email;
     private String password;
     private String telefono;
-    private String barrio;
-    private String ciudad;
+    private String provinciaId;
+    private String departamentoId;
+    private String localidadId;
     private Boolean estado;
     private Integer puntos;
     private Long rolId;
@@ -30,8 +31,9 @@ public class UsuarioDTO {
         dto.setEmail(u.getEmail());
         dto.setPassword(null); // no exponer
         dto.setTelefono(u.getTelefono());
-        dto.setBarrio(u.getBarrio());
-        dto.setCiudad(u.getCiudad());
+        dto.setProvinciaId(u.getProvinciaId());
+        dto.setDepartamentoId(u.getDepartamentoId());
+        dto.setLocalidadId(u.getLocalidadId());
         dto.setEstado(u.getEstado());
         dto.setPuntos(u.getPuntos());
         if (u.getRol() != null) dto.setRolId(u.getRol().getId());
@@ -47,8 +49,9 @@ public class UsuarioDTO {
         u.setEmail(this.email);
         u.setPassword(this.password);
         u.setTelefono(this.telefono);
-        u.setBarrio(this.barrio);
-        u.setCiudad(this.ciudad);
+        u.setProvinciaId(this.provinciaId);
+        u.setDepartamentoId(this.departamentoId);
+        u.setLocalidadId(this.localidadId);
         u.setEstado(this.estado);
         if (this.puntos != null) u.setPuntos(this.puntos);
         // Nota: mapeo de Rol solo por id no está implementado aquí (dejamos nulo)
@@ -74,11 +77,14 @@ public class UsuarioDTO {
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public String getBarrio() { return barrio; }
-    public void setBarrio(String barrio) { this.barrio = barrio; }
+    public String getProvinciaId() { return provinciaId; }
+    public void setProvinciaId(String provinciaId) { this.provinciaId = provinciaId; }
 
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getDepartamentoId() { return departamentoId; }
+    public void setDepartamentoId(String departamentoId) { this.departamentoId = departamentoId; }
+
+    public String getLocalidadId() { return localidadId; }
+    public void setLocalidadId(String localidadId) { this.localidadId = localidadId; }
 
     public Boolean getEstado() { return estado; }
     public void setEstado(Boolean estado) { this.estado = estado; }

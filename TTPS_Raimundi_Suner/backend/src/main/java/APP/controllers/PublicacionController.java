@@ -217,6 +217,14 @@ public class PublicacionController {
                 publicacion.setFechaCierre(LocalDate.parse(dto.getFechaCierre()));
             }
 
+            if (dto.getLat() != null) {
+                publicacion.setLat(dto.getLat());
+            }
+
+            if (dto.getLng() != null) {
+                publicacion.setLng(dto.getLng());
+            }
+
             if (dto.getMascotaId() != null) {
                 if (dto.getMascotaId() <= 0) {
                     Map<String, String> error = new HashMap<>();

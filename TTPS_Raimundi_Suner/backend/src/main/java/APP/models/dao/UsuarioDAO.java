@@ -13,8 +13,9 @@ public interface UsuarioDAO extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmail(String email);
     List<Usuario> findByNombreAndApellido(String nombre, String apellido);
 
-    List<Usuario> findByBarrio(String barrio);
-    List<Usuario> findByCiudad(String ciudad);
+    List<Usuario> findByProvinciaId(String provinciaId);
+    List<Usuario> findByDepartamentoId(String departamentoId);
+    List<Usuario> findByLocalidadId(String localidadId);
 
     @Query("SELECT u FROM Usuario u ORDER BY u.puntos DESC")
     List<Usuario> findAllOrderByPuntosDesc();

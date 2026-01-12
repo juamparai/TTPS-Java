@@ -1,0 +1,20 @@
+<div class="mascota-card">
+	<div class="mascota-card__header">
+		<h3 class="mascota-card__nombre">{{ mascota.nombre }}</h3>
+	</div>
+
+	<div class="mascota-card__image-container">
+		<div class="mascota-card__image">
+			<span class="mascota-card__placeholder">{{ inicialNombre }}</span>
+		</div>
+	</div>
+
+	<div class="mascota-card__ubicacion">
+		{{ mascota.ubicacion || 'Ubicación no especificada' }}
+	</div>
+
+	<button class="mascota-card__btn" type="button" (click)="verDetalle()">
+		ver detalle
+	</button>
+</div>
+
