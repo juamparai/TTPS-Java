@@ -26,7 +26,6 @@ import java.util.Map;
 @Tag(name = "Avistamientos", description = "API para gestión de avistamientos de mascotas")
 @RestController
 @RequestMapping("/api/avistamientos")
-@CrossOrigin(origins = "*")
 public class AvistamientoController {
 
     @Autowired

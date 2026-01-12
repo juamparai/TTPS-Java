@@ -17,12 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 @Tag(name = "Usuarios", description = "API para gestión de usuarios del sistema")
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*")
 public class UsuarioController {
+
+    private static final Pattern EMAIL_COM_PATTERN = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.com$", Pattern.CASE_INSENSITIVE);
 
     @Autowired
     private UsuarioService usuarioService;
@@ -46,16 +48,16 @@ public class UsuarioController {
             // Validaciones de formato únicamente (el resto lo maneja el service)
             if (usuarioDto.getEmail() != null) {
                 String email = usuarioDto.getEmail().trim();
-                if (!email.contains("@") || !email.contains(".")) {
+                if (!EMAIL_COM_PATTERN.matcher(email).matches()) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("error", "Formato de email inválido");
+                    error.put("error", "Formato de email inválido (debe ser *@*.com)");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
             }
 
-            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().trim().isEmpty()) {
+            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().length() <= 6) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Formato de password inválido");
+                error.put("error", "La contraseña debe tener más de 6 caracteres");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
@@ -100,16 +102,16 @@ public class UsuarioController {
             // Validaciones de formato únicamente
             if (email != null) {
                 email = email.trim();
-                if (!email.contains("@") || !email.contains(".")) {
+                if (!EMAIL_COM_PATTERN.matcher(email).matches()) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("error", "Formato de email inválido");
+                    error.put("error", "Formato de email inválido (debe ser *@*.com)");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
             }
 
-            if (password != null && password.trim().isEmpty()) {
+            if (password != null && password.length() <= 6) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Formato de password inválido");
+                error.put("error", "La contraseña debe tener más de 6 caracteres");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 
@@ -159,16 +161,16 @@ public class UsuarioController {
             // Solo validaciones de formato (el service aplicará el resto)
             if (usuarioDto.getEmail() != null) {
                 String email = usuarioDto.getEmail().trim();
-                if (!email.contains("@") || !email.contains(".")) {
+                if (!EMAIL_COM_PATTERN.matcher(email).matches()) {
                     Map<String, String> error = new HashMap<>();
-                    error.put("error", "Formato de email inválido");
+                    error.put("error", "Formato de email inválido (debe ser *@*.com)");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
             }
 
-            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().trim().isEmpty()) {
+            if (usuarioDto.getPassword() != null && usuarioDto.getPassword().length() <= 6) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Formato de password inválido");
+                error.put("error", "La contraseña debe tener más de 6 caracteres");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
 

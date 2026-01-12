@@ -95,6 +95,33 @@
 	background: color-mix(in srgb, var(--nb-stone-50) 16%, transparent);
 }
 
+.actions {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.user-chip {
+	max-width: 260px;
+	padding: 0.55rem 0.85rem;
+	border-radius: 999px;
+	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
+	background: color-mix(in srgb, var(--nb-stone-50) 8%, transparent);
+	color: var(--nb-sage-100);
+	font-weight: 700;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.btn--ghost {
+	background: transparent;
+}
+
+.is-active {
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--nb-sage-100) 35%, transparent) inset;
+}
+
 @media (max-width: 520px) {
 	.brand {
 		justify-content: flex-start;
@@ -107,5 +134,9 @@
 	.btn {
 		padding: 0.55rem 0.75rem;
 		font-size: 0.9rem;
+	}
+
+	.user-chip {
+		max-width: 150px;
 	}
 }

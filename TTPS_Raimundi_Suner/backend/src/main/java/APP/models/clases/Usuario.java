@@ -21,7 +21,7 @@ public class Usuario {
     String barrio;
     String ciudad;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean estado;
+    private Boolean estado = true;
 
     int puntos;
     @OneToMany(mappedBy = "usuario")

@@ -1,0 +1,57 @@
+<main class="page">
+  <section class="card" aria-label="Iniciar sesión">
+    <h1 class="title">Iniciar sesión</h1>
+
+    <form class="form" (ngSubmit)="submit()" [formGroup]="form">
+      <label class="field">
+        <span class="label">Email</span>
+        <input
+          class="input"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          placeholder="tuemail@dominio.com"
+          formControlName="email"
+        />
+        @if ((submitted || form.controls.email.touched) && form.controls.email.invalid) {
+          @if (form.controls.email.errors?.['required']) {
+            <span class="hint error-hint">Campo requerido</span>
+          } @else {
+            <span class="hint error-hint">Debe tener formato *@*.com</span>
+          }
+        }
+      </label>
+
+      <label class="field">
+        <span class="label">Contraseña</span>
+        <input
+          class="input"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Mínimo 7 caracteres"
+          formControlName="password"
+        />
+        @if ((submitted || form.controls.password.touched) && form.controls.password.invalid) {
+          @if (form.controls.password.errors?.['required']) {
+            <span class="hint error-hint">Campo requerido</span>
+          } @else {
+            <span class="hint error-hint">Debe tener más de 6 caracteres</span>
+          }
+        }
+      </label>
+
+      @if (errorMsg) {
+        <div class="error" role="alert">{{ errorMsg }}</div>
+      }
+
+      <button class="btn" type="submit" [disabled]="loading">
+        {{ loading ? 'Ingresando…' : 'Ingresar' }}
+      </button>
+
+      <p class="footer">
+        ¿No tenés cuenta?
+        <a routerLink="/registro">Registrate</a>
+      </p>
+    </form>
+  </section>
+</main>

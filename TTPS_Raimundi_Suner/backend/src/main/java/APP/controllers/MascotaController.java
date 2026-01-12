@@ -23,7 +23,6 @@ import java.util.Map;
 @Tag(name = "Mascotas", description = "API para gestión de mascotas perdidas y encontradas")
 @RestController
 @RequestMapping("/api/mascotas")
-@CrossOrigin(origins = "*")
 public class MascotaController {
 
     @Autowired

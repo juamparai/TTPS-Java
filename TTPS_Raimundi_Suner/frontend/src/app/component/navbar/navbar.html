@@ -12,8 +12,16 @@
 			<span class="brand__title">donde estas? , vuelve a casa</span>
 		</div>
 
-		<button class="btn" type="button" aria-label="Inicio de sesión (próximamente)" title="Próximamente">
-			Iniciar sesión
-		</button>
+		<nav class="actions" aria-label="Acciones">
+			@if (user()) {
+				<span class="user-chip" aria-label="Usuario logueado">
+					{{ displayName() }}
+				</span>
+				<button class="btn btn--ghost" type="button" (click)="logout()">Cerrar sesión</button>
+			} @else {
+				<a class="btn" routerLink="/login" routerLinkActive="is-active">Iniciar sesión</a>
+				<a class="btn btn--ghost" routerLink="/registro" routerLinkActive="is-active">Registrarse</a>
+			}
+		</nav>
 	</div>
 </header>

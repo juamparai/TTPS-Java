@@ -1,0 +1,136 @@
+<main class="page">
+  <section class="card" aria-label="Registro">
+    <h1 class="title">Crear cuenta</h1>
+
+    <form class="form" (ngSubmit)="submit()" [formGroup]="form">
+      <div class="grid">
+        <label class="field">
+          <span class="label">Nombre</span>
+          <input class="input" type="text" autocomplete="given-name" formControlName="nombre" />
+          @if ((submitted || form.controls.nombre.touched) && form.controls.nombre.invalid) {
+            @if (form.controls.nombre.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.nombre.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+
+        <label class="field">
+          <span class="label">Apellido</span>
+          <input class="input" type="text" autocomplete="family-name" formControlName="apellido" />
+          @if ((submitted || form.controls.apellido.touched) && form.controls.apellido.invalid) {
+            @if (form.controls.apellido.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.apellido.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Email</span>
+        <input
+          class="input"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          placeholder="tuemail@dominio.com"
+          formControlName="email"
+        />
+        @if ((submitted || form.controls.email.touched) && form.controls.email.invalid) {
+          @if (form.controls.email.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.email.errors?.['server'] }}</span>
+          } @else if (form.controls.email.errors?.['required']) {
+            <span class="hint error-hint">Campo requerido</span>
+          } @else {
+            <span class="hint error-hint">Debe tener formato *@*.com</span>
+          }
+        }
+      </label>
+
+      <label class="field">
+        <span class="label">Contraseña</span>
+        <input
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Mínimo 7 caracteres"
+          formControlName="password"
+        />
+        @if ((submitted || form.controls.password.touched) && form.controls.password.invalid) {
+          @if (form.controls.password.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.password.errors?.['server'] }}</span>
+          } @else if (form.controls.password.errors?.['required']) {
+            <span class="hint error-hint">Campo requerido</span>
+          } @else {
+            <span class="hint error-hint">Debe tener más de 6 caracteres</span>
+          }
+        }
+      </label>
+
+      <div class="grid">
+        <label class="field">
+          <span class="label">Teléfono</span>
+          <input
+            class="input"
+            type="tel"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="tel"
+            placeholder="Ej: 1144445555"
+            formControlName="telefono"
+            (input)="sanitizeTelefono()"
+          />
+          @if ((submitted || form.controls.telefono.touched) && form.controls.telefono.invalid) {
+            @if (form.controls.telefono.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.telefono.errors?.['server'] }}</span>
+            } @else if (form.controls.telefono.errors?.['pattern']) {
+              <span class="hint error-hint">Solo números</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+
+        <label class="field">
+          <span class="label">Barrio</span>
+          <input class="input" type="text" autocomplete="address-level3" formControlName="barrio" />
+          @if ((submitted || form.controls.barrio.touched) && form.controls.barrio.invalid) {
+            @if (form.controls.barrio.errors?.['server']) {
+              <span class="hint error-hint">{{ form.controls.barrio.errors?.['server'] }}</span>
+            } @else {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+          }
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Ciudad</span>
+        <input class="input" type="text" autocomplete="address-level2" formControlName="ciudad" />
+        @if ((submitted || form.controls.ciudad.touched) && form.controls.ciudad.invalid) {
+          @if (form.controls.ciudad.errors?.['server']) {
+            <span class="hint error-hint">{{ form.controls.ciudad.errors?.['server'] }}</span>
+          } @else {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+        }
+      </label>
+
+      @if (errorMsg) {
+        <div class="error" role="alert">{{ errorMsg }}</div>
+      }
+
+      <button class="btn" type="submit" [disabled]="loading">
+        {{ loading ? 'Creando…' : 'Registrarme' }}
+      </button>
+
+      <p class="footer">
+        ¿Ya tenés cuenta?
+        <a routerLink="/login">Iniciar sesión</a>
+      </p>
+    </form>
+  </section>
+</main>

@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "frontend: build",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"cd \"TTPS_Raimundi_Suner\\frontend\"; npm run build"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "backend: test",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"cd \"TTPS_Raimundi_Suner\\backend\"; .\\mvnw.cmd -q test"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
