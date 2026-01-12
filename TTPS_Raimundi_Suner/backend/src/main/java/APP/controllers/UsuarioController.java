@@ -251,4 +251,87 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+    @Operation(summary = "Cambiar contraseña de usuario",
+               description = "Permite a un usuario cambiar su contraseña actual por una nueva")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Contraseña actualizada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+        @ApiResponse(responseCode = "401", description = "Contraseña actual incorrecta"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PutMapping("/{id}/cambiar-password")
+    public ResponseEntity<?> cambiarPassword(
+            @Parameter(description = "ID del usuario") @PathVariable Long id,
+            @RequestBody Map<String, String> passwords) {
+        try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (passwords == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Cuerpo de la petición es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            String currentPassword = passwords.get("currentPassword");
+            String newPassword = passwords.get("newPassword");
+
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "La contraseña actual es requerida");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "La nueva contraseña es requerida");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (newPassword.length() <= 6) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "La nueva contraseña debe tener más de 6 caracteres");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            // Obtener el usuario
+            Usuario usuario = usuarioService.obtenerPorId(id);
+            if (usuario == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Usuario no encontrado");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            // Verificar que la contraseña actual sea correcta usando PasswordEncoder
+            usuarioService.verificarPassword(usuario, currentPassword);
+
+            // Actualizar la contraseña (el servicio la hasheará)
+            usuario.setPassword(newPassword);
+            usuarioService.actualizarPerfil(usuario);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "Contraseña actualizada exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+
+            // Si el error es de contraseña incorrecta, retornar 401
+            if (e.getMessage().toLowerCase().contains("incorrecta") ||
+                e.getMessage().toLowerCase().contains("incorrect")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al cambiar contraseña: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }

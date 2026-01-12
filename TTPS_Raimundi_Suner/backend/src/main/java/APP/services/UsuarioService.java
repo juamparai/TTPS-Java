@@ -107,6 +107,25 @@ public class UsuarioService {
             throw new IllegalArgumentException("Usuario no encontrado");
         }
 
+        // Obtener el usuario existente para preservar campos que no se actualizan
+        Usuario usuarioExistente = usuarioDAO.findById(usuario.getId()).orElse(null);
+        if (usuarioExistente == null) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        // Actualizar solo los campos permitidos
+        if (usuario.getNombre() != null && !usuario.getNombre().trim().isEmpty()) {
+            usuarioExistente.setNombre(usuario.getNombre().trim());
+        }
+
+        if (usuario.getApellido() != null && !usuario.getApellido().trim().isEmpty()) {
+            usuarioExistente.setApellido(usuario.getApellido().trim());
+        }
+
+        if (usuario.getTelefono() != null && !usuario.getTelefono().trim().isEmpty()) {
+            usuarioExistente.setTelefono(usuario.getTelefono().trim());
+        }
+
         // Validación: si se proporciona un email nuevo, asegurar que no esté en uso por otro usuario
         String nuevoEmail = usuario.getEmail();
         if (nuevoEmail != null) {
@@ -119,20 +138,35 @@ public class UsuarioService {
                 if (existente != null && !existente.getId().equals(usuario.getId())) {
                     throw new IllegalArgumentException("El email ya está registrado por otro usuario");
                 }
-                usuario.setEmail(nuevoEmail);
+                usuarioExistente.setEmail(nuevoEmail);
             }
+        }
+
+        // Actualizar datos geográficos
+        if (usuario.getProvinciaId() != null && !usuario.getProvinciaId().trim().isEmpty()) {
+            usuarioExistente.setProvinciaId(usuario.getProvinciaId().trim());
+        }
+
+        if (usuario.getDepartamentoId() != null && !usuario.getDepartamentoId().trim().isEmpty()) {
+            usuarioExistente.setDepartamentoId(usuario.getDepartamentoId().trim());
+        }
+
+        if (usuario.getLocalidadId() != null && !usuario.getLocalidadId().trim().isEmpty()) {
+            usuarioExistente.setLocalidadId(usuario.getLocalidadId().trim());
         }
 
         // Si se actualiza password, validar y hashear
-        if (usuario.getPassword() != null) {
+        if (usuario.getPassword() != null && !usuario.getPassword().isEmpty()) {
             if (usuario.getPassword().length() <= 6) {
                 throw new IllegalArgumentException("La contraseña debe tener más de 6 caracteres");
             }
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            usuarioExistente.setPassword(passwordEncoder.encode(usuario.getPassword()));
         }
 
+        // NO actualizar: estado, puntos, rolId (se mantienen del usuario existente)
+
         try {
-            return usuarioDAO.save(usuario);
+            return usuarioDAO.save(usuarioExistente);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("El email ya está registrado por otro usuario");
         }
@@ -211,6 +245,30 @@ public class UsuarioService {
         if (usuario != null) {
             usuario.setPuntos(usuario.getPuntos() + puntos);
             usuarioDAO.save(usuario);
+        }
+    }
+
+    public void verificarPassword(Usuario usuario, String passwordActual) {
+        if (usuario == null || passwordActual == null) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+
+        String storedPassword = usuario.getPassword();
+        boolean isBcrypt = storedPassword.startsWith("$2a$") ||
+                          storedPassword.startsWith("$2b$") ||
+                          storedPassword.startsWith("$2y$");
+        boolean passwordOk;
+
+        if (isBcrypt) {
+            // Contraseña hasheada con BCrypt
+            passwordOk = passwordEncoder.matches(passwordActual, storedPassword);
+        } else {
+            // Contraseña en texto plano (usuarios antiguos)
+            passwordOk = storedPassword.equals(passwordActual);
+        }
+
+        if (!passwordOk) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
     }
 
