@@ -1,0 +1,705 @@
+.detalle-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+  position: relative;
+}
+
+/* Botón atrás arriba a la izquierda */
+.btn-atras {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #c62828;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.btn-atras:hover {
+  background: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-atras:active {
+  transform: translateY(0);
+}
+
+/* Tag Perdido arriba a la derecha */
+.tag-perdido {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #d32f2f;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+  z-index: 10;
+  letter-spacing: 1px;
+}
+
+/* Tag dinámico según estado */
+.tag-estado {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  z-index: 10;
+  letter-spacing: 1px;
+}
+
+/* Estado Activa - Rojo (PERDIDO) */
+.estado-activa .tag-estado {
+  background: #d32f2f;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+}
+
+.estado-activa .detalle-content {
+  background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+}
+
+/* Estado Finalizada - Verde (RECUPERADA) */
+.estado-finalizada .tag-estado {
+  background: #2e7d32;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
+
+.estado-finalizada .detalle-content {
+  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+}
+
+.estado-finalizada .detalle-nombre,
+.estado-finalizada .detalle-descripcion h3,
+.estado-finalizada .detalle-datos-dueno h3 {
+  color: #2e7d32;
+}
+
+/* Estado Cancelada - Amarillo (CANCELADA) */
+.estado-cancelada .tag-estado {
+  background: #f57c00;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4);
+}
+
+.estado-cancelada .detalle-content {
+  background: linear-gradient(135deg, #fff9c4 0%, #ffeb3b 100%);
+}
+
+.estado-cancelada .detalle-nombre,
+.estado-cancelada .detalle-descripcion h3,
+.estado-cancelada .detalle-datos-dueno h3 {
+  color: #f57c00;
+}
+
+.detalle-content {
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  min-height: 500px;
+  margin-top: 3rem;
+}
+
+/* Sección izquierda */
+.detalle-izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Foto y datos del animal lado a lado */
+.detalle-foto-y-datos {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.foto-placeholder {
+  width: 200px;
+  height: 200px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 4px solid #ffffff;
+}
+
+.foto-inicial {
+  font-size: 6rem;
+  font-weight: 700;
+  color: #9e9e9e;
+  user-select: none;
+}
+
+.detalle-datos-animal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detalle-nombre {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c62828;
+  text-transform: capitalize;
+}
+
+/* Descripción de la pérdida */
+.detalle-descripcion {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detalle-descripcion h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #c62828;
+}
+
+.detalle-descripcion p {
+  margin: 0;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Sección derecha */
+.detalle-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detalle-datos-dueno {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detalle-datos-dueno h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #c62828;
+}
+
+.dato-item {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dato-label {
+  font-weight: 700;
+  color: #333;
+  min-width: 70px;
+}
+
+.dato-valor {
+  color: #555;
+  text-transform: capitalize;
+}
+
+.detalle-mapa {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+.mapa-placeholder {
+  width: 100%;
+  min-height: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #ddd;
+}
+
+.mapa-placeholder p {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.mapa-ubicacion {
+  font-weight: 700;
+  color: #333;
+}
+
+/* Botón volver (para estados de error) */
+.btn-volver {
+  background: #c62828;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-volver:hover {
+  background: #b71c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.btn-volver:active {
+  transform: translateY(0);
+}
+
+/* Botón Recuperada */
+.detalle-acciones-recuperar {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.btn-recuperada {
+  background: #2e7d32;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-recuperada:hover {
+  background: #1b5e20;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.4);
+}
+
+.btn-recuperada:active {
+  transform: translateY(-1px);
+}
+
+/* Botones de acción en el mapa */
+.detalle-acciones-mapa {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* Botones de acción flotantes en la esquina inferior izquierda */
+.detalle-acciones-flotantes {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 5;
+}
+
+.btn-cancelar {
+  background: #f57c00;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(245, 124, 0, 0.3);
+}
+
+.btn-cancelar:hover {
+  background: #e65100;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.4);
+}
+
+.btn-cancelar:active {
+  transform: translateY(0);
+}
+
+.btn-recuperada-compacto {
+  background: #2e7d32;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(46, 125, 50, 0.3);
+}
+
+.btn-recuperada-compacto:hover {
+  background: #1b5e20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.4);
+}
+
+.btn-recuperada-compacto:active {
+  transform: translateY(0);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-content-cancelar {
+  max-width: 550px;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-content h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2e7d32;
+  text-align: center;
+}
+
+.modal-content-cancelar h2 {
+  color: #f57c00;
+}
+
+.modal-content p {
+  margin: 0.75rem 0;
+  color: #555;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-confirmacion {
+  font-weight: 600;
+  color: #333;
+  margin-top: 1.5rem;
+}
+
+.modal-info {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.modal-acciones-cancelar {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-modal-cancelar,
+.btn-modal-confirmar,
+.btn-modal-no,
+.btn-modal-si,
+.btn-modal-volver {
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-cancelar {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-modal-cancelar:hover:not(:disabled) {
+  background: #bdbdbd;
+  transform: translateY(-2px);
+}
+
+.btn-modal-confirmar {
+  background: #2e7d32;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+}
+
+.btn-modal-confirmar:hover:not(:disabled) {
+  background: #1b5e20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
+
+.btn-modal-no {
+  background: #757575;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(117, 117, 117, 0.3);
+  flex: 1;
+  min-width: 150px;
+}
+
+.btn-modal-no:hover:not(:disabled) {
+  background: #616161;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.4);
+}
+
+.btn-modal-si {
+  background: #2e7d32;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+  flex: 1;
+  min-width: 150px;
+}
+
+.btn-modal-si:hover:not(:disabled) {
+  background: #1b5e20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
+
+.btn-modal-volver {
+  background: #e0e0e0;
+  color: #333;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.btn-modal-volver:hover:not(:disabled) {
+  background: #bdbdbd;
+  transform: translateY(-2px);
+}
+
+.btn-modal-cancelar:disabled,
+.btn-modal-confirmar:disabled,
+.btn-modal-no:disabled,
+.btn-modal-si:disabled,
+.btn-modal-volver:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-modal-confirmar:active:not(:disabled),
+.btn-modal-cancelar:active:not(:disabled),
+.btn-modal-no:active:not(:disabled),
+.btn-modal-si:active:not(:disabled),
+.btn-modal-volver:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Estados de carga y error */
+.detalle-loading,
+.detalle-error {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.detalle-error {
+  color: #c62828;
+}
+
+/* Fechas de inicio y cierre */
+.detalle-fechas {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fecha-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.fecha-label {
+  font-weight: 700;
+  color: #333;
+  min-width: 120px;
+}
+
+.fecha-valor {
+  color: #555;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .detalle-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .detalle-content {
+    padding: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .btn-atras {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .tag-perdido {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .detalle-foto-y-datos {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .foto-placeholder {
+    width: 160px;
+    height: 160px;
+  }
+
+  .foto-inicial {
+    font-size: 5rem;
+  }
+
+  .detalle-nombre {
+    font-size: 1.75rem;
+    text-align: center;
+  }
+
+  .detalle-datos-animal {
+    width: 100%;
+  }
+
+  .mapa-placeholder {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detalle-container {
+    margin: 1rem auto;
+    padding: 0.5rem;
+  }
+
+  .detalle-content {
+    padding: 1rem;
+    margin-top: 3rem;
+  }
+
+  .foto-placeholder {
+    width: 140px;
+    height: 140px;
+  }
+
+  .foto-inicial {
+    font-size: 4rem;
+  }
+
+  .detalle-nombre {
+    font-size: 1.5rem;
+  }
+
+  .dato-label {
+    min-width: 60px;
+    font-size: 0.9rem;
+  }
+
+  .dato-valor {
+    font-size: 0.9rem;
+  }
+
+  .mapa-placeholder {
+    min-height: 200px;
+  }
+
+  .detalle-descripcion h3,
+  .detalle-datos-dueno h3 {
+    font-size: 1.1rem;
+  }
+}

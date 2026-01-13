@@ -1,0 +1,144 @@
+<div class="detalle-container" [ngClass]="estadoClase" *ngIf="!cargando() && publicacion()">
+  <!-- Botón atrás arriba a la izquierda -->
+  <button class="btn-atras" (click)="volver()">← Atrás</button>
+
+  <!-- Tag dinámico según estado -->
+  <div class="tag-estado" *ngIf="mostrarTag">
+    {{ tagTexto }}
+  </div>
+
+  <div class="detalle-content">
+    <!-- Sección izquierda: foto y descripción -->
+    <div class="detalle-izquierda">
+      <div class="detalle-foto-y-datos">
+        <div class="foto-placeholder">
+          <span class="foto-inicial">{{ inicialNombre }}</span>
+        </div>
+
+        <div class="detalle-datos-animal">
+          <h2 class="detalle-nombre">{{ publicacion()?.mascota?.nombre || 'Sin nombre' }}</h2>
+          <div class="dato-item">
+            <span class="dato-label">Tipo:</span>
+            <span class="dato-valor">{{ publicacion()?.mascota?.tipo || 'No especificado' }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Raza:</span>
+            <span class="dato-valor">{{ publicacion()?.mascota?.raza || 'No especificada' }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Tamaño:</span>
+            <span class="dato-valor">{{ publicacion()?.mascota?.tamanio || 'No especificado' }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Color:</span>
+            <span class="dato-valor">{{ publicacion()?.mascota?.color || 'No especificado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detalle-descripcion">
+        <h3>Descripción de la pérdida</h3>
+        <p>{{ publicacion()?.descripcion || 'Sin descripción' }}</p>
+      </div>
+
+      <!-- Fechas (solo si está finalizada o cancelada) -->
+      <div class="detalle-fechas" *ngIf="esFinalizada || esCancelada">
+        <div class="fecha-item">
+          <span class="fecha-label">Fecha de inicio:</span>
+          <span class="fecha-valor">{{ publicacion()?.fecha || 'No disponible' }}</span>
+        </div>
+        <div class="fecha-item">
+          <span class="fecha-label">Fecha de cierre:</span>
+          <span class="fecha-valor">{{ publicacion()?.fechaCierre || 'No disponible' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección derecha: datos del dueño y mapa -->
+    <div class="detalle-derecha">
+      <!-- Datos del dueño (solo si es PERDIDAPROPIA) -->
+      <div class="detalle-datos-dueno" *ngIf="esPerdidaPropia">
+        <h3>Datos de contacto del dueño</h3>
+        <div class="dato-item">
+          <span class="dato-label">Nombre:</span>
+          <span class="dato-valor">{{ publicacion()?.usuarioNombre || 'No disponible' }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Email:</span>
+          <span class="dato-valor">{{ publicacion()?.usuarioEmail || 'No disponible' }}</span>
+        </div>
+        <div class="dato-item">
+          <span class="dato-label">Teléfono:</span>
+          <span class="dato-valor">{{ publicacion()?.usuarioTelefono || 'No disponible' }}</span>
+        </div>
+      </div>
+
+      <!-- Mapa (placeholder) -->
+      <div class="detalle-mapa">
+        <div class="mapa-placeholder">
+          <p>Mapa de ubicación</p>
+          <p class="mapa-ubicacion">{{ ubicacion() }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de acción (solo si es mi publicación y está activa) -->
+  <div class="detalle-acciones-flotantes" *ngIf="esMiPublicacion && esPerdido">
+    <button class="btn-cancelar" (click)="abrirModalCancelar()">
+      Cancelar
+    </button>
+    <button class="btn-recuperada-compacto" (click)="abrirModal()">
+      Recuperada
+    </button>
+  </div>
+</div>
+
+<!-- Modal de confirmación Recuperada -->
+<div class="modal-overlay" *ngIf="mostrarModal()" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h2>¿Recuperaste a tu mascota?</h2>
+    <p>Esto marcará la publicación como finalizada y cambiará el estado de tu mascota a "Adoptada".</p>
+    <p class="modal-confirmacion">¿Estás seguro de que quieres continuar?</p>
+
+    <div class="modal-acciones">
+      <button class="btn-modal-cancelar" (click)="cerrarModal()" [disabled]="procesandoRecuperacion()">
+        Cancelar
+      </button>
+      <button class="btn-modal-confirmar" (click)="confirmarRecuperacion()" [disabled]="procesandoRecuperacion()">
+        {{ procesandoRecuperacion() ? 'Procesando...' : 'Sí, recuperada' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de cancelación -->
+<div class="modal-overlay" *ngIf="mostrarModalCancelar()" (click)="cerrarModalCancelar()">
+  <div class="modal-content modal-content-cancelar" (click)="$event.stopPropagation()">
+    <h2>Cancelar publicación</h2>
+    <p>¿Pudiste recuperar a tu mascota?</p>
+    <p class="modal-info">Esto cerrará la publicación. Indica si recuperaste a tu mascota para actualizar su estado.</p>
+
+    <div class="modal-acciones-cancelar">
+      <button class="btn-modal-no" (click)="confirmarCancelacion(false)" [disabled]="procesandoCancelacion()">
+        {{ procesandoCancelacion() ? 'Procesando...' : 'No recuperada' }}
+      </button>
+      <button class="btn-modal-si" (click)="confirmarCancelacion(true)" [disabled]="procesandoCancelacion()">
+        {{ procesandoCancelacion() ? 'Procesando...' : 'Sí, recuperada' }}
+      </button>
+    </div>
+
+    <button class="btn-modal-volver" (click)="cerrarModalCancelar()" [disabled]="procesandoCancelacion()">
+      Volver
+    </button>
+  </div>
+</div>
+
+<div class="detalle-loading" *ngIf="cargando()">
+  <p>Cargando...</p>
+</div>
+
+<div class="detalle-error" *ngIf="error() && !cargando()">
+  <p>{{ error() }}</p>
+  <button class="btn-volver" (click)="volver()">Volver</button>
+</div>
