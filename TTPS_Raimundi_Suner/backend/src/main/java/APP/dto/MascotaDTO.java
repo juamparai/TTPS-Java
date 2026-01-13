@@ -9,6 +9,7 @@ public class MascotaDTO {
     private String color;
     private String tamanio;
     private String descripcion;
+    private String imagenUrl;
     private LocalDate fechaNac;
     private String estadoMascota;
     private Long usuarioId;
@@ -60,6 +61,14 @@ public class MascotaDTO {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 
     public LocalDate getFechaNac() { return fechaNac; }

@@ -6,7 +6,11 @@
 
 	<div class="mascota-card__image-container">
 		<div class="mascota-card__image">
-			<span class="mascota-card__placeholder">{{ inicialNombre }}</span>
+			@if (imageSrc) {
+				<img [src]="imageSrc" [alt]="mascota.nombre" class="mascota-card__img" />
+			} @else {
+				<span class="mascota-card__placeholder">{{ inicialNombre }}</span>
+			}
 		</div>
 	</div>
 

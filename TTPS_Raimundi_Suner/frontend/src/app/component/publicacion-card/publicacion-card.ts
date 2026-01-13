@@ -17,6 +17,10 @@ export type Publicacion = {
   // Datos populados
   mascotaNombre?: string;
   mascotaTipo?: string;
+  mascotaImagenUrl?: string;
+  mascota?: {
+    imagenUrl?: string;
+  };
   localidad?: string;
 };
 
@@ -90,6 +94,13 @@ export class PublicacionCard implements OnInit {
 
   get inicialNombre(): string {
     return this.publicacion.mascotaNombre?.charAt(0).toUpperCase() || '?';
+  }
+
+  get imageSrc(): string | null {
+    const url = this.publicacion.mascotaImagenUrl ?? this.publicacion.mascota?.imagenUrl;
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `http://localhost:8080${url}`;
   }
 
   get localidadMostrar(): string {

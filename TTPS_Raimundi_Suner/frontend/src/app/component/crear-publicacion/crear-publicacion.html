@@ -175,47 +175,35 @@
       <div class="divider"></div>
       <h2 class="section-title">Ubicación</h2>
 
-      <!-- Coordenadas -->
-      <div class="grid">
-        <label class="field">
-          <span class="label">Latitud</span>
-          <input
-            class="input"
-            type="number"
-            step="any"
-            placeholder="Ej: -34.6037"
-            formControlName="lat"
-          />
-          @if ((submitted() || form.controls['lat'].touched) && form.controls['lat'].invalid) {
-            @if (form.controls['lat'].errors?.['required']) {
-              <span class="hint error-hint">Campo requerido</span>
-            }
-            @if (form.controls['lat'].errors?.['min'] || form.controls['lat'].errors?.['max']) {
-              <span class="hint error-hint">Debe estar entre -90 y 90</span>
-            }
-          }
-          <span class="hint">Coordenada de latitud del lugar donde se vio la mascota</span>
-        </label>
+      <!-- Mapita para seleccionar coordenadas -->
+      <div class="field">
+        <span class="label">Seleccioná el punto en el mapa</span>
+        <div class="mini-map" #mapContainer aria-label="Mapa para seleccionar ubicación"></div>
 
-        <label class="field">
-          <span class="label">Longitud</span>
-          <input
-            class="input"
-            type="number"
-            step="any"
-            placeholder="Ej: -58.3816"
-            formControlName="lng"
-          />
-          @if ((submitted() || form.controls['lng'].touched) && form.controls['lng'].invalid) {
-            @if (form.controls['lng'].errors?.['required']) {
-              <span class="hint error-hint">Campo requerido</span>
-            }
-            @if (form.controls['lng'].errors?.['min'] || form.controls['lng'].errors?.['max']) {
-              <span class="hint error-hint">Debe estar entre -180 y 180</span>
-            }
+        <div class="coords-row" aria-label="Coordenadas seleccionadas">
+          <div class="coord-pill">
+            <span class="coord-label">Lat</span>
+            <span class="coord-value">{{ form.value.lat || '—' }}</span>
+          </div>
+          <div class="coord-pill">
+            <span class="coord-label">Lng</span>
+            <span class="coord-value">{{ form.value.lng || '—' }}</span>
+          </div>
+        </div>
+
+        @if ((submitted() || form.controls['lat'].touched || form.controls['lng'].touched) && (form.controls['lat'].invalid || form.controls['lng'].invalid)) {
+          @if (form.controls['lat'].errors?.['required'] || form.controls['lng'].errors?.['required']) {
+            <span class="hint error-hint">Debes seleccionar una ubicación en el mapa</span>
           }
-          <span class="hint">Coordenada de longitud del lugar donde se vio la mascota</span>
-        </label>
+          @if (form.controls['lat'].errors?.['min'] || form.controls['lat'].errors?.['max']) {
+            <span class="hint error-hint">Latitud inválida (rango -90 a 90)</span>
+          }
+          @if (form.controls['lng'].errors?.['min'] || form.controls['lng'].errors?.['max']) {
+            <span class="hint error-hint">Longitud inválida (rango -180 a 180)</span>
+          }
+        }
+
+        <span class="hint">Hacé click en el mapa para dejar un pin. El municipio se calcula automáticamente.</span>
       </div>
 
       <div class="info-box">

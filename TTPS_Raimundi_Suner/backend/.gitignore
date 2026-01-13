@@ -71,3 +71,6 @@ Thumbs.db
 logs/
 *.log
 
+# Uploads (imagenes guardadas localmente)
+uploads/
+

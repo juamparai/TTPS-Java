@@ -11,6 +11,7 @@ export type Mascota = {
   color?: string;
   tamanio?: string;
   descripcion?: string;
+  imagenUrl?: string;
   fechaNac?: string;
   estadoMascota?: string;
   usuarioId?: number;
@@ -40,6 +41,13 @@ export class MascotaCard {
 
   get inicialNombre(): string {
     return this.mascota.nombre?.charAt(0).toUpperCase() || '?';
+  }
+
+  get imageSrc(): string | null {
+    const url = this.mascota.imagenUrl;
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `http://localhost:8080${url}`;
   }
 
   get isOwner(): boolean {
