@@ -27,9 +27,18 @@ public class Mascota {
     @OneToMany(mappedBy = "mascota")
     @JsonIgnore
     List<Avistamiento> avistamientos; //0 o mas
+
+    @OneToMany(mappedBy = "mascota", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Publicacion> publicaciones;
+
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     Usuario usuario;
+
+    // Campo transitorio para indicar si la mascota pertenece al usuario autenticado
+    @Transient
+    private Boolean esMia;
 
     public Long getId() {
         return id;
@@ -119,12 +128,34 @@ public class Mascota {
         this.avistamientos = avistamientos;
     }
 
+    public List<Publicacion> getPublicaciones() {
+        return publicaciones;
+    }
+
+    public void setPublicaciones(List<Publicacion> publicaciones) {
+        this.publicaciones = publicaciones;
+    }
+
     public Usuario getUsuario() {
         return usuario;
     }
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public Boolean getEsMia() {
+        return esMia;
+    }
+
+    public void setEsMia(Boolean esMia) {
+        this.esMia = esMia;
+    }
+
+    // Helper para obtener el ID del usuario propietario
+    @JsonIgnore
+    public Long getUsuarioId() {
+        return usuario != null ? usuario.getId() : null;
     }
 }
 

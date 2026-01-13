@@ -16,6 +16,7 @@ public class Publicacion {
     EstadoPublicacion estadoPublicacion;
     Double lat;
     Double lng;
+    String municipioId;
     @ManyToOne
     @JoinColumn(name = "mascota_id")
     Mascota mascota;
@@ -93,5 +94,13 @@ public class Publicacion {
 
     public void setLng(Double lng) {
         this.lng = lng;
+    }
+
+    public String getMunicipioId() {
+        return municipioId;
+    }
+
+    public void setMunicipioId(String municipioId) {
+        this.municipioId = municipioId;
     }
 }

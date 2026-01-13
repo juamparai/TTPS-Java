@@ -77,6 +77,10 @@ export class Registro implements OnInit {
   ngOnInit(): void {
     this.cargarProvincias();
 
+    // Deshabilitar ciudad y barrio inicialmente
+    this.form.controls.ciudad.disable();
+    this.form.controls.barrio.disable();
+
     // Escuchar cambios en provincia para cargar departamentos
     this.form.controls.provincia.valueChanges.subscribe((provinciaId) => {
       if (provinciaId) {
@@ -87,7 +91,9 @@ export class Registro implements OnInit {
         this.departamentos.set([]);
         this.localidades.set([]);
         this.form.controls.ciudad.setValue('');
+        this.form.controls.ciudad.disable();
         this.form.controls.barrio.setValue('');
+        this.form.controls.barrio.disable();
       }
     });
 
@@ -102,6 +108,7 @@ export class Registro implements OnInit {
       } else {
         this.localidades.set([]);
         this.form.controls.barrio.setValue('');
+        this.form.controls.barrio.disable();
       }
     });
   }
@@ -124,7 +131,9 @@ export class Registro implements OnInit {
   cargarDepartamentos(provinciaId: string): void {
     this.loadingDepartamentos.set(true);
     this.form.controls.ciudad.setValue('');
+    this.form.controls.ciudad.disable();
     this.form.controls.barrio.setValue('');
+    this.form.controls.barrio.disable();
     this.departamentos.set([]);
     this.localidades.set([]);
 
@@ -132,6 +141,7 @@ export class Registro implements OnInit {
       next: (data) => {
         this.departamentos.set(data);
         this.loadingDepartamentos.set(false);
+        this.form.controls.ciudad.enable();
       },
       error: (err) => {
         this.loadingDepartamentos.set(false);
@@ -144,12 +154,14 @@ export class Registro implements OnInit {
   cargarLocalidades(provinciaId: string, departamentoId: string): void {
     this.loadingLocalidades.set(true);
     this.form.controls.barrio.setValue('');
+    this.form.controls.barrio.disable();
     this.localidades.set([]);
 
     this.georef.getLocalidades(provinciaId, departamentoId).subscribe({
       next: (data) => {
         this.localidades.set(data);
         this.loadingLocalidades.set(false);
+        this.form.controls.barrio.enable();
       },
       error: (err) => {
         this.loadingLocalidades.set(false);

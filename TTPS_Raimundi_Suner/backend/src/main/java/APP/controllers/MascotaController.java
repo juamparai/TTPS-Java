@@ -16,11 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Tag(name = "Mascotas", description = "API para gestión de mascotas perdidas y encontradas")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/mascotas")
 public class MascotaController {
@@ -30,6 +32,27 @@ public class MascotaController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    /**
+     * Helper method para marcar si una mascota pertenece al usuario autenticado
+     */
+    private void marcarPropiedad(Mascota mascota, HttpServletRequest request) {
+        Long authenticatedUserId = (Long) request.getAttribute("authenticatedUserId");
+        if (authenticatedUserId != null && mascota != null) {
+            mascota.setEsMia(authenticatedUserId.equals(mascota.getUsuarioId()));
+        } else {
+            mascota.setEsMia(false);
+        }
+    }
+
+    /**
+     * Helper method para marcar una lista de mascotas
+     */
+    private void marcarPropiedadLista(List<Mascota> mascotas, HttpServletRequest request) {
+        for (Mascota mascota : mascotas) {
+            marcarPropiedad(mascota, request);
+        }
+    }
 
     @Operation(summary = "Crear una nueva mascota",
                description = "Registra una nueva mascota en el sistema. Usa usuarioId para asociarla a un usuario.")
@@ -227,7 +250,8 @@ public class MascotaController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerMascota(
-            @Parameter(description = "ID de la mascota") @PathVariable Long id) {
+            @Parameter(description = "ID de la mascota") @PathVariable Long id,
+            HttpServletRequest request) {
         try {
             if (id == null || id <= 0) {
                 Map<String, String> error = new HashMap<>();
@@ -240,6 +264,7 @@ public class MascotaController {
                 error.put("error", "Mascota no encontrada");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
             }
+            marcarPropiedad(mascota, request);
             return ResponseEntity.ok(mascota);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -256,7 +281,8 @@ public class MascotaController {
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<?> listarMascotasDeUsuario(
-            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
+            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId,
+            HttpServletRequest request) {
         try {
             if (usuarioId == null || usuarioId <= 0) {
                 Map<String, String> error = new HashMap<>();
@@ -264,6 +290,7 @@ public class MascotaController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
             }
             List<Mascota> mascotas = mascotaService.obtenerPorUsuario(usuarioId);
+            marcarPropiedadLista(mascotas, request);
             return ResponseEntity.ok(mascotas);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -279,9 +306,10 @@ public class MascotaController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/perdidas")
-    public ResponseEntity<?> listarMascotasPerdidas() {
+    public ResponseEntity<?> listarMascotasPerdidas(HttpServletRequest request) {
         try {
             List<Mascota> mascotasPerdidas = mascotaService.obtenerMascotasPerdidas();
+            marcarPropiedadLista(mascotasPerdidas, request);
             return ResponseEntity.ok(mascotasPerdidas);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -297,9 +325,10 @@ public class MascotaController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
-    public ResponseEntity<?> listarTodasLasMascotas() {
+    public ResponseEntity<?> listarTodasLasMascotas(HttpServletRequest request) {
         try {
             List<Mascota> mascotas = mascotaService.obtenerTodas();
+            marcarPropiedadLista(mascotas, request);
             return ResponseEntity.ok(mascotas);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();

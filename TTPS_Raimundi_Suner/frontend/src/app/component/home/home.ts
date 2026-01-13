@@ -28,13 +28,12 @@ export class Home implements OnInit {
   // Filtros
   readonly tipoFiltro = signal<string>('');
   readonly provinciaIdFiltro = signal<string>('');
-  readonly departamentoIdFiltro = signal<string>('');
-  readonly localidadIdFiltro = signal<string>('');
+  readonly municipioIdFiltro = signal<string>('');
+  readonly fechaFiltro = signal<string>('todas');
 
   // Datos para los selects
   readonly provincias = signal<Provincia[]>([]);
-  readonly departamentos = signal<Departamento[]>([]);
-  readonly localidades = signal<Localidad[]>([]);
+  readonly municipios = signal<{ id: string; nombre: string }[]>([]);
 
   // Tipos de mascotas únicos
   readonly tiposMascota = computed(() => {
@@ -51,8 +50,88 @@ export class Home implements OnInit {
       resultado = resultado.filter(p => p.mascotaTipo === this.tipoFiltro());
     }
 
-    // TODO: Filtrar por ubicación cuando tengamos esos datos en Publicacion
-    // Por ahora solo filtramos por tipo
+    // Filtrar por provincia
+    if (this.provinciaIdFiltro()) {
+      resultado = resultado.filter(p => {
+        // Obtener la provincia del municipioId de la publicación
+        // El municipioId tiene formato que podemos usar para verificar
+        const municipio = this.municipios().find(m => m.id === p.municipioId);
+        // Si encontramos el municipio en la lista cargada, significa que es de la provincia seleccionada
+        return municipio !== undefined;
+      });
+    }
+
+    // Filtrar por municipio
+    if (this.municipioIdFiltro()) {
+      resultado = resultado.filter(p => p.municipioId === this.municipioIdFiltro());
+    }
+
+    // Filtrar por fecha
+    if (this.fechaFiltro() !== 'todas') {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+
+      resultado = resultado.filter(p => {
+        if (!p.fecha) return false;
+
+        // Parsear la fecha correctamente (puede venir como string "YYYY-MM-DD")
+        const fechaStr = p.fecha;
+        let fechaPublicacion: Date;
+
+        if (typeof fechaStr === 'string') {
+          // Si viene como string "YYYY-MM-DD", parsearlo correctamente
+          const partes = fechaStr.split('-');
+          if (partes.length === 3) {
+            fechaPublicacion = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+          } else {
+            fechaPublicacion = new Date(fechaStr);
+          }
+        } else {
+          fechaPublicacion = new Date(fechaStr);
+        }
+
+        fechaPublicacion.setHours(0, 0, 0, 0);
+
+        switch (this.fechaFiltro()) {
+          case 'hoy': {
+            // Comparar año, mes y día
+            const esHoy = fechaPublicacion.getFullYear() === hoy.getFullYear() &&
+                          fechaPublicacion.getMonth() === hoy.getMonth() &&
+                          fechaPublicacion.getDate() === hoy.getDate();
+            console.log('Comparando fecha hoy:', {
+              fecha: fechaStr,
+              fechaPublicacion,
+              hoy,
+              esHoy
+            });
+            return esHoy;
+          }
+
+          case 'semana': {
+            // Esta semana incluye hoy
+            const inicioSemana = new Date(hoy);
+            inicioSemana.setDate(hoy.getDate() - hoy.getDay()); // Inicio de la semana (domingo)
+            return fechaPublicacion >= inicioSemana && fechaPublicacion <= hoy;
+          }
+
+          case 'mes': {
+            // Este mes incluye esta semana
+            const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            return fechaPublicacion >= inicioMes && fechaPublicacion <= hoy;
+          }
+
+          case 'anteriores': {
+            // Anteriores: hace más de un mes
+            const haceUnMes = new Date(hoy);
+            haceUnMes.setMonth(hoy.getMonth() - 1);
+            return fechaPublicacion < haceUnMes;
+          }
+
+          default:
+            return true;
+        }
+      });
+    }
 
     return resultado;
   });
@@ -132,32 +211,15 @@ export class Home implements OnInit {
   }
 
   onProvinciaChange(): void {
-    this.departamentoIdFiltro.set('');
-    this.localidadIdFiltro.set('');
-    this.departamentos.set([]);
-    this.localidades.set([]);
+    this.municipioIdFiltro.set('');
+    this.municipios.set([]);
 
     if (this.provinciaIdFiltro()) {
-      this.georefService.getDepartamentos(this.provinciaIdFiltro()).subscribe({
-        next: (data) => this.departamentos.set(data),
+      this.georefService.getMunicipios(this.provinciaIdFiltro()).subscribe({
+        next: (data) => this.municipios.set(data),
         error: (err) => {
-          console.error('Error al cargar departamentos:', err);
-          this.toast.error('No se pudieron cargar los departamentos', { title: 'Error' });
-        },
-      });
-    }
-  }
-
-  onDepartamentoChange(): void {
-    this.localidadIdFiltro.set('');
-    this.localidades.set([]);
-
-    if (this.provinciaIdFiltro() && this.departamentoIdFiltro()) {
-      this.georefService.getLocalidades(this.provinciaIdFiltro(), this.departamentoIdFiltro()).subscribe({
-        next: (data) => this.localidades.set(data),
-        error: (err) => {
-          console.error('Error al cargar localidades:', err);
-          this.toast.error('No se pudieron cargar las localidades', { title: 'Error' });
+          console.error('Error al cargar municipios:', err);
+          this.toast.error('No se pudieron cargar los municipios', { title: 'Error' });
         },
       });
     }
@@ -166,10 +228,9 @@ export class Home implements OnInit {
   limpiarFiltros(): void {
     this.tipoFiltro.set('');
     this.provinciaIdFiltro.set('');
-    this.departamentoIdFiltro.set('');
-    this.localidadIdFiltro.set('');
-    this.departamentos.set([]);
-    this.localidades.set([]);
+    this.municipioIdFiltro.set('');
+    this.fechaFiltro.set('todas');
+    this.municipios.set([]);
   }
 
   crearPublicacion(): void {

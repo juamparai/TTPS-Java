@@ -32,4 +32,16 @@ export class MascotaService {
   getMascotasByUsuario(usuarioId: number): Observable<Mascota[]> {
     return this.http.get<Mascota[]>(`${API_BASE}/mascotas/usuario/${usuarioId}`);
   }
+
+  createMascota(mascota: Mascota): Observable<Mascota> {
+    return this.http.post<Mascota>(`${API_BASE}/mascotas`, mascota);
+  }
+
+  updateMascota(id: number, mascota: Mascota): Observable<Mascota> {
+    return this.http.put<Mascota>(`${API_BASE}/mascotas/${id}`, mascota);
+  }
+
+  deleteMascota(id: number): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/mascotas/${id}`);
+  }
 }

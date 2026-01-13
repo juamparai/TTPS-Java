@@ -59,7 +59,7 @@
     } @else {
       <div class="mascotas-grid">
         @for (mascota of mascotas(); track mascota.id) {
-          <app-mascota-card [mascota]="mascota" />
+          <app-mascota-card [mascota]="mascota" [showEditButton]="true" />
         }
       </div>
     }

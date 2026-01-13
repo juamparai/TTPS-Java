@@ -15,6 +15,7 @@ export type Mascota = {
   estadoMascota?: string;
   usuarioId?: number;
   ubicacion?: string; // Para mostrar el barrio/ciudad
+  esMia?: boolean; // Indica si la mascota pertenece al usuario autenticado
 };
 
 @Component({
@@ -43,6 +44,11 @@ export class MascotaCard {
 
   get isOwner(): boolean {
     const currentUser = this.auth.currentUser();
+    console.log('Verificando owner:', {
+      currentUserId: currentUser?.id,
+      mascotaUserId: this.mascota.usuarioId,
+      mascota: this.mascota
+    });
     return currentUser?.id === this.mascota.usuarioId;
   }
 

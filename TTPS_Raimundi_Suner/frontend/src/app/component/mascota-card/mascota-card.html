@@ -9,7 +9,7 @@
 		</div>
 	</div>
 
-	<button class="mascota-card__btn" type="button" (click)="editarMascota()" *ngIf="shouldShowEditButton">
+	<button class="mascota-card__btn" type="button" (click)="editarMascota()" *ngIf="showEditButton || isOwner">
 		editar
 	</button>
 </div>

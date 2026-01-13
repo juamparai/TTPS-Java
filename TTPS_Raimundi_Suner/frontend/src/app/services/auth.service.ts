@@ -34,9 +34,11 @@ export type RegistroRequest = {
   localidadId?: string;
 };
 
-type ApiResponse<T> = {
+// Cambiamos la respuesta esperada para login/registro: incluye token
+type AuthResponse<T> = {
   mensaje: string;
   usuario: T;
+  token: string;
 };
 
 const API_BASE = 'http://localhost:8080/api';
@@ -48,32 +50,38 @@ export class AuthService {
   private readonly toast = inject(ToastService);
 
   readonly currentUser = signal<UsuarioDTO | null>(null);
+  private token: string | null = null;
 
   constructor() {
     // SSR-safe init
     if (isPlatformBrowser(this.platformId)) {
-      this.currentUser.set(this.readCurrentUserFromStorage());
+      const stored = this.readAuthFromStorage();
+      if (stored) {
+        this.currentUser.set(stored.usuario);
+        this.token = stored.token;
+      }
     }
   }
 
-  login(payload: LoginRequest): Observable<ApiResponse<UsuarioDTO>> {
+  login(payload: LoginRequest): Observable<AuthResponse<UsuarioDTO>> {
     return this.http
-      .post<ApiResponse<UsuarioDTO>>(`${API_BASE}/usuarios/login`, payload)
-      .pipe(tap((res) => this.setCurrentUser(res.usuario)));
+      .post<AuthResponse<UsuarioDTO>>(`${API_BASE}/usuarios/login`, payload)
+      .pipe(tap((res) => this.setAuth(res.token, res.usuario)));
   }
 
-  registro(payload: RegistroRequest): Observable<ApiResponse<UsuarioDTO>> {
+  registro(payload: RegistroRequest): Observable<AuthResponse<UsuarioDTO>> {
     return this.http
-      .post<ApiResponse<UsuarioDTO>>(`${API_BASE}/usuarios/registro`, payload)
-      .pipe(tap((res) => this.setCurrentUser(res.usuario)));
+      .post<AuthResponse<UsuarioDTO>>(`${API_BASE}/usuarios/registro`, payload)
+      .pipe(tap((res) => this.setAuth(res.token, res.usuario)));
   }
 
   logout(): void {
     const hadUser = this.currentUser() != null;
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('currentUser');
+      localStorage.removeItem('auth');
     }
     this.currentUser.set(null);
+    this.token = null;
 
     if (hadUser) {
       this.toast.success('Se ha cerrado sesión correctamente', { title: 'Sesión' });
@@ -84,18 +92,33 @@ export class AuthService {
     return this.currentUser();
   }
 
+  getToken(): string | null {
+    return this.token;
+  }
+
   setCurrentUser(user: UsuarioDTO): void {
     this.currentUser.set(user);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      // preserve existing token if present
+      const stored = this.readAuthFromStorage();
+      const token = stored?.token ?? this.token;
+      localStorage.setItem('auth', JSON.stringify({ token, usuario: user }));
     }
   }
 
-  private readCurrentUserFromStorage(): UsuarioDTO | null {
-    const raw = localStorage.getItem('currentUser');
-    if (!raw) return null;
+  private setAuth(token: string, user: UsuarioDTO): void {
+    this.token = token;
+    this.currentUser.set(user);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('auth', JSON.stringify({ token, usuario: user }));
+    }
+  }
+
+  private readAuthFromStorage(): { token: string; usuario: UsuarioDTO } | null {
     try {
-      return JSON.parse(raw) as UsuarioDTO;
+      const raw = localStorage.getItem('auth');
+      if (!raw) return null;
+      return JSON.parse(raw) as { token: string; usuario: UsuarioDTO };
     } catch {
       return null;
     }

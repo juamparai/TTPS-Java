@@ -148,7 +148,6 @@
         <select
           class="input"
           formControlName="ciudad"
-          [disabled]="!form.controls.provincia.value || loadingDepartamentos()"
         >
           <option value="">
             @if (!form.controls.provincia.value) {
@@ -179,7 +178,6 @@
         <select
           class="input"
           formControlName="barrio"
-          [disabled]="!form.controls.ciudad.value || loadingLocalidades()"
         >
           <option value="">
             @if (!form.controls.ciudad.value) {

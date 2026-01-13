@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { GeorefService, type Provincia, type Departamento, type Localidad } from '../../services/georef.service';
+import { GeorefService } from '../../services/georef.service';
 import { ToastService } from '../../shared/toast/toast.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
@@ -30,14 +30,6 @@ export class CrearPublicacion implements OnInit {
 
   readonly estadosPublicacion = ['ACTIVA', 'FINALIZADA', 'CANCELADA'];
 
-  readonly provincias = signal<Provincia[]>([]);
-  readonly departamentos = signal<Departamento[]>([]);
-  readonly localidades = signal<Localidad[]>([]);
-
-  readonly loadingProvincias = signal(false);
-  readonly loadingDepartamentos = signal(false);
-  readonly loadingLocalidades = signal(false);
-
   readonly mascotas = signal<any[]>([]);
   readonly loadingMascotas = signal(false);
 
@@ -47,8 +39,8 @@ export class CrearPublicacion implements OnInit {
     this.form = this.fb.group({
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
       estadoPublicacion: ['ACTIVA', Validators.required],
-      esMascotaExistente: [false],
-      mascotaId: [{ value: '', disabled: true }],
+      esMascotaExistente: [true],
+      mascotaId: ['', Validators.required],
       // Campos para nueva mascota
       nuevaMascotaTipo: [{ value: '', disabled: true }],
       nuevaMascotaColor: [{ value: '', disabled: true }],
@@ -57,12 +49,9 @@ export class CrearPublicacion implements OnInit {
       nuevaMascotaNombre: [{ value: '', disabled: true }],
       nuevaMascotaRaza: [{ value: '', disabled: true }],
       nuevaMascotaTamanio: [{ value: '', disabled: true }],
-      // Ubicación
-      provinciaId: ['', Validators.required],
-      departamentoId: ['', Validators.required],
-      localidadId: ['', Validators.required],
-      lat: [''],
-      lng: [''],
+      // Ubicación (solo coordenadas)
+      lat: ['', [Validators.required, Validators.min(-90), Validators.max(90)]],
+      lng: ['', [Validators.required, Validators.min(-180), Validators.max(180)]],
       usuarioId: [currentUser?.id || null, Validators.required],
     });
 
@@ -136,26 +125,6 @@ export class CrearPublicacion implements OnInit {
       }
       nombreControl?.updateValueAndValidity();
     });
-
-    this.form.get('provinciaId')?.valueChanges.subscribe((provinciaId) => {
-      this.form.patchValue({ departamentoId: '', localidadId: '' });
-      this.departamentos.set([]);
-      this.localidades.set([]);
-
-      if (provinciaId) {
-        this.cargarDepartamentos(provinciaId);
-      }
-    });
-
-    this.form.get('departamentoId')?.valueChanges.subscribe((departamentoId) => {
-      this.form.patchValue({ localidadId: '' });
-      this.localidades.set([]);
-
-      const provinciaId = this.form.get('provinciaId')?.value;
-      if (provinciaId && departamentoId) {
-        this.cargarLocalidades(provinciaId, departamentoId);
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -166,53 +135,7 @@ export class CrearPublicacion implements OnInit {
       return;
     }
 
-    this.cargarProvincias();
     this.cargarMascotas();
-  }
-
-  cargarProvincias(): void {
-    this.loadingProvincias.set(true);
-    this.georefService.getProvincias().subscribe({
-      next: (data) => {
-        this.provincias.set(data);
-        this.loadingProvincias.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar provincias:', err);
-        this.toast.error('No se pudieron cargar las provincias', { title: 'Error' });
-        this.loadingProvincias.set(false);
-      },
-    });
-  }
-
-  cargarDepartamentos(provinciaId: string): void {
-    this.loadingDepartamentos.set(true);
-    this.georefService.getDepartamentos(provinciaId).subscribe({
-      next: (data) => {
-        this.departamentos.set(data);
-        this.loadingDepartamentos.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar departamentos:', err);
-        this.toast.error('No se pudieron cargar los departamentos', { title: 'Error' });
-        this.loadingDepartamentos.set(false);
-      },
-    });
-  }
-
-  cargarLocalidades(provinciaId: string, departamentoId: string): void {
-    this.loadingLocalidades.set(true);
-    this.georefService.getLocalidades(provinciaId, departamentoId).subscribe({
-      next: (data) => {
-        this.localidades.set(data);
-        this.loadingLocalidades.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar localidades:', err);
-        this.toast.error('No se pudieron cargar las localidades', { title: 'Error' });
-        this.loadingLocalidades.set(false);
-      },
-    });
   }
 
   cargarMascotas(): void {
@@ -220,9 +143,10 @@ export class CrearPublicacion implements OnInit {
     if (!currentUser?.id) return;
 
     this.loadingMascotas.set(true);
-    this.http.get<any[]>(`${API_BASE}/mascotas`).subscribe({
+    this.http.get<any[]>(`${API_BASE}/mascotas/usuario/${currentUser.id}`).subscribe({
       next: (data) => {
-        this.mascotas.set(data.filter(m => m.usuarioId === currentUser.id));
+        console.log('Mascotas del usuario:', data);
+        this.mascotas.set(data);
         this.loadingMascotas.set(false);
       },
       error: (err) => {
@@ -281,26 +205,44 @@ export class CrearPublicacion implements OnInit {
   }
 
   private crearPublicacion(mascotaId: number | null): void {
-    const payload = {
-      descripcion: this.form.value.descripcion,
-      estadoPublicacion: this.form.value.estadoPublicacion,
-      lat: this.form.value.lat || null,
-      lng: this.form.value.lng || null,
-      usuarioId: this.form.value.usuarioId,
-      mascotaId: mascotaId,
-    };
+    const lat = parseFloat(this.form.value.lat);
+    const lng = parseFloat(this.form.value.lng);
 
-    this.http.post<any>(`${API_BASE}/publicaciones`, payload).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.toast.success('Publicación creada exitosamente', { title: 'Éxito' });
-        this.router.navigate(['/']);
+    // Obtener el municipio usando las coordenadas
+    this.georefService.getUbicacionPorCoordenadas(lat, lng).subscribe({
+      next: (ubicacion) => {
+        const municipioId = ubicacion.municipio?.id || ubicacion.departamento?.id || '';
+        const fechaActual = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+        const payload = {
+          descripcion: this.form.value.descripcion,
+          estadoPublicacion: 'ACTIVA',
+          fecha: fechaActual,
+          lat: lat,
+          lng: lng,
+          municipioId: municipioId,
+          usuarioId: this.form.value.usuarioId,
+          mascotaId: mascotaId,
+        };
+
+        this.http.post<any>(`${API_BASE}/publicaciones`, payload).subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.toast.success('Publicación creada exitosamente', { title: 'Éxito' });
+            this.router.navigate(['/']);
+          },
+          error: (err) => {
+            this.loading.set(false);
+            console.error('Error al crear publicación:', err);
+            const errorMsg = err.error?.error || 'No se pudo crear la publicación';
+            this.toast.error(errorMsg, { title: 'Error' });
+          },
+        });
       },
       error: (err) => {
         this.loading.set(false);
-        console.error('Error al crear publicación:', err);
-        const errorMsg = err.error?.error || 'No se pudo crear la publicación';
-        this.toast.error(errorMsg, { title: 'Error' });
+        console.error('Error al obtener ubicación:', err);
+        this.toast.error('No se pudo obtener la ubicación de las coordenadas ingresadas', { title: 'Error' });
       },
     });
   }

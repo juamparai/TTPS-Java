@@ -1,0 +1,155 @@
+<div class="crear-mascota-container">
+  <!-- Botón superior para volver -->
+  <div class="top-actions">
+    <button type="button" class="btn-volver" (click)="cancelar()">
+      ← Volver
+    </button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-header">
+      <h1>Agregar Nueva Mascota</h1>
+      <p class="subtitle">Completa la información de tu mascota</p>
+    </div>
+
+    @if (error()) {
+      <div class="alert alert-error">
+        {{ error() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" #mascotaForm="ngForm">
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nombre" class="required">Nombre</label>
+        <input
+          type="text"
+          id="nombre"
+          name="nombre"
+          [(ngModel)]="mascota.nombre"
+          required
+          placeholder="Ej: Luna, Max, Simba..."
+          class="form-control"
+        />
+      </div>
+
+      <!-- Tipo -->
+      <div class="form-group">
+        <label for="tipo" class="required">Tipo</label>
+        <select
+          id="tipo"
+          name="tipo"
+          [(ngModel)]="mascota.tipo"
+          required
+          class="form-control"
+        >
+          <option value="">Selecciona un tipo</option>
+          @for (tipo of tiposOptions; track tipo.value) {
+            <option [value]="tipo.value">{{ tipo.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Raza -->
+      <div class="form-group">
+        <label for="raza">Raza</label>
+        <input
+          type="text"
+          id="raza"
+          name="raza"
+          [(ngModel)]="mascota.raza"
+          placeholder="Ej: Labrador, Siamés, etc."
+          class="form-control"
+        />
+      </div>
+
+      <!-- Color -->
+      <div class="form-group">
+        <label for="color">Color</label>
+        <input
+          type="text"
+          id="color"
+          name="color"
+          [(ngModel)]="mascota.color"
+          placeholder="Ej: Negro, Blanco, Marrón..."
+          class="form-control"
+        />
+      </div>
+
+      <!-- Tamaño -->
+      <div class="form-group">
+        <label for="tamanio">Tamaño</label>
+        <select
+          id="tamanio"
+          name="tamanio"
+          [(ngModel)]="mascota.tamanio"
+          class="form-control"
+        >
+          <option value="">Selecciona un tamaño</option>
+          @for (tamanio of tamaniosOptions; track tamanio.value) {
+            <option [value]="tamanio.value">{{ tamanio.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="descripcion">Descripción</label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          [(ngModel)]="mascota.descripcion"
+          rows="4"
+          placeholder="Describe las características especiales de tu mascota..."
+          class="form-control"
+        ></textarea>
+      </div>
+
+      <!-- Foto (URL) -->
+      <div class="form-group">
+        <label for="foto">Foto (URL)</label>
+        <input
+          type="url"
+          id="foto"
+          name="foto"
+          [(ngModel)]="mascota.foto"
+          placeholder="https://ejemplo.com/foto-de-mascota.jpg"
+          class="form-control"
+        />
+        <small class="form-hint">Puedes pegar el enlace de una imagen de tu mascota</small>
+      </div>
+
+      <!-- Vista previa de foto -->
+      @if (mascota.foto) {
+        <div class="foto-preview">
+          <p class="preview-label">Vista previa:</p>
+          <img [src]="mascota.foto" alt="Vista previa" class="preview-image" />
+        </div>
+      }
+
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancelar()"
+          [disabled]="loading()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading() || !mascotaForm.form.valid"
+        >
+          @if (loading()) {
+            <span class="spinner-small"></span>
+            Guardando...
+          } @else {
+            Guardar Mascota
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

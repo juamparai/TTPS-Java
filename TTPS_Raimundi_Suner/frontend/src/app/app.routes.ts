@@ -6,6 +6,8 @@ import { CrearPublicacion } from './component/crear-publicacion/crear-publicacio
 import { Perfil } from './component/perfil/perfil';
 import { EditarPerfil } from './component/editar-perfil/editar-perfil';
 import { CambiarPassword } from './component/cambiar-password/cambiar-password';
+import { CrearMascota } from './component/crear-mascota/crear-mascota';
+import { EditarMascota } from './component/editar-mascota/editar-mascota';
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 
 export const routes: Routes = [
@@ -16,4 +18,6 @@ export const routes: Routes = [
     { path: 'perfil', component: Perfil },
     { path: 'perfil/editar', component: EditarPerfil },
     { path: 'cambiar-password', component: CambiarPassword },
+    { path: 'mascotas/crear', component: CrearMascota },
+    { path: 'mascotas/:id/editar', component: EditarMascota },
 ];

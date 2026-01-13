@@ -17,6 +17,21 @@ export type Localidad = {
   nombre: string;
 };
 
+export type Ubicacion = {
+  municipio?: {
+    id: string;
+    nombre: string;
+  };
+  departamento?: {
+    id: string;
+    nombre: string;
+  };
+  provincia?: {
+    id: string;
+    nombre: string;
+  };
+};
+
 type GeorefProvinciasResponse = {
   provincias: Array<{ id: string; nombre: string }>;
 };
@@ -27,6 +42,14 @@ type GeorefDepartamentosResponse = {
 
 type GeorefLocalidadesResponse = {
   localidades: Array<{ id: string; nombre: string }>;
+};
+
+type GeorefUbicacionResponse = {
+  ubicacion: {
+    municipio?: { id: string; nombre: string };
+    departamento?: { id: string; nombre: string };
+    provincia?: { id: string; nombre: string };
+  };
 };
 
 @Injectable({ providedIn: 'root' })
@@ -91,6 +114,28 @@ export class GeorefService {
           const localidades = res.localidades;
           localidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
           return localidades;
+        })
+      );
+  }
+
+  getUbicacionPorCoordenadas(lat: number, lng: number): Observable<Ubicacion> {
+    return this.http
+      .get<GeorefUbicacionResponse>(
+        `https://apis.datos.gob.ar/georef/api/ubicacion?lat=${lat}&lon=${lng}`
+      )
+      .pipe(map((res) => res.ubicacion));
+  }
+
+  getMunicipios(provinciaId: string): Observable<{ id: string; nombre: string }[]> {
+    return this.http
+      .get<{ municipios: Array<{ id: string; nombre: string }> }>(
+        `https://apis.datos.gob.ar/georef/api/municipios?provincia=${provinciaId}&campos=id,nombre&max=1000`
+      )
+      .pipe(
+        map((res) => {
+          const municipios = res.municipios;
+          municipios.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+          return municipios;
         })
       );
   }

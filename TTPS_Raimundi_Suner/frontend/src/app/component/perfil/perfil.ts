@@ -38,6 +38,7 @@ export class Perfil implements OnInit {
 
     this.mascotaService.getMascotasByUsuario(usuarioId).subscribe({
       next: (mascotas) => {
+        console.log('Mascotas cargadas:', mascotas);
         this.mascotas.set(mascotas);
         this.loading.set(false);
       },
@@ -72,4 +73,3 @@ export class Perfil implements OnInit {
     this.router.navigateByUrl('/perfil/editar');
   }
 }
-

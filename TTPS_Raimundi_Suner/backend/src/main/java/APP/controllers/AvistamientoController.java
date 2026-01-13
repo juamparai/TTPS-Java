@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Tag(name = "Avistamientos", description = "API para gestión de avistamientos de mascotas")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/avistamientos")
 public class AvistamientoController {

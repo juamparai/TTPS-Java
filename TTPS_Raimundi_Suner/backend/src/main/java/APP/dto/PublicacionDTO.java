@@ -7,6 +7,7 @@ public class PublicacionDTO {
     private String estadoPublicacion;
     private Double lat;
     private Double lng;
+    private String municipioId;
     private Long mascotaId;
     private Long usuarioId;
 
@@ -73,5 +74,13 @@ public class PublicacionDTO {
 
     public void setLng(Double lng) {
         this.lng = lng;
+    }
+
+    public String getMunicipioId() {
+        return municipioId;
+    }
+
+    public void setMunicipioId(String municipioId) {
+        this.municipioId = municipioId;
     }
 }

@@ -51,46 +51,44 @@
 			</div>
 
 			<div class="filter-group">
-				<label for="departamento-filter" class="filter-label">
+				<label for="municipio-filter" class="filter-label">
 					<i class="fa-solid fa-location-dot"></i>
-					Departamento
+					Municipio
 				</label>
 				<select
-					id="departamento-filter"
-					[(ngModel)]="departamentoIdFiltro"
-					(ngModelChange)="onDepartamentoChange()"
+					id="municipio-filter"
+					[(ngModel)]="municipioIdFiltro"
 					class="filter-select"
-					[disabled]="!provinciaIdFiltro()"
 				>
-					<option value="">Todos los departamentos</option>
-					@for (departamento of departamentos(); track departamento.id) {
-						<option [value]="departamento.id">{{ departamento.nombre }}</option>
+					<option value="">Todos los municipios</option>
+					@for (municipio of municipios(); track municipio.id) {
+						<option [value]="municipio.id">{{ municipio.nombre }}</option>
 					}
 				</select>
 			</div>
 
 			<div class="filter-group">
-				<label for="localidad-filter" class="filter-label">
-					<i class="fa-solid fa-map-pin"></i>
-					Localidad
+				<label for="fecha-filter" class="filter-label">
+					<i class="fa-solid fa-calendar"></i>
+					Fecha
 				</label>
 				<select
-					id="localidad-filter"
-					[(ngModel)]="localidadIdFiltro"
+					id="fecha-filter"
+					[(ngModel)]="fechaFiltro"
 					class="filter-select"
-					[disabled]="!departamentoIdFiltro()"
 				>
-					<option value="">Todas las localidades</option>
-					@for (localidad of localidades(); track localidad.id) {
-						<option [value]="localidad.id">{{ localidad.nombre }}</option>
-					}
+					<option value="todas">Todas</option>
+					<option value="hoy">Hoy</option>
+					<option value="semana">Esta semana</option>
+					<option value="mes">Este mes</option>
+					<option value="anteriores">Anteriores (hace más de un mes)</option>
 				</select>
 			</div>
 
 			<button
 				class="filter-clear-btn"
 				(click)="limpiarFiltros()"
-				[disabled]="!tipoFiltro() && !provinciaIdFiltro() && !departamentoIdFiltro() && !localidadIdFiltro()"
+				[disabled]="!tipoFiltro() && !provinciaIdFiltro() && !municipioIdFiltro() && fechaFiltro() === 'todas'"
 			>
 				<i class="fa-solid fa-times"></i>
 				Limpiar Filtros

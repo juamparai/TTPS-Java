@@ -3,6 +3,7 @@ package APP.controllers;
 import APP.dto.UsuarioDTO;
 import APP.models.clases.Usuario;
 import APP.services.UsuarioService;
+import APP.security.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.regex.Pattern;
 
 @Tag(name = "Usuarios", description = "API para gestión de usuarios del sistema")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -28,6 +30,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Operation(summary = "Registrar un nuevo usuario",
                description = "Crea una cuenta de usuario nueva en el sistema")
@@ -64,9 +69,12 @@ public class UsuarioController {
             Usuario usuarioEntity = usuarioDto.toUsuario();
             Usuario nuevoUsuario = usuarioService.registrarUsuario(usuarioEntity);
 
+            String token = jwtUtil.generateToken(nuevoUsuario);
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Usuario registrado exitosamente");
             response.put("usuario", UsuarioDTO.fromUsuario(nuevoUsuario));
+            response.put("token", token);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
@@ -117,9 +125,12 @@ public class UsuarioController {
 
             Usuario usuario = usuarioService.autenticar(email, password);
 
+            String token = jwtUtil.generateToken(usuario);
+
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Login exitoso");
             response.put("usuario", UsuarioDTO.fromUsuario(usuario));
+            response.put("token", token);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();

@@ -23,19 +23,6 @@
         }
       </label>
 
-      <!-- Estado de Publicación -->
-      <label class="field">
-        <span class="label">Estado de la Publicación</span>
-        <select class="input" formControlName="estadoPublicacion">
-          @for (estado of estadosPublicacion; track estado) {
-            <option [value]="estado">{{ estado }}</option>
-          }
-        </select>
-        @if ((submitted() || form.controls['estadoPublicacion'].touched) && form.controls['estadoPublicacion'].invalid) {
-          <span class="hint error-hint">Campo requerido</span>
-        }
-      </label>
-
       <!-- Toggle: Es mascota existente -->
       <div class="field">
         <label class="toggle-label">
@@ -188,88 +175,10 @@
       <div class="divider"></div>
       <h2 class="section-title">Ubicación</h2>
 
-      <!-- Provincia -->
-      <label class="field">
-        <span class="label">Provincia</span>
-        <select class="input" formControlName="provinciaId">
-          <option value="">
-            @if (loadingProvincias()) {
-              Cargando provincias...
-            } @else {
-              Seleccioná una provincia
-            }
-          </option>
-          @for (provincia of provincias(); track provincia.id) {
-            <option [value]="provincia.id">{{ provincia.nombre }}</option>
-          }
-        </select>
-        @if ((submitted() || form.controls['provinciaId'].touched) && form.controls['provinciaId'].invalid) {
-          <span class="hint error-hint">Campo requerido</span>
-        }
-      </label>
-
-      <div class="grid">
-        <!-- Departamento -->
-        <label class="field">
-          <span class="label">Departamento</span>
-          <select
-            class="input"
-            formControlName="departamentoId"
-            [disabled]="!form.controls['provinciaId'].value || loadingDepartamentos()"
-          >
-            <option value="">
-              @if (!form.controls['provinciaId'].value) {
-                Primero seleccioná una provincia
-              } @else if (loadingDepartamentos()) {
-                Cargando departamentos...
-              } @else if (departamentos().length === 0) {
-                No hay departamentos disponibles
-              } @else {
-                Seleccioná un departamento
-              }
-            </option>
-            @for (depto of departamentos(); track depto.id) {
-              <option [value]="depto.id">{{ depto.nombre }}</option>
-            }
-          </select>
-          @if ((submitted() || form.controls['departamentoId'].touched) && form.controls['departamentoId'].invalid) {
-            <span class="hint error-hint">Campo requerido</span>
-          }
-        </label>
-
-        <!-- Localidad -->
-        <label class="field">
-          <span class="label">Localidad</span>
-          <select
-            class="input"
-            formControlName="localidadId"
-            [disabled]="!form.controls['departamentoId'].value || loadingLocalidades()"
-          >
-            <option value="">
-              @if (!form.controls['departamentoId'].value) {
-                Primero seleccioná un departamento
-              } @else if (loadingLocalidades()) {
-                Cargando localidades...
-              } @else if (localidades().length === 0) {
-                No hay localidades disponibles
-              } @else {
-                Seleccioná una localidad
-              }
-            </option>
-            @for (localidad of localidades(); track localidad.id) {
-              <option [value]="localidad.id">{{ localidad.nombre }}</option>
-            }
-          </select>
-          @if ((submitted() || form.controls['localidadId'].touched) && form.controls['localidadId'].invalid) {
-            <span class="hint error-hint">Campo requerido</span>
-          }
-        </label>
-      </div>
-
-      <!-- Coordenadas opcionales -->
+      <!-- Coordenadas -->
       <div class="grid">
         <label class="field">
-          <span class="label">Latitud (opcional)</span>
+          <span class="label">Latitud</span>
           <input
             class="input"
             type="number"
@@ -277,11 +186,19 @@
             placeholder="Ej: -34.6037"
             formControlName="lat"
           />
-          <span class="hint">Coordenada de latitud del lugar</span>
+          @if ((submitted() || form.controls['lat'].touched) && form.controls['lat'].invalid) {
+            @if (form.controls['lat'].errors?.['required']) {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+            @if (form.controls['lat'].errors?.['min'] || form.controls['lat'].errors?.['max']) {
+              <span class="hint error-hint">Debe estar entre -90 y 90</span>
+            }
+          }
+          <span class="hint">Coordenada de latitud del lugar donde se vio la mascota</span>
         </label>
 
         <label class="field">
-          <span class="label">Longitud (opcional)</span>
+          <span class="label">Longitud</span>
           <input
             class="input"
             type="number"
@@ -289,8 +206,21 @@
             placeholder="Ej: -58.3816"
             formControlName="lng"
           />
-          <span class="hint">Coordenada de longitud del lugar</span>
+          @if ((submitted() || form.controls['lng'].touched) && form.controls['lng'].invalid) {
+            @if (form.controls['lng'].errors?.['required']) {
+              <span class="hint error-hint">Campo requerido</span>
+            }
+            @if (form.controls['lng'].errors?.['min'] || form.controls['lng'].errors?.['max']) {
+              <span class="hint error-hint">Debe estar entre -180 y 180</span>
+            }
+          }
+          <span class="hint">Coordenada de longitud del lugar donde se vio la mascota</span>
         </label>
+      </div>
+
+      <div class="info-box">
+        <i class="fa-solid fa-info-circle"></i>
+        <p>El municipio se calculará automáticamente a partir de las coordenadas ingresadas.</p>
       </div>
 
       <!-- Botones de acción -->

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Tag(name = "Publicaciones", description = "API para gestión de publicaciones de mascotas")
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/publicaciones")
 public class PublicacionController {
@@ -138,6 +139,11 @@ public class PublicacionController {
                 publicacion.setUsuario(usuario);
             }
 
+            // Mapear coordenadas y municipio
+            publicacion.setLat(dto.getLat());
+            publicacion.setLng(dto.getLng());
+            publicacion.setMunicipioId(dto.getMunicipioId());
+
             Publicacion nuevaPublicacion = publicacionService.crearPublicacion(publicacion);
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Publicación creada exitosamente");
@@ -223,6 +229,10 @@ public class PublicacionController {
 
             if (dto.getLng() != null) {
                 publicacion.setLng(dto.getLng());
+            }
+
+            if (dto.getMunicipioId() != null) {
+                publicacion.setMunicipioId(dto.getMunicipioId());
             }
 
             if (dto.getMascotaId() != null) {
