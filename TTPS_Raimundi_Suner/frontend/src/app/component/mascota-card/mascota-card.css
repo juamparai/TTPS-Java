@@ -23,6 +23,9 @@
 	width: 100%;
 	text-align: center;
 	padding: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
 }
 
 .mascota-card__nombre {
@@ -32,6 +35,61 @@
 	color: #6b7c6e;
 	text-transform: capitalize;
 	letter-spacing: 0.5px;
+}
+
+.mascota-card__estado {
+	display: inline-block;
+	padding: 0.25rem 0.75rem;
+	border-radius: 12px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Estilos para estado ADOPTADA (verde) */
+.mascota-card.estado-adoptada {
+	background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+	border-color: #4a5f4d;
+}
+
+.mascota-card.estado-adoptada .mascota-card__estado {
+	background-color: #4caf50;
+	color: white;
+}
+
+.mascota-card.estado-adoptada .mascota-card__nombre {
+	color: #2e7d32;
+}
+
+/* Estilos para estado PERDIDA_PROPIA (naranja/rojo) */
+.mascota-card.estado-perdida-propia {
+	background: linear-gradient(135deg, #ffccbc 0%, #ffab91 100%);
+	border-color: #bf360c;
+}
+
+.mascota-card.estado-perdida-propia .mascota-card__estado {
+	background-color: #ff5722;
+	color: white;
+}
+
+.mascota-card.estado-perdida-propia .mascota-card__nombre {
+	color: #bf360c;
+}
+
+/* Estilos para estado PERDIDA_AJENA (amarillo/advertencia) */
+.mascota-card.estado-perdida-ajena {
+	background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+	border-color: #f57f17;
+}
+
+.mascota-card.estado-perdida-ajena .mascota-card__estado {
+	background-color: #ffc107;
+	color: #000;
+}
+
+.mascota-card.estado-perdida-ajena .mascota-card__nombre {
+	color: #f57f17;
 }
 
 .mascota-card__image-container {

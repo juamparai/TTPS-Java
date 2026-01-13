@@ -36,23 +36,50 @@ export class PublicacionCard implements OnInit {
   readonly ubicacionCargada = signal<string>('');
 
   ngOnInit(): void {
-    // Si la publicación tiene coordenadas, obtener el municipio
-    if (this.publicacion.lat && this.publicacion.lng) {
+    // Si la publicación tiene municipioId, obtener el nombre desde Georef
+    if (this.publicacion.municipioId) {
+      this.obtenerNombreMunicipio(this.publicacion.municipioId);
+    } else if (this.publicacion.lat && this.publicacion.lng) {
+      // Fallback: Si tiene coordenadas pero no municipioId, obtener desde coordenadas
       this.georef.getUbicacionPorCoordenadas(this.publicacion.lat, this.publicacion.lng).subscribe({
         next: (ubicacion) => {
-          // Priorizar municipio, si no hay usar departamento
-          const nombreUbicacion = ubicacion.municipio?.nombre || ubicacion.departamento?.nombre || '';
+          const nombreUbicacion = ubicacion.municipio?.nombre || ubicacion.departamento?.nombre || 'Ubicación desconocida';
           this.ubicacionCargada.set(nombreUbicacion);
         },
         error: (err) => {
           console.error('Error al obtener ubicación:', err);
-          this.ubicacionCargada.set(this.publicacion.localidad || '');
+          this.ubicacionCargada.set('Ubicación desconocida');
         }
       });
     } else {
-      // Si no hay coordenadas, usar el campo localidad si existe
-      this.ubicacionCargada.set(this.publicacion.localidad || '');
+      // Si no hay municipioId ni coordenadas
+      this.ubicacionCargada.set('Ubicación desconocida');
     }
+  }
+
+  private obtenerNombreMunicipio(municipioId: string): void {
+    this.georef.getMunicipioPorId(municipioId).subscribe({
+      next: (municipio) => {
+        this.ubicacionCargada.set(municipio.nombre);
+      },
+      error: (err) => {
+        console.error('Error al obtener municipio:', err);
+        // Si falla, intentar con coordenadas si están disponibles
+        if (this.publicacion.lat && this.publicacion.lng) {
+          this.georef.getUbicacionPorCoordenadas(this.publicacion.lat, this.publicacion.lng).subscribe({
+            next: (ubicacion) => {
+              const nombreUbicacion = ubicacion.municipio?.nombre || ubicacion.departamento?.nombre || 'Ubicación desconocida';
+              this.ubicacionCargada.set(nombreUbicacion);
+            },
+            error: () => {
+              this.ubicacionCargada.set('Ubicación desconocida');
+            }
+          });
+        } else {
+          this.ubicacionCargada.set('Ubicación desconocida');
+        }
+      }
+    });
   }
 
   verDetalle(): void {
@@ -66,6 +93,6 @@ export class PublicacionCard implements OnInit {
   }
 
   get localidadMostrar(): string {
-    return this.ubicacionCargada() || this.publicacion.localidad || '';
+    return this.ubicacionCargada() || 'Ubicación desconocida';
   }
 }

@@ -55,4 +55,34 @@ export class MascotaCard {
   get shouldShowEditButton(): boolean {
     return this.showEditButton && this.isOwner;
   }
+
+  get estadoMascota(): string {
+    if (!this.mascota.estadoMascota) return 'Sin estado';
+
+    switch (this.mascota.estadoMascota) {
+      case 'ADOPTADA':
+        return 'Adoptada';
+      case 'PERDIDA_PROPIA':
+        return 'Perdida';
+      case 'PERDIDA_AJENA':
+        return 'Perdida (Ajena)';
+      default:
+        return this.mascota.estadoMascota;
+    }
+  }
+
+  get estadoClass(): string {
+    if (!this.mascota.estadoMascota) return '';
+
+    switch (this.mascota.estadoMascota) {
+      case 'ADOPTADA':
+        return 'estado-adoptada';
+      case 'PERDIDA_PROPIA':
+        return 'estado-perdida-propia';
+      case 'PERDIDA_AJENA':
+        return 'estado-perdida-ajena';
+      default:
+        return '';
+    }
+  }
 }

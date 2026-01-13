@@ -3,6 +3,7 @@ package APP.controllers;
 import APP.dto.PublicacionDTO;
 import APP.models.clases.Publicacion;
 import APP.models.clases.EstadoPublicacion;
+import APP.models.clases.EstadoMascota;
 import APP.models.clases.Mascota;
 import APP.models.clases.Usuario;
 import APP.services.PublicacionService;
@@ -145,6 +146,12 @@ public class PublicacionController {
             if (dto.getMascotaId() != null) {
                 Mascota mascota = mascotaService.obtenerPorId(dto.getMascotaId());
                 publicacion.setMascota(mascota);
+                
+                // Cambiar el estado de la mascota a PERDIDA_PROPIA si tiene dueño
+                if (mascota.getUsuarioId() != null) {
+                    mascota.setEstadoMascota(EstadoMascota.PERDIDA_PROPIA);
+                    mascotaService.actualizarMascota(mascota);
+                }
             }
 
             if (dto.getUsuarioId() != null) {

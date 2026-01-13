@@ -1,6 +1,7 @@
-<div class="mascota-card">
+<div class="mascota-card" [ngClass]="estadoClass">
 	<div class="mascota-card__header">
 		<h3 class="mascota-card__nombre">{{ mascota.nombre }}</h3>
+		<span class="mascota-card__estado">{{ estadoMascota }}</span>
 	</div>
 
 	<div class="mascota-card__image-container">

@@ -139,4 +139,19 @@ export class GeorefService {
         })
       );
   }
+
+  getMunicipioPorId(municipioId: string): Observable<{ id: string; nombre: string }> {
+    return this.http
+      .get<{ municipios: Array<{ id: string; nombre: string }> }>(
+        `https://apis.datos.gob.ar/georef/api/municipios?id=${municipioId}&campos=id,nombre&max=1`
+      )
+      .pipe(
+        map((res) => {
+          if (res.municipios && res.municipios.length > 0) {
+            return res.municipios[0];
+          }
+          throw new Error('Municipio no encontrado');
+        })
+      );
+  }
 }
