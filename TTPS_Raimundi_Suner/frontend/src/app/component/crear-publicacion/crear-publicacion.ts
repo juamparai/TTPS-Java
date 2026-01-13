@@ -44,6 +44,7 @@ export class CrearPublicacion implements OnInit {
   readonly loadingMascotas = signal(false);
 
   readonly municipioNombre = signal<string>('');
+  readonly municipioIdSeleccionado = signal<string>('');
 
   @ViewChild('mapContainer') private mapContainer?: ElementRef<HTMLDivElement>;
   private map: any;
@@ -254,19 +255,31 @@ export class CrearPublicacion implements OnInit {
 
   private resolveMunicipioForCoords(lat: number, lng: number): void {
     this.municipioNombre.set('Calculando municipio...');
+    this.municipioIdSeleccionado.set('');
     this.georefService.getUbicacionPorCoordenadas(lat, lng).subscribe({
       next: (ubicacion) => {
+        const municipioId = ubicacion.municipio?.id || ubicacion.departamento?.id || '';
         const nombre =
           ubicacion.municipio?.nombre ||
           ubicacion.departamento?.nombre ||
           ubicacion.provincia?.nombre ||
           'Ubicación desconocida';
         this.municipioNombre.set(nombre);
+        this.municipioIdSeleccionado.set(municipioId);
       },
       error: () => {
         this.municipioNombre.set('Ubicación desconocida');
+        this.municipioIdSeleccionado.set('');
       },
     });
+  }
+
+  private isMunicipioValido(nombre: string): boolean {
+    const normalized = (nombre || '').trim().toLowerCase();
+    if (!normalized) return false;
+    if (normalized.includes('calculando')) return false;
+    if (normalized.includes('ubicación desconocida') || normalized.includes('ubicacion desconocida')) return false;
+    return true;
   }
 
   cargarMascotas(): void {
@@ -293,6 +306,14 @@ export class CrearPublicacion implements OnInit {
 
     if (this.form.invalid) {
       this.toast.error('Por favor completá todos los campos requeridos', { title: 'Error' });
+      return;
+    }
+
+    const municipio = this.municipioNombre();
+    if (!this.isMunicipioValido(municipio) || !this.municipioIdSeleccionado()) {
+      this.toast.error('No se pudo determinar el municipio de la ubicación seleccionada. Elegí otro punto en el mapa.', {
+        title: 'Ubicación inválida',
+      });
       return;
     }
 
@@ -345,6 +366,13 @@ export class CrearPublicacion implements OnInit {
     this.georefService.getUbicacionPorCoordenadas(lat, lng).subscribe({
       next: (ubicacion) => {
         const municipioId = ubicacion.municipio?.id || ubicacion.departamento?.id || '';
+        if (!municipioId) {
+          this.loading.set(false);
+          this.toast.error('No se pudo determinar el municipio de esa ubicación. Probá otro punto en el mapa.', {
+            title: 'Ubicación inválida',
+          });
+          return;
+        }
         const fechaActual = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
 
         const payload = {
