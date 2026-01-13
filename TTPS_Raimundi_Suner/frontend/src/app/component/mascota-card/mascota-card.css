@@ -119,6 +119,13 @@
 	user-select: none;
 }
 
+.mascota-card__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
 .mascota-card__btn {
 	background: #d4d4d4;
 	border: none;

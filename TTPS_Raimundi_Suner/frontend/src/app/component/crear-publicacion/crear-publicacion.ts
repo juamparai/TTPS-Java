@@ -1,5 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  ViewChild,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { GeorefService } from '../../services/georef.service';
@@ -32,6 +42,12 @@ export class CrearPublicacion implements OnInit {
 
   readonly mascotas = signal<any[]>([]);
   readonly loadingMascotas = signal(false);
+
+  @ViewChild('mapContainer') private mapContainer?: ElementRef<HTMLDivElement>;
+  private map: any;
+  private marker: any;
+  private pinIcon: any;
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     const currentUser = this.authService.getCurrentUser();
@@ -136,6 +152,100 @@ export class CrearPublicacion implements OnInit {
     }
 
     this.cargarMascotas();
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.mapContainer?.nativeElement) return;
+
+    const L = await import('leaflet');
+
+    // Icono estático embebido (SVG data-URI) para que nunca dependa de assets de Leaflet
+    const pinSvg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+  <path fill="#d32f2f" d="M12 2c-3.314 0-6 2.686-6 6c0 4.5 6 14 6 14s6-9.5 6-14c0-3.314-2.686-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/>
+</svg>`;
+    const pinIconUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg)}`;
+    this.pinIcon = L.icon({
+      iconUrl: pinIconUrl,
+      iconSize: [34, 34],
+      iconAnchor: [17, 34],
+      popupAnchor: [0, -34],
+    });
+
+    // Centro por defecto (CABA)
+    const defaultLat = -34.6037;
+    const defaultLng = -58.3816;
+
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [defaultLat, defaultLng],
+      zoom: 12,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(this.map);
+
+    // Si ya hay coords cargadas (por ejemplo, navegación atrás), las reflejamos
+    const latValue = this.form.value.lat;
+    const lngValue = this.form.value.lng;
+    const initialLat = typeof latValue === 'string' && latValue !== '' ? parseFloat(latValue) : null;
+    const initialLng = typeof lngValue === 'string' && lngValue !== '' ? parseFloat(lngValue) : null;
+    if (initialLat != null && !Number.isNaN(initialLat) && initialLng != null && !Number.isNaN(initialLng)) {
+      this.setSelectedLocation(initialLat, initialLng, false, L);
+      this.map.setView([initialLat, initialLng], 15);
+    }
+
+    this.map.on('click', (e: any) => {
+      const lat = e?.latlng?.lat;
+      const lng = e?.latlng?.lng;
+      if (typeof lat !== 'number' || typeof lng !== 'number') return;
+      this.setSelectedLocation(lat, lng, true, L);
+    });
+
+    // Fix: cuando el contenedor se renderiza, Leaflet a veces necesita recalcular tamaños
+    setTimeout(() => {
+      try {
+        this.map?.invalidateSize();
+      } catch {
+        // noop
+      }
+    }, 0);
+  }
+
+  ngOnDestroy(): void {
+    try {
+      this.map?.remove();
+    } catch {
+      // noop
+    }
+  }
+
+  private setSelectedLocation(lat: number, lng: number, centerMap: boolean, L: any): void {
+    const latRounded = Number(lat.toFixed(6));
+    const lngRounded = Number(lng.toFixed(6));
+
+    this.form.patchValue({
+      lat: String(latRounded),
+      lng: String(lngRounded),
+    });
+
+    this.form.controls['lat']?.markAsDirty();
+    this.form.controls['lng']?.markAsDirty();
+    this.form.controls['lat']?.updateValueAndValidity();
+    this.form.controls['lng']?.updateValueAndValidity();
+
+    if (!this.marker) {
+      this.marker = L.marker([latRounded, lngRounded], { icon: this.pinIcon }).addTo(this.map);
+    } else {
+      this.marker.setLatLng([latRounded, lngRounded]);
+    }
+
+    if (centerMap) {
+      const currentZoom = this.map?.getZoom?.() ?? 12;
+      this.map?.setView?.([latRounded, lngRounded], Math.max(currentZoom, 15));
+    }
   }
 
   cargarMascotas(): void {

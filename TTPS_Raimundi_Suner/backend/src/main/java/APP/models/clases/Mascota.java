@@ -18,6 +18,9 @@ public class Mascota {
     String color;
     @Column(length = 1000)
     String descripcion;
+
+    @Column(length = 500)
+    String imagenUrl;
     LocalDate fechaNac;
     @Transient
     @JsonIgnore
@@ -94,6 +97,14 @@ public class Mascota {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 
     public LocalDate getFechaNac() {

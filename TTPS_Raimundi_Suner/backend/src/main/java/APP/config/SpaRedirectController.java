@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SpaRedirectController {
 
-    @GetMapping(value = "/{path:(?!api|swagger-ui|v3).*}/**")
+    @GetMapping(value = "/{path:(?!api|swagger-ui|v3|uploads).*}/**")
     public String redirect() {
         // Forward all non-API requests to Angular's index.html in browser subfolder
         return "forward:/browser/index.html";

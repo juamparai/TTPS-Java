@@ -33,9 +33,12 @@ export class EditarMascota implements OnInit {
     raza: '',
     color: '',
     tamanio: '',
-    descripcion: '',
-    foto: ''
+    descripcion: ''
   };
+
+  private selectedImageFile: File | null = null;
+  readonly currentImageUrl = signal<string | null>(null);
+  readonly imagePreviewUrl = signal<string | null>(null);
 
   // Opciones para los selects
   readonly tiposOptions = [
@@ -95,9 +98,18 @@ export class EditarMascota implements OnInit {
           raza: mascota.raza || '',
           color: mascota.color || '',
           tamanio: mascota.tamanio || '',
-          descripcion: mascota.descripcion || '',
-          foto: ''
+          descripcion: mascota.descripcion || ''
         };
+
+        const url = mascota.imagenUrl;
+        if (url) {
+          this.currentImageUrl.set(url.startsWith('http') ? url : `http://localhost:8080${url}`);
+        } else {
+          this.currentImageUrl.set(null);
+        }
+
+        this.selectedImageFile = null;
+        this.imagePreviewUrl.set(null);
         this.loadingMascota.set(false);
       },
       error: (err) => {
@@ -135,7 +147,11 @@ export class EditarMascota implements OnInit {
       usuarioId: currentUser?.id
     };
 
-    this.mascotaService.updateMascota(this.mascotaId, mascotaData).subscribe({
+    const request$ = this.selectedImageFile
+      ? this.mascotaService.updateMascotaWithImage(this.mascotaId, mascotaData, this.selectedImageFile)
+      : this.mascotaService.updateMascota(this.mascotaId, mascotaData);
+
+    request$.subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/perfil');
@@ -146,6 +162,30 @@ export class EditarMascota implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+
+    this.error.set(null);
+    this.selectedImageFile = null;
+    this.imagePreviewUrl.set(null);
+
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    const allowedExt = ['jpg', 'jpeg', 'png'];
+
+    if (!allowedTypes.includes(file.type) || !allowedExt.includes(extension)) {
+      this.error.set('La imagen debe ser JPG/JPEG o PNG');
+      input.value = '';
+      return;
+    }
+
+    this.selectedImageFile = file;
+    this.imagePreviewUrl.set(URL.createObjectURL(file));
   }
 
   cancelar(): void {

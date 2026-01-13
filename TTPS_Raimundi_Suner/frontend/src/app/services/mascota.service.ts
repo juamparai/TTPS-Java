@@ -10,6 +10,7 @@ export type Mascota = {
   color?: string;
   tamanio?: string;
   descripcion?: string;
+  imagenUrl?: string;
   fechaNac?: string;
   estadoMascota?: string;
   usuarioId?: number;
@@ -37,8 +38,30 @@ export class MascotaService {
     return this.http.post<Mascota>(`${API_BASE}/mascotas`, mascota);
   }
 
+  createMascotaWithImage(mascota: Mascota, imagen?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('mascota', JSON.stringify(mascota));
+
+    if (imagen) {
+      formData.append('imagen', imagen, imagen.name);
+    }
+
+    return this.http.post(`${API_BASE}/mascotas`, formData);
+  }
+
   updateMascota(id: number, mascota: Mascota): Observable<Mascota> {
     return this.http.put<Mascota>(`${API_BASE}/mascotas/${id}`, mascota);
+  }
+
+  updateMascotaWithImage(id: number, mascota: Mascota, imagen?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('mascota', JSON.stringify(mascota));
+
+    if (imagen) {
+      formData.append('imagen', imagen, imagen.name);
+    }
+
+    return this.http.put(`${API_BASE}/mascotas/${id}`, formData);
   }
 
   deleteMascota(id: number): Observable<void> {

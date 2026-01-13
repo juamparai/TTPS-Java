@@ -114,25 +114,33 @@
           ></textarea>
         </div>
 
-        <!-- Foto (URL) -->
+        <!-- Imagen actual -->
+        @if (currentImageUrl()) {
+          <div class="foto-preview">
+            <p class="preview-label">Imagen actual:</p>
+            <img [src]="currentImageUrl()" alt="Imagen actual" class="preview-image" />
+          </div>
+        }
+
+        <!-- Nueva imagen -->
         <div class="form-group">
-          <label for="foto">Foto (URL)</label>
+          <label for="imagen">Cambiar imagen</label>
           <input
-            type="url"
-            id="foto"
-            name="foto"
-            [(ngModel)]="mascota.foto"
-            placeholder="https://ejemplo.com/foto-de-mascota.jpg"
+            type="file"
+            id="imagen"
+            name="imagen"
+            accept="image/jpeg,image/png"
+            (change)="onImageSelected($event)"
             class="form-control"
           />
-          <small class="form-hint">Puedes pegar el enlace de una imagen de tu mascota</small>
+          <small class="form-hint">Solo JPG/JPEG o PNG</small>
         </div>
 
-        <!-- Vista previa de foto -->
-        @if (mascota.foto) {
+        <!-- Vista previa de nueva imagen -->
+        @if (imagePreviewUrl()) {
           <div class="foto-preview">
-            <p class="preview-label">Vista previa:</p>
-            <img [src]="mascota.foto" alt="Vista previa" class="preview-image" />
+            <p class="preview-label">Nueva imagen (vista previa):</p>
+            <img [src]="imagePreviewUrl()" alt="Vista previa" class="preview-image" />
           </div>
         }
 

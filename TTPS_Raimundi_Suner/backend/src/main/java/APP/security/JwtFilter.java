@@ -89,6 +89,11 @@ public class JwtFilter implements Filter {
     private boolean isPublicPath(String path, String method) {
         if (path == null) return false;
 
+        // Allow public access to uploaded images
+        if (path.startsWith("/uploads/")) {
+            return true;
+        }
+
         // Allow prefix checks for swagger and api-docs
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) return true;
 
