@@ -64,24 +64,24 @@
 
 /* Estado Activa - Rojo (PERDIDO) */
 .estado-activa .tag-estado {
-  background: #d32f2f;
+  background: #c62828;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
 }
 
 .estado-activa .detalle-content {
-  background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+  background: #ffebee;
 }
 
 /* Estado Finalizada - Verde (RECUPERADA) */
 .estado-finalizada .tag-estado {
   background: #2e7d32;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
 }
 
 .estado-finalizada .detalle-content {
-  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+  background: #e8f5e9;
 }
 
 .estado-finalizada .detalle-nombre,
@@ -94,17 +94,17 @@
 .estado-cancelada .tag-estado {
   background: #f57c00;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
 }
 
 .estado-cancelada .detalle-content {
-  background: linear-gradient(135deg, #fff9c4 0%, #ffeb3b 100%);
+  background: #fffde7;
 }
 
 .estado-cancelada .detalle-nombre,
 .estado-cancelada .detalle-descripcion h3,
 .estado-cancelada .detalle-datos-dueno h3 {
-  color: #f57c00;
+  color: #e65100;
 }
 
 .detalle-content {

@@ -131,12 +131,44 @@ export class PublicacionCard implements OnInit {
     }
   }
 
-  get mostrarNombreMascota(): boolean {
+  get estadoClase(): string {
+    const estado = this.publicacion.estadoPublicacion?.toUpperCase();
+    switch (estado) {
+      case 'ACTIVA':
+        return 'estado-activa';
+      case 'FINALIZADA':
+        return 'estado-finalizada';
+      case 'CANCELADA':
+        return 'estado-cancelada';
+      default:
+        return 'estado-activa';
+    }
+  }
+
+  get nombreOEstado(): string {
+    const tieneNombre = this.publicacion.mascotaNombre && this.publicacion.mascotaNombre.trim() !== '';
+    const estadoPub = this.publicacion.estadoPublicacion?.toUpperCase();
+
+    // Si no tiene nombre y está finalizada o cancelada, mostrar el estado
+    if (!tieneNombre && (estadoPub === 'FINALIZADA' || estadoPub === 'CANCELADA')) {
+      return estadoPub === 'FINALIZADA' ? 'RECUPERADA' : 'CANCELADA';
+    }
+
+    // Si tiene nombre, mostrarlo; si no tiene nombre y no está finalizada/cancelada, devolver vacío
+    return this.publicacion.mascotaNombre || '';
+  }
+
+  get mostrarNombreOEstado(): boolean {
+    const tieneNombre = this.publicacion.mascotaNombre && this.publicacion.mascotaNombre.trim() !== '';
+    const estadoPub = this.publicacion.estadoPublicacion?.toUpperCase();
     const estadoMascota = this.estadoMascota;
-    // Mostrar nombre en PERDIDA_PROPIA, ENCONTRADA y ADOPTADA
-    // No mostrar en PERDIDA_AJENA y BUSCANDO_DUEÑO (mascotas sin dueño conocido)
-    return estadoMascota === 'PERDIDA_PROPIA' ||
-           estadoMascota === 'ENCONTRADA' ||
-           estadoMascota === 'ADOPTADA';
+
+    // Mostrar si tiene nombre y debería mostrarse según estado de mascota
+    if (tieneNombre && (estadoMascota === 'PERDIDA_PROPIA' || estadoMascota === 'ENCONTRADA' || estadoMascota === 'ADOPTADA')) {
+      return true;
+    }
+
+    // Mostrar estado si NO tiene nombre y está finalizada o cancelada
+    return !tieneNombre && (estadoPub === 'FINALIZADA' || estadoPub === 'CANCELADA');
   }
 }

@@ -11,7 +11,7 @@ body {
 	margin: 0;
 	font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
 	color: #1f2523;
-	background: linear-gradient(180deg, #f3f6f5 0%, #eef4f0 45%, #f7f8f8 100%);
+	background: #ffffff;
 }
 
 button {

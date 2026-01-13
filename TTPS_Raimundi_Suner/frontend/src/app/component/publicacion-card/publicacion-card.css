@@ -15,6 +15,40 @@
 	cursor: pointer;
 }
 
+/* Estados de publicación */
+.mascota-card.estado-activa {
+	background: #ffebee;
+	border-color: #c62828;
+}
+
+.mascota-card.estado-activa .mascota-card__titulo,
+.mascota-card.estado-activa .mascota-card__nombre,
+.mascota-card.estado-activa .mascota-card__ubicacion {
+	color: #b71c1c;
+}
+
+.mascota-card.estado-finalizada {
+	background: #e8f5e9;
+	border-color: #2e7d32;
+}
+
+.mascota-card.estado-finalizada .mascota-card__titulo,
+.mascota-card.estado-finalizada .mascota-card__nombre,
+.mascota-card.estado-finalizada .mascota-card__ubicacion {
+	color: #1b5e20;
+}
+
+.mascota-card.estado-cancelada {
+	background: #fffde7;
+	border-color: #f57f17;
+}
+
+.mascota-card.estado-cancelada .mascota-card__titulo,
+.mascota-card.estado-cancelada .mascota-card__nombre,
+.mascota-card.estado-cancelada .mascota-card__ubicacion {
+	color: #e65100;
+}
+
 .mascota-card:hover {
 	transform: translateY(-4px);
 	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);

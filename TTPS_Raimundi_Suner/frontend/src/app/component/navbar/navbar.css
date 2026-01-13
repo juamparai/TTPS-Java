@@ -61,11 +61,41 @@
 .brand__title {
 	color: var(--nb-sage-100);
 	font-weight: 700;
-	font-size: 1.15rem;
+	font-size: 1.3rem;
 	letter-spacing: 0.3px;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	line-height: 1.2;
+}
+
+.brand__subtitle {
+	color: var(--nb-sage-100);
+	font-weight: 500;
+	font-size: 0.85rem;
+	letter-spacing: 0.2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	opacity: 0.85;
+	line-height: 1.2;
+	text-align: center;
+}
+
+.brand__logo {
+	height: 34px;
+	width: auto;
+	object-fit: contain;
+	display: block;
+	flex-shrink: 0;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+.brand__text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
 }
 
 .icon-btn {
@@ -327,7 +357,15 @@
 	}
 
 	.brand__title {
-		font-size: 1.05rem;
+		font-size: 1.15rem;
+	}
+
+	.brand__subtitle {
+		font-size: 0.8rem;
+	}
+
+	.brand__logo {
+		height: 30px;
 	}
 
 	.user-chip {
@@ -374,7 +412,15 @@
 	}
 
 	.brand__title {
-		font-size: 0.9rem;
+		font-size: 1rem;
+	}
+
+	.brand__subtitle {
+		font-size: 0.75rem;
+	}
+
+	.brand__logo {
+		height: 28px;
 	}
 
 	/* Hide desktop navigation on mobile */
@@ -444,6 +490,19 @@
 
 	.brand__title {
 		font-size: 0.85rem;
+	}
+
+	.brand__subtitle {
+		font-size: 0.65rem;
+	}
+
+	.brand__logo {
+		height: 26px;
+	}
+
+	/* En pantallas muy chicas priorizamos el logo */
+	.brand__text {
+		display: none;
 	}
 
 	.icon-btn {

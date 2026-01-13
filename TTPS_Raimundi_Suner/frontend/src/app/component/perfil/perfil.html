@@ -64,10 +64,30 @@
         </button>
       </div>
     } @else {
-      <div class="mascotas-grid">
-        @for (mascota of mascotas(); track mascota.id) {
-          <app-mascota-card [mascota]="mascota" [showEditButton]="true" />
-        }
+      <div class="carousel-container">
+        <button
+          class="carousel-btn carousel-btn--prev"
+          type="button"
+          (click)="prevMascotas()"
+          [disabled]="!canPrevMascotas"
+          aria-label="Anterior">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="mascotas-carousel">
+          @for (mascota of mascotasVisible; track mascota.id) {
+            <app-mascota-card [mascota]="mascota" [showEditButton]="true" />
+          }
+        </div>
+
+        <button
+          class="carousel-btn carousel-btn--next"
+          type="button"
+          (click)="nextMascotas()"
+          [disabled]="!canNextMascotas"
+          aria-label="Siguiente">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
       </div>
     }
   </div>
@@ -97,10 +117,30 @@
         <p>Crea una publicación para reportar una mascota perdida</p>
       </div>
     } @else {
-      <div class="publicaciones-grid">
-        @for (publicacion of publicaciones(); track publicacion.id) {
-          <app-publicacion-card [publicacion]="publicacion" />
-        }
+      <div class="carousel-container">
+        <button
+          class="carousel-btn carousel-btn--prev"
+          type="button"
+          (click)="prevPublicaciones()"
+          [disabled]="!canPrevPublicaciones"
+          aria-label="Anterior">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="publicaciones-carousel">
+          @for (publicacion of publicacionesVisible; track publicacion.id) {
+            <app-publicacion-card [publicacion]="publicacion" />
+          }
+        </div>
+
+        <button
+          class="carousel-btn carousel-btn--next"
+          type="button"
+          (click)="nextPublicaciones()"
+          [disabled]="!canNextPublicaciones"
+          aria-label="Siguiente">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
       </div>
     }
   </div>

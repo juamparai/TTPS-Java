@@ -28,6 +28,14 @@ export class Perfil implements OnInit {
   readonly error = signal<string | null>(null);
   readonly errorPublicaciones = signal<string | null>(null);
 
+  // Carrusel de mascotas
+  readonly mascotasCurrentIndex = signal(0);
+  readonly mascotasPerPage = 3;
+
+  // Carrusel de publicaciones
+  readonly publicacionesCurrentIndex = signal(0);
+  readonly publicacionesPerPage = 3;
+
   ngOnInit(): void {
     const currentUser = this.user();
     if (!currentUser?.id) {
@@ -96,5 +104,57 @@ export class Perfil implements OnInit {
 
   editarPerfil(): void {
     this.router.navigateByUrl('/perfil/editar');
+  }
+
+  // Métodos para carrusel de mascotas
+  get mascotasVisible(): Mascota[] {
+    const start = this.mascotasCurrentIndex();
+    return this.mascotas().slice(start, start + this.mascotasPerPage);
+  }
+
+  get canPrevMascotas(): boolean {
+    return this.mascotasCurrentIndex() > 0;
+  }
+
+  get canNextMascotas(): boolean {
+    return this.mascotasCurrentIndex() + this.mascotasPerPage < this.mascotas().length;
+  }
+
+  prevMascotas(): void {
+    if (this.canPrevMascotas) {
+      this.mascotasCurrentIndex.update(i => Math.max(0, i - this.mascotasPerPage));
+    }
+  }
+
+  nextMascotas(): void {
+    if (this.canNextMascotas) {
+      this.mascotasCurrentIndex.update(i => i + this.mascotasPerPage);
+    }
+  }
+
+  // Métodos para carrusel de publicaciones
+  get publicacionesVisible(): Publicacion[] {
+    const start = this.publicacionesCurrentIndex();
+    return this.publicaciones().slice(start, start + this.publicacionesPerPage);
+  }
+
+  get canPrevPublicaciones(): boolean {
+    return this.publicacionesCurrentIndex() > 0;
+  }
+
+  get canNextPublicaciones(): boolean {
+    return this.publicacionesCurrentIndex() + this.publicacionesPerPage < this.publicaciones().length;
+  }
+
+  prevPublicaciones(): void {
+    if (this.canPrevPublicaciones) {
+      this.publicacionesCurrentIndex.update(i => Math.max(0, i - this.publicacionesPerPage));
+    }
+  }
+
+  nextPublicaciones(): void {
+    if (this.canNextPublicaciones) {
+      this.publicacionesCurrentIndex.update(i => i + this.publicacionesPerPage);
+    }
   }
 }
