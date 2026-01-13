@@ -171,6 +171,8 @@ export class CrearPublicacion implements OnInit {
     if (!this.form.value.esMascotaExistente) {
       this.crearMascotaYPublicacion();
     } else {
+      // Proceder directamente a crear la publicación
+      // La validación de publicación activa se hace en el backend
       this.crearPublicacion(this.form.value.mascotaId);
     }
   }

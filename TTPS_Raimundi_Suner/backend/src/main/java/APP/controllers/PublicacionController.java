@@ -97,6 +97,19 @@ public class PublicacionController {
                     error.put("error", "Mascota no encontrada con ID: " + dto.getMascotaId());
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
                 }
+
+                // Verificar si la mascota ya tiene una publicación activa
+                List<Publicacion> publicacionesActivas = publicacionService.obtenerTodas().stream()
+                    .filter(p -> p.getMascota() != null &&
+                                 p.getMascota().getId().equals(dto.getMascotaId()) &&
+                                 p.getEstadoPublicacion() == EstadoPublicacion.ACTIVA)
+                    .collect(java.util.stream.Collectors.toList());
+
+                if (!publicacionesActivas.isEmpty()) {
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error", "Esta mascota ya tiene una publicación activa. No se puede crear otra hasta que se finalice o cancele la existente.");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+                }
             }
 
             if (dto.getUsuarioId() != null && dto.getUsuarioId() <= 0) {
