@@ -17,6 +17,7 @@ export type Publicacion = {
   // Datos populados
   mascotaNombre?: string;
   mascotaTipo?: string;
+  mascotaEstado?: string;
   localidad?: string;
 };
 
@@ -94,5 +95,32 @@ export class PublicacionCard implements OnInit {
 
   get localidadMostrar(): string {
     return this.ubicacionCargada() || 'Ubicación desconocida';
+  }
+
+  get tituloCard(): string {
+    const estadoMascota = this.publicacion.mascotaEstado;
+
+    switch (estadoMascota) {
+      case 'PERDIDA_PROPIA':
+        return 'BUSCAMOS A';
+      case 'PERDIDA_AJENA':
+      case 'BUSCANDO_DUEÑO':
+        return 'Busco a mi dueño';
+      case 'ENCONTRADA':
+        return 'Mascota encontrada';
+      case 'ADOPTADA':
+        return 'Mascota adoptada';
+      default:
+        return 'BUSCAMOS A';
+    }
+  }
+
+  get mostrarNombreMascota(): boolean {
+    const estadoMascota = this.publicacion.mascotaEstado;
+    // Mostrar nombre en PERDIDA_PROPIA, ENCONTRADA y ADOPTADA
+    // No mostrar en PERDIDA_AJENA y BUSCANDO_DUEÑO (mascotas sin dueño conocido)
+    return estadoMascota === 'PERDIDA_PROPIA' ||
+           estadoMascota === 'ENCONTRADA' ||
+           estadoMascota === 'ADOPTADA';
   }
 }

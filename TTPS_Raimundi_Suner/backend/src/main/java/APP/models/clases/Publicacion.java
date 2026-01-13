@@ -120,4 +120,8 @@ public class Publicacion {
     public String getMascotaTipo() {
         return mascota != null ? mascota.getTipo() : null;
     }
+
+    public String getMascotaEstado() {
+        return mascota != null && mascota.getEstadoMascota() != null ? mascota.getEstadoMascota().name() : null;
+    }
 }

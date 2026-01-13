@@ -89,13 +89,13 @@
       Cancelar
     </button>
     <button class="btn-recuperada-compacto" (click)="abrirModal()">
-      Recuperada
+      {{ esPerdidaPropia ? 'Recuperada' : 'Encontró dueño' }}
     </button>
   </div>
 </div>
 
-<!-- Modal de confirmación Recuperada -->
-<div class="modal-overlay" *ngIf="mostrarModal()" (click)="cerrarModal()">
+<!-- Modal de confirmación Recuperada (para perdida propia) -->
+<div class="modal-overlay" *ngIf="mostrarModal() && esPerdidaPropia" (click)="cerrarModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <h2>¿Recuperaste a tu mascota?</h2>
     <p>Esto marcará la publicación como finalizada y cambiará el estado de tu mascota a "Adoptada".</p>
@@ -112,8 +112,29 @@
   </div>
 </div>
 
-<!-- Modal de cancelación -->
-<div class="modal-overlay" *ngIf="mostrarModalCancelar()" (click)="cerrarModalCancelar()">
+<!-- Modal de confirmación para perdida ajena -->
+<div class="modal-overlay" *ngIf="mostrarModal() && !esPerdidaPropia" (click)="cerrarModal()">
+  <div class="modal-content modal-content-cancelar" (click)="$event.stopPropagation()">
+    <h2>¿Qué sucedió con la mascota?</h2>
+    <p class="modal-info">Selecciona el resultado final de la búsqueda del dueño.</p>
+
+    <div class="modal-acciones-cancelar">
+      <button class="btn-modal-si" (click)="confirmarEncontroDueno('ENCONTRADA')" [disabled]="procesandoRecuperacion()">
+        {{ procesandoRecuperacion() ? 'Procesando...' : 'Encontró al dueño' }}
+      </button>
+      <button class="btn-modal-si" (click)="confirmarEncontroDueno('ADOPTADA')" [disabled]="procesandoRecuperacion()">
+        {{ procesandoRecuperacion() ? 'Procesando...' : 'Fue adoptada' }}
+      </button>
+    </div>
+
+    <button class="btn-modal-volver" (click)="cerrarModal()" [disabled]="procesandoRecuperacion()">
+      Volver
+    </button>
+  </div>
+</div>
+
+<!-- Modal de cancelación para perdida propia -->
+<div class="modal-overlay" *ngIf="mostrarModalCancelar() && esPerdidaPropia" (click)="cerrarModalCancelar()">
   <div class="modal-content modal-content-cancelar" (click)="$event.stopPropagation()">
     <h2>Cancelar publicación</h2>
     <p>¿Pudiste recuperar a tu mascota?</p>
@@ -125,6 +146,31 @@
       </button>
       <button class="btn-modal-si" (click)="confirmarCancelacion(true)" [disabled]="procesandoCancelacion()">
         {{ procesandoCancelacion() ? 'Procesando...' : 'Sí, recuperada' }}
+      </button>
+    </div>
+
+    <button class="btn-modal-volver" (click)="cerrarModalCancelar()" [disabled]="procesandoCancelacion()">
+      Volver
+    </button>
+  </div>
+</div>
+
+<!-- Modal de cancelación para perdida ajena -->
+<div class="modal-overlay" *ngIf="mostrarModalCancelar() && !esPerdidaPropia" (click)="cerrarModalCancelar()">
+  <div class="modal-content modal-content-cancelar" (click)="$event.stopPropagation()">
+    <h2>Cancelar publicación</h2>
+    <p>¿Qué sucedió con la mascota?</p>
+    <p class="modal-info">Esto cerrará la publicación. Selecciona el resultado final.</p>
+
+    <div class="modal-acciones-cancelar">
+      <button class="btn-modal-si" (click)="confirmarCancelacionAjena('ENCONTRADA')" [disabled]="procesandoCancelacion()">
+        {{ procesandoCancelacion() ? 'Procesando...' : 'Encontró al dueño' }}
+      </button>
+      <button class="btn-modal-si" (click)="confirmarCancelacionAjena('ADOPTADA')" [disabled]="procesandoCancelacion()">
+        {{ procesandoCancelacion() ? 'Procesando...' : 'Fue adoptada' }}
+      </button>
+      <button class="btn-modal-no" (click)="confirmarCancelacionAjena(null)" [disabled]="procesandoCancelacion()">
+        {{ procesandoCancelacion() ? 'Procesando...' : 'No encontró dueño' }}
       </button>
     </div>
 

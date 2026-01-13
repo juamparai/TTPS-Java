@@ -284,6 +284,109 @@ export class PublicacionDetalle implements OnInit {
     });
   }
 
+  confirmarEncontroDueno(nuevoEstado: 'ENCONTRADA' | 'ADOPTADA'): void {
+    const pub = this.publicacion();
+    if (!pub || !pub.id || !pub.mascotaId) return;
+
+    this.procesandoRecuperacion.set(true);
+
+    // 1. Actualizar el estado de la mascota
+    this.mascotaService.getMascotaById(pub.mascotaId).subscribe({
+      next: (mascota) => {
+        const mascotaActualizada = {
+          ...mascota,
+          estadoMascota: nuevoEstado
+        };
+
+        this.mascotaService.updateMascota(pub.mascotaId, mascotaActualizada).subscribe({
+          next: () => {
+            // 2. Finalizar la publicación
+            const publicacionActualizada = {
+              ...pub,
+              estadoPublicacion: 'FINALIZADA',
+              fechaCierre: new Date().toISOString().split('T')[0]
+            };
+
+            this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
+              next: () => {
+                this.procesandoRecuperacion.set(false);
+                this.cerrarModal();
+                this.router.navigate(['/']);
+              },
+              error: (err) => {
+                console.error('Error al finalizar publicación:', err);
+                this.procesandoRecuperacion.set(false);
+                alert('Error al finalizar la publicación');
+              }
+            });
+          },
+          error: (err) => {
+            console.error('Error al actualizar mascota:', err);
+            this.procesandoRecuperacion.set(false);
+            alert('Error al actualizar el estado de la mascota');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error al obtener mascota:', err);
+        this.procesandoRecuperacion.set(false);
+        alert('Error al obtener los datos de la mascota');
+      }
+    });
+  }
+
+  confirmarCancelacionAjena(nuevoEstado: 'ENCONTRADA' | 'ADOPTADA' | null): void {
+    const pub = this.publicacion();
+    if (!pub || !pub.id || !pub.mascotaId) return;
+
+    this.procesandoCancelacion.set(true);
+
+    // 1. Actualizar el estado de la mascota según la opción elegida
+    this.mascotaService.getMascotaById(pub.mascotaId).subscribe({
+      next: (mascota) => {
+        const estadoFinal = nuevoEstado || mascota.estadoMascota; // Si es null, mantener el estado actual
+        const mascotaActualizada = {
+          ...mascota,
+          estadoMascota: estadoFinal
+        };
+
+        this.mascotaService.updateMascota(pub.mascotaId, mascotaActualizada).subscribe({
+          next: () => {
+            // 2. Cancelar la publicación
+            const publicacionActualizada = {
+              ...pub,
+              estadoPublicacion: 'CANCELADA',
+              fechaCierre: new Date().toISOString().split('T')[0]
+            };
+
+            this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
+              next: () => {
+                this.procesandoCancelacion.set(false);
+                this.cerrarModalCancelar();
+                this.router.navigate(['/']);
+              },
+              error: (err) => {
+                console.error('Error al cancelar publicación:', err);
+                this.procesandoCancelacion.set(false);
+                alert('Error al cancelar la publicación');
+              }
+            });
+          },
+          error: (err) => {
+            console.error('Error al actualizar mascota:', err);
+            this.procesandoCancelacion.set(false);
+            alert('Error al actualizar el estado de la mascota');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error al obtener mascota:', err);
+        this.procesandoCancelacion.set(false);
+        alert('Error al obtener los datos de la mascota');
+      }
+    });
+  }
+
   volver(): void {
     this.router.navigate(['/']);
   }

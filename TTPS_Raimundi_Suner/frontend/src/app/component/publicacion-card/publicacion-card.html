@@ -1,6 +1,7 @@
 <div class="mascota-card">
 	<div class="mascota-card__header">
-		<h3 class="mascota-card__nombre">{{ publicacion.mascotaNombre || 'Sin nombre' }}</h3>
+		<h3 class="mascota-card__titulo">{{ tituloCard }}</h3>
+		<h3 class="mascota-card__nombre" *ngIf="mostrarNombreMascota">{{ publicacion.mascotaNombre || 'Sin nombre' }}</h3>
 	</div>
 
 	<div class="mascota-card__image-container">
