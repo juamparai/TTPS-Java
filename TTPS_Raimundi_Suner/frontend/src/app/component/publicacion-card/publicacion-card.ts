@@ -17,6 +17,12 @@ export type Publicacion = {
   // Datos populados
   mascotaNombre?: string;
   mascotaTipo?: string;
+  mascotaImagenUrl?: string;
+  mascotaEstado?: string;
+  mascota?: {
+    imagenUrl?: string;
+    estadoMascota?: string;
+  };
   localidad?: string;
 };
 
@@ -99,12 +105,16 @@ export class PublicacionCard implements OnInit {
     return `http://localhost:8080${url}`;
   }
 
+  private get estadoMascota(): string | undefined {
+    return this.publicacion.mascotaEstado ?? this.publicacion.mascota?.estadoMascota;
+  }
+
   get localidadMostrar(): string {
     return this.ubicacionCargada() || 'Ubicación desconocida';
   }
 
   get tituloCard(): string {
-    const estadoMascota = this.publicacion.mascotaEstado;
+    const estadoMascota = this.estadoMascota;
 
     switch (estadoMascota) {
       case 'PERDIDA_PROPIA':
@@ -122,7 +132,7 @@ export class PublicacionCard implements OnInit {
   }
 
   get mostrarNombreMascota(): boolean {
-    const estadoMascota = this.publicacion.mascotaEstado;
+    const estadoMascota = this.estadoMascota;
     // Mostrar nombre en PERDIDA_PROPIA, ENCONTRADA y ADOPTADA
     // No mostrar en PERDIDA_AJENA y BUSCANDO_DUEÑO (mascotas sin dueño conocido)
     return estadoMascota === 'PERDIDA_PROPIA' ||

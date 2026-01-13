@@ -175,6 +175,7 @@ export class Home implements OnInit {
               mascotaNombre: pub.mascota?.nombre || 'Sin nombre',
               mascotaTipo: pub.mascota?.tipo || 'Desconocido',
               mascotaImagenUrl: pub.mascota?.imagenUrl || null,
+              mascotaEstado: pub.mascota?.estadoMascota || null,
               localidad: nombreLocalidad,
             };
           })

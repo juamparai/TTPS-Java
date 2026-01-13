@@ -1,5 +1,14 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  PLATFORM_ID,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PublicacionService } from '../../services/publicacion.service';
 import { MascotaService, Mascota } from '../../services/mascota.service';
@@ -49,6 +58,14 @@ export class PublicacionDetalle implements OnInit {
   readonly procesandoRecuperacion = signal<boolean>(false);
   readonly procesandoCancelacion = signal<boolean>(false);
 
+  @ViewChild('mapContainer') private mapContainer?: ElementRef<HTMLDivElement>;
+  private map: any;
+  private marker: any;
+  private pinIcon: any;
+  private viewReady = false;
+  private mapReady = false;
+  private readonly platformId = inject(PLATFORM_ID);
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -57,6 +74,11 @@ export class PublicacionDetalle implements OnInit {
       this.error.set('ID de publicación no válido');
       this.cargando.set(false);
     }
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    this.viewReady = true;
+    await this.initMapIfReady();
   }
 
   private cargarPublicacion(id: number): void {
@@ -81,7 +103,12 @@ export class PublicacionDetalle implements OnInit {
         console.log('Es perdido?', this.esPerdido);
         console.log('Es perdida propia?', this.esPerdidaPropia);
         this.cargarUbicacion(pub);
+        // Primero renderizamos el template (el mapa está dentro de un *ngIf)
         this.cargando.set(false);
+        // Luego intentamos inicializar el mapa en el próximo tick
+        setTimeout(() => {
+          this.initMapIfReady();
+        }, 0);
       },
       error: (err) => {
         console.error('Error al cargar publicación:', err);
@@ -89,6 +116,62 @@ export class PublicacionDetalle implements OnInit {
         this.cargando.set(false);
       }
     });
+  }
+
+  private async initMapIfReady(): Promise<void> {
+    if (this.mapReady) return;
+    if (!this.viewReady) return;
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.mapContainer?.nativeElement) return;
+
+    const pub = this.publicacion();
+    const lat = pub?.lat;
+    const lng = pub?.lng;
+    if (lat == null || lng == null) return;
+
+    const L = await import('leaflet');
+
+    const pinSvg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+  <path fill="#d32f2f" d="M12 2c-3.314 0-6 2.686-6 6c0 4.5 6 14 6 14s6-9.5 6-14c0-3.314-2.686-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/>
+</svg>`;
+    const pinIconUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(pinSvg)}`;
+    this.pinIcon = L.icon({
+      iconUrl: pinIconUrl,
+      iconSize: [34, 34],
+      iconAnchor: [17, 34],
+      popupAnchor: [0, -34],
+    });
+
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [lat, lng],
+      zoom: 15,
+      zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(this.map);
+
+    this.marker = L.marker([lat, lng], { icon: this.pinIcon }).addTo(this.map);
+
+    this.mapReady = true;
+
+    setTimeout(() => {
+      try {
+        this.map?.invalidateSize();
+      } catch {
+        // noop
+      }
+    }, 0);
+  }
+
+  get imageSrc(): string | null {
+    const url = this.publicacion()?.mascota?.imagenUrl;
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `http://localhost:8080${url}`;
   }
 
   private cargarUbicacion(pub: any): void {

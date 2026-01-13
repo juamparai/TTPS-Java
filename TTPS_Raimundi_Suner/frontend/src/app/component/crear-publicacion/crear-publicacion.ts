@@ -43,6 +43,8 @@ export class CrearPublicacion implements OnInit {
   readonly mascotas = signal<any[]>([]);
   readonly loadingMascotas = signal(false);
 
+  readonly municipioNombre = signal<string>('');
+
   @ViewChild('mapContainer') private mapContainer?: ElementRef<HTMLDivElement>;
   private map: any;
   private marker: any;
@@ -195,6 +197,7 @@ export class CrearPublicacion implements OnInit {
     if (initialLat != null && !Number.isNaN(initialLat) && initialLng != null && !Number.isNaN(initialLng)) {
       this.setSelectedLocation(initialLat, initialLng, false, L);
       this.map.setView([initialLat, initialLng], 15);
+      this.resolveMunicipioForCoords(initialLat, initialLng);
     }
 
     this.map.on('click', (e: any) => {
@@ -202,6 +205,7 @@ export class CrearPublicacion implements OnInit {
       const lng = e?.latlng?.lng;
       if (typeof lat !== 'number' || typeof lng !== 'number') return;
       this.setSelectedLocation(lat, lng, true, L);
+      this.resolveMunicipioForCoords(lat, lng);
     });
 
     // Fix: cuando el contenedor se renderiza, Leaflet a veces necesita recalcular tamaños
@@ -246,6 +250,23 @@ export class CrearPublicacion implements OnInit {
       const currentZoom = this.map?.getZoom?.() ?? 12;
       this.map?.setView?.([latRounded, lngRounded], Math.max(currentZoom, 15));
     }
+  }
+
+  private resolveMunicipioForCoords(lat: number, lng: number): void {
+    this.municipioNombre.set('Calculando municipio...');
+    this.georefService.getUbicacionPorCoordenadas(lat, lng).subscribe({
+      next: (ubicacion) => {
+        const nombre =
+          ubicacion.municipio?.nombre ||
+          ubicacion.departamento?.nombre ||
+          ubicacion.provincia?.nombre ||
+          'Ubicación desconocida';
+        this.municipioNombre.set(nombre);
+      },
+      error: () => {
+        this.municipioNombre.set('Ubicación desconocida');
+      },
+    });
   }
 
   cargarMascotas(): void {

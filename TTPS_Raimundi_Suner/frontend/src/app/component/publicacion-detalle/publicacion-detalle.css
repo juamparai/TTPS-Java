@@ -153,6 +153,13 @@
   user-select: none;
 }
 
+.foto-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .detalle-datos-animal {
   flex: 1;
   display: flex;
@@ -232,6 +239,26 @@
   flex: 1;
   display: flex;
   align-items: flex-end;
+}
+
+.mapa-real {
+  width: 100%;
+  min-height: 300px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #ddd;
+  overflow: hidden;
+}
+
+.mapa-meta {
+  margin-top: 0.5rem;
+}
+
+.mapa-coords {
+  margin: 0.25rem 0 0;
+  color: #555;
+  font-size: 0.95rem;
 }
 
 .mapa-placeholder {

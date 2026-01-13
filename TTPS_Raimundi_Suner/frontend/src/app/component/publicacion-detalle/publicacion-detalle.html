@@ -12,7 +12,11 @@
     <div class="detalle-izquierda">
       <div class="detalle-foto-y-datos">
         <div class="foto-placeholder">
-          <span class="foto-inicial">{{ inicialNombre }}</span>
+          @if (imageSrc) {
+            <img class="foto-img" [src]="imageSrc" [alt]="'Foto de ' + (publicacion()?.mascota?.nombre || 'mascota')" />
+          } @else {
+            <span class="foto-inicial">{{ inicialNombre }}</span>
+          }
         </div>
 
         <div class="detalle-datos-animal">
@@ -75,10 +79,14 @@
 
       <!-- Mapa (placeholder) -->
       <div class="detalle-mapa">
-        <div class="mapa-placeholder">
-          <p>Mapa de ubicación</p>
-          <p class="mapa-ubicacion">{{ ubicacion() }}</p>
-        </div>
+        <div class="mapa-real" #mapContainer aria-label="Mapa de ubicación de la publicación"></div>
+      </div>
+
+      <div class="mapa-meta">
+        <p class="mapa-ubicacion">{{ ubicacion() }}</p>
+        <p class="mapa-coords" *ngIf="publicacion()?.lat != null && publicacion()?.lng != null">
+          Lat: {{ publicacion()?.lat }} · Lng: {{ publicacion()?.lng }}
+        </p>
       </div>
     </div>
   </div>

@@ -180,6 +180,12 @@
         <span class="label">Seleccioná el punto en el mapa</span>
         <div class="mini-map" #mapContainer aria-label="Mapa para seleccionar ubicación"></div>
 
+        <div class="municipio-row" aria-label="Municipio calculado">
+          <span class="municipio-label">Municipio:</span>
+          <span class="municipio-value">{{ municipioNombre() || '—' }}</span>
+        </div>
+
+        <!-- Coordenadas seleccionadas (solo mostrar) -->
         <div class="coords-row" aria-label="Coordenadas seleccionadas">
           <div class="coord-pill">
             <span class="coord-label">Lat</span>
@@ -190,6 +196,10 @@
             <span class="coord-value">{{ form.value.lng || '—' }}</span>
           </div>
         </div>
+
+        <!-- Inputs ocultos para mantener el FormGroup (validación + submit) -->
+        <input type="hidden" formControlName="lat" />
+        <input type="hidden" formControlName="lng" />
 
         @if ((submitted() || form.controls['lat'].touched || form.controls['lng'].touched) && (form.controls['lat'].invalid || form.controls['lng'].invalid)) {
           @if (form.controls['lat'].errors?.['required'] || form.controls['lng'].errors?.['required']) {
