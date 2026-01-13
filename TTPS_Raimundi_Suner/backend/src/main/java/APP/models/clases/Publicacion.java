@@ -103,4 +103,21 @@ public class Publicacion {
     public void setMunicipioId(String municipioId) {
         this.municipioId = municipioId;
     }
+
+    // Getters para serialización JSON
+    public Long getUsuarioId() {
+        return usuario != null ? usuario.getId() : null;
+    }
+
+    public Long getMascotaId() {
+        return mascota != null ? mascota.getId() : null;
+    }
+
+    public String getMascotaNombre() {
+        return mascota != null ? mascota.getNombre() : null;
+    }
+
+    public String getMascotaTipo() {
+        return mascota != null ? mascota.getTipo() : null;
+    }
 }

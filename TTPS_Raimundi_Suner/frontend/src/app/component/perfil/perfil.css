@@ -99,6 +99,7 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
 .mascotas-header {
@@ -138,9 +139,41 @@
 /* Grid de mascotas */
 .mascotas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 240px));
   gap: 1.5rem;
-  justify-items: center;
+  justify-content: center;
+}
+
+/* Sección de publicaciones */
+.publicaciones-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.publicaciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+/* Grid de publicaciones */
+.publicaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 240px));
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.publicaciones-grid app-publicacion-card {
+  width: 100%;
+  max-width: 240px;
+  display: flex;
+  justify-content: center;
 }
 
 /* Estados */
@@ -186,8 +219,10 @@
 }
 
 .empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  color: #cbd5e0;
 }
 
 .empty-state h3 {
@@ -251,6 +286,10 @@
   .mascotas-grid {
     grid-template-columns: 1fr;
   }
+
+  .publicaciones-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 480px) {
@@ -273,6 +312,10 @@
   }
 
   .mascotas-section {
+    padding: 1.5rem;
+  }
+
+  .publicaciones-section {
     padding: 1.5rem;
   }
 }
