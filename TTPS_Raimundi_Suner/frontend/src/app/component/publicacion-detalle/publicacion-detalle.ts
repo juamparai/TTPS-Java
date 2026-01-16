@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   OnInit,
+  OnDestroy,
   PLATFORM_ID,
   ViewChild,
   inject,
@@ -41,7 +42,7 @@ type PublicacionDetalleData = {
   templateUrl: './publicacion-detalle.html',
   styleUrl: './publicacion-detalle.css',
 })
-export class PublicacionDetalle implements OnInit {
+export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly publicacionService = inject(PublicacionService);
@@ -67,6 +68,28 @@ export class PublicacionDetalle implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
 
   ngOnInit(): void {
+    // Solo ejecutar en el navegador, NO en el servidor
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    // Limpiar el mapa si existe antes de inicializar
+    if (this.map) {
+      try {
+        this.map.off();
+        this.map.remove();
+      } catch (e) {
+        // Ignorar errores al limpiar
+      }
+      this.map = null;
+      this.marker = null;
+      this.pinIcon = null;
+    }
+
+    // Resetear estados al inicializar
+    this.viewReady = false;
+    this.mapReady = false;
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.cargarPublicacion(+id);
@@ -84,12 +107,6 @@ export class PublicacionDetalle implements OnInit {
   private cargarPublicacion(id: number): void {
     this.publicacionService.getPublicacionById(id).subscribe({
       next: (pub: any) => {
-        console.log('Publicación recibida:', pub);
-        console.log('Estado:', pub.estadoPublicacion);
-        console.log('Fecha cierre:', pub.fechaCierre);
-        console.log('Usuario:', pub.usuario);
-        console.log('Mascota:', pub.mascota);
-
         // El backend ya devuelve la mascota completa, no necesitamos cargarla por separado
         const publicacionCompleta = {
           ...pub,
@@ -99,9 +116,6 @@ export class PublicacionDetalle implements OnInit {
         };
 
         this.publicacion.set(publicacionCompleta);
-        console.log('Publicación completa:', this.publicacion());
-        console.log('Es perdido?', this.esPerdido);
-        console.log('Es perdida propia?', this.esPerdidaPropia);
         this.cargarUbicacion(pub);
         // Primero renderizamos el template (el mapa está dentro de un *ngIf)
         this.cargando.set(false);
@@ -129,6 +143,12 @@ export class PublicacionDetalle implements OnInit {
     const lng = pub?.lng;
     if (lat == null || lng == null) return;
 
+    // Limpiar cualquier contenido previo del contenedor del mapa
+    const container = this.mapContainer.nativeElement;
+    container.innerHTML = '';
+    // Resetear el ID interno de Leaflet (usando any para acceder a la propiedad dinámica)
+    (container as any)._leaflet_id = undefined;
+
     const L = await import('leaflet');
 
     const pinSvg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -143,7 +163,7 @@ export class PublicacionDetalle implements OnInit {
       popupAnchor: [0, -34],
     });
 
-    this.map = L.map(this.mapContainer.nativeElement, {
+    this.map = L.map(container, {
       center: [lat, lng],
       zoom: 15,
       zoomControl: true,
@@ -472,5 +492,14 @@ export class PublicacionDetalle implements OnInit {
 
   volver(): void {
     this.router.navigate(['/']);
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar recursos si es necesario
+    if (this.map) {
+      this.map.off();
+      this.map.remove();
+      this.map = null;
+    }
   }
 }
