@@ -1,0 +1,206 @@
+<div class="admin-mascotas">
+  <header class="page-header">
+    <h1><i class="fas fa-paw"></i> Listado de Mascotas</h1>
+    <p class="subtitle">Gestiona las mascotas del sistema</p>
+  </header>
+
+  <section class="filters-section">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="filtroNombre">Nombre</label>
+        <input
+          type="text"
+          id="filtroNombre"
+          placeholder="Buscar por nombre..."
+          [value]="filtroNombre()"
+          (input)="onFiltroNombreChange($event)"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="filtroTipo">Tipo</label>
+        <select
+          id="filtroTipo"
+          [value]="filtroTipo()"
+          (change)="onFiltroTipoChange($event)"
+        >
+          <option value="todos">Todos</option>
+          @for (tipo of tiposUnicos(); track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filtroEstado">Estado</label>
+        <select
+          id="filtroEstado"
+          [value]="filtroEstado()"
+          (change)="onFiltroEstadoChange($event)"
+        >
+          <option value="todos">Todos</option>
+          @for (estado of estadosUnicos(); track estado) {
+            <option [value]="estado">{{ formatEstado(estado) }}</option>
+          }
+        </select>
+      </div>
+      <button class="btn-limpiar" (click)="limpiarFiltros()">
+        <i class="fas fa-times"></i> Limpiar
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando mascotas...</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ error() }}</span>
+      <button (click)="loadMascotas()">Reintentar</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="table-container">
+      <table class="mascotas-table">
+        <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Raza</th>
+            <th>Estado</th>
+            <th>Dueño</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (mascota of mascotasPaginadas(); track mascota.id) {
+            <tr>
+              <td>
+                @if (mascota.imagenUrl) {
+                  <img [src]="mascota.imagenUrl" [alt]="mascota.nombre" class="mascota-img" />
+                } @else {
+                  <div class="no-img">
+                    <i class="fas fa-paw"></i>
+                  </div>
+                }
+              </td>
+              <td class="mascota-nombre">{{ mascota.nombre }}</td>
+              <td>{{ mascota.tipo || '-' }}</td>
+              <td>{{ mascota.raza || '-' }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getEstadoClass(mascota.estadoMascota)">
+                  {{ formatEstado(mascota.estadoMascota) }}
+                </span>
+              </td>
+              <td>{{ getNombreDueno(mascota) }}</td>
+              <td class="actions-cell">
+                <button
+                  class="btn-action btn-edit"
+                  title="Editar mascota"
+                  (click)="editarMascota(mascota)"
+                >
+                  <i class="fas fa-edit"></i>
+                  <span>Editar</span>
+                </button>
+                <button
+                  class="btn-action btn-delete"
+                  title="Eliminar mascota"
+                  (click)="confirmarEliminar(mascota)"
+                >
+                  <i class="fas fa-trash"></i>
+                  <span>Eliminar</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-row">
+                <i class="fas fa-paw"></i>
+                <span>No se encontraron mascotas</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(1)"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <i class="fas fa-angle-left"></i>
+        </button>
+
+        @for (page of getPages(); track page) {
+          <button
+            class="page-btn page-number"
+            [class.active]="page === currentPage()"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(totalPages())"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+
+        <span class="page-info">
+          Página {{ currentPage() }} de {{ totalPages() }} ({{ mascotasFiltradas().length }} mascotas)
+        </span>
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+@if (mostrarModalEliminar()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon warning">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2>Eliminar Mascota</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar a <strong>{{ mascotaAEliminar()?.nombre }}</strong>?</p>
+        <p class="warning-text">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" (click)="cerrarModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn-modal btn-danger" (click)="confirmarEliminarMascota()">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+}

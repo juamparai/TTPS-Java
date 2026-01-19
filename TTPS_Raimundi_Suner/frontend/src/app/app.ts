@@ -2,12 +2,13 @@ import { Component, signal, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angu
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './component/navbar/navbar';
+import { AdminSidebar } from './component/admin-sidebar/admin-sidebar';
 import { ToastHost } from './shared/toast/toast';
 import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, ToastHost],
+  imports: [RouterOutlet, Navbar, AdminSidebar, ToastHost],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

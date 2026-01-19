@@ -10,8 +10,11 @@ import { CrearMascota } from './component/crear-mascota/crear-mascota';
 import { EditarMascota } from './component/editar-mascota/editar-mascota';
 import { PublicacionDetalle } from './component/publicacion-detalle/publicacion-detalle';
 import { NotFound } from './component/not-found/not-found';
+import { AdminUsuarios } from './component/admin-usuarios/admin-usuarios';
+import { AdminMascotas } from './component/admin-mascotas/admin-mascotas';
 import { authRedirectGuard } from './guards/auth-redirect.guard';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -24,5 +27,8 @@ export const routes: Routes = [
     { path: 'cambiar-password', component: CambiarPassword, canActivate: [authGuard] },
     { path: 'mascotas/crear', component: CrearMascota, canActivate: [authGuard] },
     { path: 'mascotas/:id/editar', component: EditarMascota, canActivate: [authGuard] },
+    // Rutas de administración
+    { path: 'admin/usuarios', component: AdminUsuarios, canActivate: [authGuard, adminGuard] },
+    { path: 'admin/mascotas', component: AdminMascotas, canActivate: [authGuard, adminGuard] },
     { path: '**', component: NotFound }, // Ruta 404 - debe ser la última
 ];

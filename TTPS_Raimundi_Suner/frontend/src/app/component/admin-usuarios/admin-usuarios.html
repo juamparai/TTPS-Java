@@ -1,0 +1,244 @@
+<div class="admin-usuarios">
+  <header class="page-header">
+    <h1><i class="fas fa-users"></i> Listado de Usuarios</h1>
+    <p class="subtitle">Gestiona los usuarios del sistema</p>
+  </header>
+
+  <!-- Filtros -->
+  <section class="filters-section">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="filtroNombre">Nombre</label>
+        <input
+          type="text"
+          id="filtroNombre"
+          placeholder="Buscar por nombre..."
+          [value]="filtroNombre()"
+          (input)="onFiltroNombreChange($event)"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="filtroEmail">Email</label>
+        <input
+          type="text"
+          id="filtroEmail"
+          placeholder="Buscar por email..."
+          [value]="filtroEmail()"
+          (input)="onFiltroEmailChange($event)"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="filtroEstado">Estado</label>
+        <select
+          id="filtroEstado"
+          [value]="filtroEstado()"
+          (change)="onFiltroEstadoChange($event)"
+        >
+          <option value="todos">Todos</option>
+          <option value="activos">Activos</option>
+          <option value="bloqueados">Bloqueados</option>
+        </select>
+      </div>
+      <button class="btn-limpiar" (click)="limpiarFiltros()">
+        <i class="fas fa-times"></i> Limpiar
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando usuarios...</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ error() }}</span>
+      <button (click)="loadUsuarios()">Reintentar</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="table-container">
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Puntos</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (usuario of usuariosPaginados(); track usuario.id) {
+            <tr [class.bloqueado]="!usuario.estado">
+              <td class="user-name-cell">
+                <span class="user-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+              </td>
+              <td>{{ usuario.email }}</td>
+              <td>{{ usuario.telefono || '-' }}</td>
+              <td>
+                <span class="puntos-badge">
+                  <i class="fas fa-star"></i> {{ usuario.puntos || 0 }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [class.activo]="usuario.estado" [class.bloqueado]="!usuario.estado">
+                  <i [class]="usuario.estado ? 'fas fa-check-circle' : 'fas fa-ban'"></i>
+                  {{ usuario.estado ? 'Activo' : 'Bloqueado' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button
+                  class="btn-action btn-edit"
+                  title="Editar usuario"
+                  (click)="editarUsuario(usuario)"
+                >
+                  <i class="fas fa-edit"></i>
+                  <span>Editar</span>
+                </button>
+                <button
+                  class="btn-action"
+                  [class.btn-block]="usuario.estado"
+                  [class.btn-unblock]="!usuario.estado"
+                  [title]="usuario.estado ? 'Bloquear usuario' : 'Desbloquear usuario'"
+                  (click)="confirmarBloqueo(usuario)"
+                >
+                  <i [class]="usuario.estado ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+                  <span>{{ usuario.estado ? 'Bloquear' : 'Desbloquear' }}</span>
+                </button>
+                <button
+                  class="btn-action btn-delete"
+                  title="Eliminar usuario"
+                  (click)="confirmarEliminar(usuario)"
+                >
+                  <i class="fas fa-trash"></i>
+                  <span>Eliminar</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-row">
+                <i class="fas fa-user-slash"></i>
+                <span>No se encontraron usuarios</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(1)"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <i class="fas fa-angle-left"></i>
+        </button>
+
+        @for (page of getPages(); track page) {
+          <button
+            class="page-btn page-number"
+            [class.active]="page === currentPage()"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          <i class="fas fa-angle-right"></i>
+        </button>
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(totalPages())"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+
+        <span class="page-info">
+          Página {{ currentPage() }} de {{ totalPages() }} ({{ usuariosFiltrados().length }} usuarios)
+        </span>
+      </div>
+    }
+  }
+</div>
+
+<!-- Modal de confirmación para bloquear/desbloquear -->
+@if (mostrarModalBloqueo()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon" [class.warning]="usuarioSeleccionado()?.estado" [class.success]="!usuarioSeleccionado()?.estado">
+          <i [class]="usuarioSeleccionado()?.estado ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+        </div>
+        <h2>{{ usuarioSeleccionado()?.estado ? 'Bloquear' : 'Desbloquear' }} Usuario</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas {{ usuarioSeleccionado()?.estado ? 'bloquear' : 'desbloquear' }} a <strong>{{ usuarioSeleccionado()?.nombre }} {{ usuarioSeleccionado()?.apellido }}</strong>?</p>
+        @if (usuarioSeleccionado()?.estado) {
+          <p class="warning-text">El usuario no podrá acceder al sistema mientras esté bloqueado.</p>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" (click)="cerrarModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          class="btn-modal"
+          [class.btn-warning]="usuarioSeleccionado()?.estado"
+          [class.btn-success]="!usuarioSeleccionado()?.estado"
+          (click)="ejecutarBloqueo()"
+        >
+          <i [class]="usuarioSeleccionado()?.estado ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+          {{ usuarioSeleccionado()?.estado ? 'Bloquear' : 'Desbloquear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de confirmación para eliminar -->
+@if (mostrarModalEliminar()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon danger">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2>Eliminar Usuario</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar a <strong>{{ usuarioSeleccionado()?.nombre }} {{ usuarioSeleccionado()?.apellido }}</strong>?</p>
+        <p class="warning-text">Esta acción no se puede deshacer. Se eliminarán todos los datos asociados.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-cancel" (click)="cerrarModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button class="btn-modal btn-danger" (click)="ejecutarEliminar()">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+}
