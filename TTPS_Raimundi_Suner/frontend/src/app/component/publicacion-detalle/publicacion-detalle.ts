@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { PublicacionService } from '../../services/publicacion.service';
 import { MascotaService, Mascota } from '../../services/mascota.service';
 import { GeorefService } from '../../services/georef.service';
@@ -49,6 +50,7 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
   private readonly mascotaService = inject(MascotaService);
   private readonly georefService = inject(GeorefService);
   private readonly authService = inject(AuthService);
+  private readonly location = inject(Location);
 
   readonly publicacion = signal<PublicacionDetalleData | null>(null);
   readonly ubicacion = signal<string>('Cargando ubicación...');
@@ -491,7 +493,14 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
   }
 
   volver(): void {
-    this.router.navigate(['/']);
+    // Preferir volver en el historial del navegador para regresar
+    // a la página desde la que se llegó al detalle. Si no existe
+    // historial (p. ej. link directo), navegar al home como fallback.
+    if (typeof window !== 'undefined' && window.history && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   ngOnDestroy(): void {
