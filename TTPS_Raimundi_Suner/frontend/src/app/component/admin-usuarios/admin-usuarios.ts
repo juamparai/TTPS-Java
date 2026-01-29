@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,6 +19,8 @@ export class AdminUsuarios implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly usuarios = signal<UsuarioDTO[]>([]);
   readonly loading = signal(true);
@@ -76,12 +79,20 @@ export class AdminUsuarios implements OnInit {
   readonly currentUserId = computed(() => this.authService.currentUser()?.id);
 
   ngOnInit(): void {
-    this.loadUsuarios();
+    if (this.isBrowser) {
+      this.loadUsuarios();
+    }
   }
 
   loadUsuarios(): void {
     this.loading.set(true);
     this.error.set(null);
+
+    // Debug: show current token / user before making API call
+    try {
+      // eslint-disable-next-line no-console
+      console.debug('[AdminUsuarios] loadUsuarios token=', this.authService.getToken(), 'currentUser=', this.authService.currentUser());
+    } catch {}
 
     this.adminService.getUsuarios().subscribe({
       next: (usuarios) => {

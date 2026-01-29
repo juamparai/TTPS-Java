@@ -11,6 +11,10 @@
 
 		<!-- Desktop navigation -->
 		<nav class="actions actions--desktop" aria-label="Acciones">
+			@if (user() && isAdmin()) {
+				<a class="btn btn--ghost" routerLink="/admin/usuarios" routerLinkActive="is-active">Usuarios</a>
+				<a class="btn btn--ghost" routerLink="/admin/mascotas" routerLinkActive="is-active">Mascotas</a>
+			}
 			@if (user()) {
 				<div class="user-menu">
 					<button
@@ -28,6 +32,17 @@
 
 					@if (dropdownOpen()) {
 						<div class="dropdown" role="menu">
+									@if (isAdmin()) {
+										<a class="dropdown__item" routerLink="/admin/usuarios" (click)="closeDropdown()">
+											<span class="dropdown__icon"><i class="fa-solid fa-users"></i></span>
+											Listado de Usuarios
+										</a>
+										<a class="dropdown__item" routerLink="/admin/mascotas" (click)="closeDropdown()">
+											<span class="dropdown__icon"><i class="fa-solid fa-paw"></i></span>
+											Listado de Mascotas
+										</a>
+										<div class="dropdown__divider"></div>
+									}
 							<button
 								class="dropdown__item"
 								type="button"
@@ -76,6 +91,17 @@
 							<i class="fa-solid fa-user-circle"></i>
 							<span>{{ displayName() }}</span>
 						</div>
+							@if (isAdmin()) {
+								<a class="dropdown__item" routerLink="/admin/usuarios" (click)="closeDropdown()">
+									<span class="dropdown__icon"><i class="fa-solid fa-users"></i></span>
+									Listado de Usuarios
+								</a>
+								<a class="dropdown__item" routerLink="/admin/mascotas" (click)="closeDropdown()">
+									<span class="dropdown__icon"><i class="fa-solid fa-paw"></i></span>
+									Listado de Mascotas
+								</a>
+								<div class="dropdown__divider"></div>
+							}
 						<div class="dropdown__divider"></div>
 						<button
 							class="dropdown__item"

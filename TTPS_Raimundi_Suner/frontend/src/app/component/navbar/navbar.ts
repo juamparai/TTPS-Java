@@ -22,6 +22,11 @@ export class Navbar {
 
   readonly dropdownOpen = signal(false);
 
+  readonly isAdmin = computed(() => {
+    const u = this.user();
+    return u?.rolId === 0;
+  });
+
   toggleDropdown(): void {
     this.dropdownOpen.update(v => !v);
   }
