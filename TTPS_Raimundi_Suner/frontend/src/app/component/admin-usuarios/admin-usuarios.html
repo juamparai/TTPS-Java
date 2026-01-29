@@ -68,19 +68,24 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Teléfono</th>
+            <th>Localidad (Provincia)</th>
             <th>Puntos</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (usuario of usuariosPaginados(); track usuario.id) {
+              @for (usuario of usuariosPaginados(); track usuario.id) {
             <tr [class.bloqueado]="!usuario.estado">
               <td class="user-name-cell">
                 <span class="user-name">{{ usuario.nombre }} {{ usuario.apellido }}</span>
               </td>
               <td>{{ usuario.email }}</td>
               <td>{{ usuario.telefono || '-' }}</td>
+                  <td>
+                    <div class="municipio-localidad">{{ getMunicipioParts(usuario).loc }}</div>
+                    <div class="municipio-provincia">({{ getMunicipioParts(usuario).prov }})</div>
+                  </td>
               <td>
                 <span class="puntos-badge">
                   <i class="fas fa-star"></i> {{ usuario.puntos || 0 }}
@@ -123,7 +128,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" class="empty-row">
+              <td colspan="7" class="empty-row">
                 <i class="fas fa-user-slash"></i>
                 <span>No se encontraron usuarios</span>
               </td>

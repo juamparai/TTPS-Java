@@ -515,6 +515,10 @@
   transform: translateY(-1px);
 }
 
+/* Municipio column formatting: Localidad on first line, (Provincia) on second */
+.municipio-localidad { font-weight: 600; }
+.municipio-provincia { color: #6b7280; font-size: 0.9rem; }
+
 @media (max-width: 768px) {
   .admin-usuarios {
     margin-left: 60px;

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 import { UsuarioDTO, AuthService } from '../../services/auth.service';
+import { GeorefService, type Localidad, type Provincia } from '../../services/georef.service';
 import { ToastService } from '../../shared/toast/toast.service';
 
 @Component({
@@ -17,6 +18,7 @@ import { ToastService } from '../../shared/toast/toast.service';
 export class AdminUsuarios implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly authService = inject(AuthService);
+  private readonly georef = inject(GeorefService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
@@ -25,6 +27,11 @@ export class AdminUsuarios implements OnInit {
   readonly usuarios = signal<UsuarioDTO[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
+  readonly provincias = signal<Provincia[]>([]);
+
+  // Map userId -> municipio parts { loc, prov }
+  readonly usuariosMunicipio = signal<Record<number, { loc?: string; prov?: string }>>({});
 
   // Modales
   readonly mostrarModalBloqueo = signal(false);
@@ -97,6 +104,17 @@ export class AdminUsuarios implements OnInit {
     this.adminService.getUsuarios().subscribe({
       next: (usuarios) => {
         this.usuarios.set(usuarios);
+        // ensure we have province names, then resolve municipios
+        this.georef.getProvincias().subscribe({
+          next: (provs) => {
+            this.provincias.set(provs);
+            this.resolveMunicipios(usuarios);
+          },
+          error: () => {
+            this.provincias.set([]);
+            this.resolveMunicipios(usuarios);
+          }
+        });
         this.loading.set(false);
       },
       error: (err) => {
@@ -105,6 +123,52 @@ export class AdminUsuarios implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  private resolveMunicipios(usuarios: UsuarioDTO[]): void {
+    const buckets = new Map<string, UsuarioDTO[]>();
+
+    // initialize defaults
+    const initialMap: Record<number, { loc?: string; prov?: string }> = {};
+    usuarios.forEach(u => {
+      initialMap[u.id as number] = { loc: '-', prov: '-' };
+      if (u.provinciaId && u.departamentoId && u.localidadId) {
+        const key = `${u.provinciaId}|${u.departamentoId}`;
+        const arr = buckets.get(key) ?? [];
+        arr.push(u);
+        buckets.set(key, arr);
+      }
+    });
+    this.usuariosMunicipio.set(initialMap);
+
+    // For each provincia|departamento pair, fetch localidades once
+    buckets.forEach((users, key) => {
+      const [provinciaId, departamentoId] = key.split('|');
+      this.georef.getLocalidades(provinciaId, departamentoId).subscribe({
+        next: (localidades: Localidad[]) => {
+          const updated = { ...this.usuariosMunicipio() };
+          const provinciaNombre = this.provincias().find(p => p.id === provinciaId)?.nombre ?? provinciaId;
+          users.forEach(u => {
+            const found = localidades.find(l => l.id === u.localidadId);
+            updated[u.id as number] = found ? { loc: found.nombre, prov: provinciaNombre } : { loc: (u.localidadId || '-'), prov: provinciaNombre };
+          });
+          this.usuariosMunicipio.set(updated);
+        },
+        error: () => {
+          const updated = { ...this.usuariosMunicipio() };
+          const provinciaNombre = this.provincias().find(p => p.id === provinciaId)?.nombre ?? provinciaId;
+          users.forEach(u => { updated[u.id as number] = { loc: (u.localidadId || '-'), prov: provinciaNombre }; });
+          this.usuariosMunicipio.set(updated);
+        }
+      });
+    });
+  }
+
+  getMunicipioParts(usuario: UsuarioDTO): { loc: string; prov: string } {
+    const id = usuario.id ?? -1;
+    const map = this.usuariosMunicipio();
+    const entry = map && map[id];
+    return { loc: entry?.loc ?? '-', prov: entry?.prov ?? '-' };
   }
 
   onFiltroNombreChange(event: Event): void {
@@ -220,5 +284,12 @@ export class AdminUsuarios implements OnInit {
     }
 
     return pages;
+  }
+
+  getMunicipio(usuario: UsuarioDTO): string {
+    const parts = this.getMunicipioParts(usuario);
+    if (!parts.loc && !parts.prov) return '-';
+    if (parts.loc && parts.prov) return `${parts.loc} (${parts.prov})`;
+    return parts.loc || parts.prov || '-';
   }
 }

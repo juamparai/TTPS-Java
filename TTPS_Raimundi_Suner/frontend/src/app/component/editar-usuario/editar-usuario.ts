@@ -30,6 +30,10 @@ export class EditarUsuario implements OnInit {
   submitted = false;
   errorMsg = '';
 
+  readonly mostrarModalConfirmacion = signal(false);
+  readonly updatedUsuario = signal<UsuarioDTO | null>(null);
+  public pendingPayload: any = null;
+
   readonly provincias = signal<Provincia[]>([]);
   readonly departamentos = signal<Departamento[]>([]);
   readonly localidades = signal<Localidad[]>([]);
@@ -124,6 +128,8 @@ export class EditarUsuario implements OnInit {
 
         if (user.provinciaId) {
           this.provinciaSeleccionadaId = user.provinciaId;
+          // preload departamentos/localidades based on the usuario data
+          this.cargarDepartamentosInicial(user.provinciaId, user.departamentoId, user.localidadId);
         }
       },
       error: (err) => {
@@ -245,7 +251,8 @@ export class EditarUsuario implements OnInit {
       return;
     }
 
-    this.loading = true;
+    // Prepare payload and show confirmation modal before sending to server
+    this.loading = false; // not yet sending
     const { nombre, apellido, email, telefono, provincia, ciudad, barrio, puntos } = this.form.getRawValue();
 
     const departamento = this.departamentos().find(d => d.nombre === ciudad);
@@ -266,14 +273,23 @@ export class EditarUsuario implements OnInit {
     const isAdmin = currentUser?.rolId === 0;
     if (isAdmin) payload.puntos = puntos;
 
-    this.adminService.actualizarUsuario(this.editingUserId, payload).subscribe({
+    this.pendingPayload = payload;
+    this.mostrarModalConfirmacion.set(true);
+  }
+
+  confirmarGuardar(): void {
+    if (!this.editingUserId || !this.pendingPayload) return;
+    this.mostrarModalConfirmacion.set(false);
+    this.loading = true;
+    const currentUser = this.auth.currentUser();
+    this.adminService.actualizarUsuario(this.editingUserId, this.pendingPayload).subscribe({
       next: (res) => {
         this.loading = false;
         this.toast.success(res.mensaje || 'Usuario actualizado', { title: 'Usuario' });
-        // if the admin edited themselves, update auth state
         if (currentUser && currentUser.id === this.editingUserId) {
           this.auth['setCurrentUser'](res.usuario);
         }
+        // after successful save, navigate back
         this.location.back();
       },
       error: (err) => {
@@ -285,5 +301,19 @@ export class EditarUsuario implements OnInit {
         this.toast.error(msg, { title: 'Error' });
       }
     });
+  }
+
+  cancelarGuardar(): void {
+    this.mostrarModalConfirmacion.set(false);
+    this.pendingPayload = null;
+  }
+
+  cerrarModalConfirmacion(): void {
+    this.mostrarModalConfirmacion.set(false);
+  }
+
+  volverAtrasDesdeModal(): void {
+    this.mostrarModalConfirmacion.set(false);
+    this.location.back();
   }
 }

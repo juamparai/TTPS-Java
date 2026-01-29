@@ -83,3 +83,27 @@
     </form>
   </section>
 </main>
+
+<!-- Modal de confirmación (estética consistente con otros modales) -->
+@if (mostrarModalConfirmacion()) {
+  <div class="modal-overlay" (click)="cancelarGuardar()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmar cambios</h2>
+      </div>
+      <div class="modal-body">
+        <p>¿Deseas aplicar los cambios realizados al usuario?</p>
+      </div>
+      <div class="modal-footer">
+        <div class="modal-acciones">
+          <button class="btn-modal-cancelar" (click)="cancelarGuardar()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button class="btn-modal-confirmar" (click)="confirmarGuardar()">
+            <i class="fas fa-check"></i> Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
