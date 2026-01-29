@@ -3,6 +3,7 @@
 	--nb-forest-900: #0b2a1a;
 	--nb-forest-800: #103623;
 	--nb-forest-700: #165036;
+	--nb-forest-600: #1f6a48;
 	--nb-sage-100: #e9f1ed;
 	--nb-stone-50: #f6f7f7;
 	--nb-stone-200: #d7dbda;
@@ -10,13 +11,36 @@
 	display: block;
 }
 
+/* ============================================
+   NAVBAR BASE + DECORATIVE LAYERS
+   ============================================ */
+
 .navbar {
 	position: sticky;
 	top: 0;
 	z-index: 1000;
+
 	background: linear-gradient(90deg, var(--nb-forest-900), var(--nb-forest-800));
+
 	border-bottom: 1px solid color-mix(in srgb, var(--nb-stone-200) 40%, transparent);
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+	overflow: visible;
 }
+
+/* top glass highlight */
+.navbar::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+	opacity: 0.6;
+}
+
+/* bottom diagonal accent line */
+/* Decorative diagonal accent removed to avoid overflow */
 
 .navbar__inner {
 	max-width: 100%;
@@ -28,6 +52,10 @@
 	gap: 2rem;
 }
 
+/* ============================================
+   BRAND
+   ============================================ */
+
 .brand {
 	min-width: 240px;
 	max-width: 280px;
@@ -35,16 +63,34 @@
 	align-items: center;
 	gap: 0.65rem;
 	text-decoration: none;
-	transition: opacity 0.15s ease;
 	cursor: pointer;
 	padding: 0.5rem 0.75rem;
-	margin-left: 0;
-	border-radius: 8px;
+	border-radius: 10px;
 	flex-shrink: 0;
+	position: relative;
+	transition: opacity 0.15s ease, background 0.15s ease;
 }
 
 .brand:hover {
-	opacity: 0.85;
+	opacity: 0.95;
+	background: color-mix(in srgb, var(--nb-stone-50) 6%, transparent);
+}
+
+/* animated underline accent */
+.brand::after {
+	content: "";
+	position: absolute;
+	left: 12%;
+	bottom: 6px;
+	width: 0%;
+	height: 2px;
+	background: linear-gradient(90deg, var(--nb-sage-100), var(--nb-forest-600));
+	transition: width 0.2s ease;
+	border-radius: 2px;
+}
+
+.brand:hover::after {
+	width: 76%;
 }
 
 .brand:focus-visible {
@@ -56,6 +102,23 @@
 	font-size: 1.6rem;
 	color: var(--nb-sage-100);
 	flex-shrink: 0;
+	filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+}
+
+.brand__logo {
+	height: 34px;
+	width: auto;
+	object-fit: contain;
+	display: block;
+	flex-shrink: 0;
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+.brand__text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+	min-width: 0;
 }
 
 .brand__title {
@@ -82,96 +145,9 @@
 	text-align: center;
 }
 
-.brand__logo {
-	height: 34px;
-	width: auto;
-	object-fit: contain;
-	display: block;
-	flex-shrink: 0;
-	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
-}
-
-.brand__text {
-	display: flex;
-	flex-direction: column;
-	gap: 0.1rem;
-	min-width: 0;
-}
-
-.icon-btn {
-	width: 42px;
-	height: 42px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 10px;
-	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
-	background: color-mix(in srgb, var(--nb-stone-50) 6%, transparent);
-	color: var(--nb-sage-100);
-	cursor: pointer;
-	transition: background 0.15s ease;
-}
-
-.icon-btn:hover {
-	background: color-mix(in srgb, var(--nb-stone-50) 12%, transparent);
-}
-
-.icon-btn:focus-visible,
-.btn:focus-visible {
-	outline: 2px solid color-mix(in srgb, var(--nb-sage-100) 55%, transparent);
-	outline-offset: 2px;
-}
-
-/* Hamburger button - hidden on all screens now */
-.hamburger-btn {
-	display: none;
-}
-
-.hamburger {
-	width: 18px;
-	height: 14px;
-	display: inline-flex;
-	flex-direction: column;
-	justify-content: space-between;
-	position: relative;
-}
-
-.hamburger span {
-	height: 2px;
-	width: 100%;
-	background: var(--nb-sage-100);
-	border-radius: 999px;
-	transition: all 0.3s ease;
-	transform-origin: center;
-}
-
-.hamburger--open span:nth-child(1) {
-	transform: translateY(6px) rotate(45deg);
-}
-
-.hamburger--open span:nth-child(2) {
-	opacity: 0;
-}
-
-.hamburger--open span:nth-child(3) {
-	transform: translateY(-6px) rotate(-45deg);
-}
-
-.btn {
-	padding: 0.65rem 1rem;
-	border-radius: 999px;
-	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
-	background: color-mix(in srgb, var(--nb-stone-50) 10%, transparent);
-	color: var(--nb-sage-100);
-	font-weight: 600;
-	font-size: 0.95rem;
-	transition: background 0.15s ease;
-	text-decoration: none;
-}
-
-.btn:hover {
-	background: color-mix(in srgb, var(--nb-stone-50) 16%, transparent);
-}
+/* ============================================
+   ACTIONS / BUTTONS
+   ============================================ */
 
 .actions {
 	display: inline-flex;
@@ -180,11 +156,68 @@
 	margin-left: auto;
 }
 
+.icon-btn {
+	width: 42px;
+	height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 12px;
+	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
+	background:
+		linear-gradient(180deg, rgba(255,255,255,.08), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 6%, transparent);
+	color: var(--nb-sage-100);
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.icon-btn:hover {
+	background:
+		linear-gradient(180deg, rgba(255,255,255,.12), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 12%, transparent);
+	transform: translateY(-1px);
+}
+
+.icon-btn:focus-visible,
+.btn:focus-visible {
+	outline: 2px solid color-mix(in srgb, var(--nb-sage-100) 55%, transparent);
+	outline-offset: 2px;
+}
+
+.btn {
+	padding: 0.65rem 1rem;
+	border-radius: 999px;
+	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
+	background:
+		linear-gradient(180deg, rgba(255,255,255,.08), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 10%, transparent);
+	color: var(--nb-sage-100);
+	font-weight: 600;
+	font-size: 0.95rem;
+	transition: background 0.15s ease, transform 0.12s ease;
+	text-decoration: none;
+}
+
+.btn:hover {
+	background:
+		linear-gradient(180deg, rgba(255,255,255,.14), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 16%, transparent);
+	transform: translateY(-1px);
+}
+
+.btn--ghost {
+	background: transparent;
+}
+
+/* ============================================
+   USER MENU
+   ============================================ */
+
 .user-menu {
 	position: relative;
 }
 
-/* Hide mobile user menu on desktop */
 .user-menu--mobile {
 	display: none;
 }
@@ -198,7 +231,9 @@
 	padding: 0.6rem 0.95rem;
 	border-radius: 999px;
 	border: 1px solid color-mix(in srgb, var(--nb-stone-200) 35%, transparent);
-	background: color-mix(in srgb, var(--nb-stone-50) 8%, transparent);
+	background:
+		linear-gradient(135deg, rgba(255,255,255,.06), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 8%, transparent);
 	color: var(--nb-sage-100);
 	font-weight: 700;
 	font-size: 0.95rem;
@@ -216,38 +251,36 @@
 }
 
 .user-chip--clickable:hover {
-	background: color-mix(in srgb, var(--nb-stone-50) 14%, transparent);
-}
-
-.user-chip--clickable:focus-visible {
-	outline: 2px solid color-mix(in srgb, var(--nb-sage-100) 55%, transparent);
-	outline-offset: 2px;
+	background:
+		linear-gradient(135deg, rgba(255,255,255,.1), transparent),
+		color-mix(in srgb, var(--nb-stone-50) 14%, transparent);
 }
 
 .chevron {
 	font-size: 0.65rem;
 	transition: transform 0.2s ease;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 }
 
 .chevron--open {
 	transform: rotate(180deg);
 }
 
+/* ============================================
+   DROPDOWN
+   ============================================ */
+
 .dropdown {
 	position: absolute;
 	top: calc(100% + 0.5rem);
 	right: 0;
-	min-width: 190px;
+	min-width: 210px;
 	background: var(--nb-stone-50);
 	border: 1px solid var(--nb-stone-200);
-	border-radius: 12px;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+	border-radius: 14px;
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 	overflow: hidden;
-	animation: dropdown-in 0.15s ease-out;
 	z-index: 1100;
+	animation: dropdown-in 0.15s ease-out;
 }
 
 @keyframes dropdown-in {
@@ -270,21 +303,24 @@
 	color: var(--nb-sage-100);
 }
 
-.dropdown__user-header i {
-	font-size: 1.75rem;
-}
-
-.dropdown__user-header span {
-	font-weight: 700;
-	font-size: 0.95rem;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .dropdown__divider {
 	height: 1px;
 	background: var(--nb-stone-200);
+}
+
+/* Hide admin list links inside the desktop dropdown on large screens
+   (those actions are shown inline in the navbar already) */
+@media (min-width: 1025px) {
+	.dropdown__item--admin,
+	.dropdown__divider--admin {
+		display: none;
+	}
+
+	/* stronger selector targeting the desktop actions container */
+	.actions--desktop .dropdown__item--admin,
+	.actions--desktop .dropdown__divider--admin {
+		display: none;
+	}
 }
 
 .dropdown__item {
@@ -308,11 +344,6 @@
 	background: color-mix(in srgb, var(--nb-stone-200) 40%, transparent);
 }
 
-.dropdown__item:focus-visible {
-	outline: 2px solid var(--nb-forest-700);
-	outline-offset: -2px;
-}
-
 .dropdown__item--danger {
 	color: #c53030;
 }
@@ -323,24 +354,23 @@
 
 .dropdown__icon {
 	font-size: 1rem;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
 	width: 1.25rem;
 }
 
-.btn--ghost {
-	background: transparent;
-}
+/* ============================================
+   STATES
+   ============================================ */
 
 .is-active {
 	box-shadow: 0 0 0 2px color-mix(in srgb, var(--nb-sage-100) 35%, transparent) inset;
 }
 
 /* ============================================
-   TABLET (769px - 1024px)
+   TABLET
    ============================================ */
+
 @media (max-width: 1024px) {
+
 	.navbar__inner {
 		padding: 0.7rem 1.25rem;
 		gap: 1.5rem;
@@ -349,11 +379,6 @@
 	.brand {
 		min-width: 200px;
 		max-width: 240px;
-		padding: 0.45rem 0.65rem;
-	}
-
-	.brand__icon {
-		font-size: 1.4rem;
 	}
 
 	.brand__title {
@@ -364,145 +389,41 @@
 		font-size: 0.8rem;
 	}
 
-	.brand__logo {
-		height: 30px;
-	}
-
 	.user-chip {
 		max-width: 180px;
 		font-size: 0.9rem;
-		padding: 0.55rem 0.85rem;
 	}
 
-	.btn {
-		padding: 0.6rem 0.9rem;
-		font-size: 0.9rem;
-	}
-
-	.dropdown {
-		min-width: 170px;
-	}
-
-	.dropdown__item {
-		padding: 0.75rem 1rem;
-		font-size: 0.9rem;
-	}
 }
 
 /* ============================================
-   MOBILE (≤768px)
+   MOBILE
    ============================================ */
+
 @media (max-width: 768px) {
-	.navbar__inner {
-		padding: 0.65rem 0.85rem;
-		gap: 0.75rem;
-	}
 
-	.brand {
-		min-width: auto;
-		max-width: none;
-		gap: 0.5rem;
-		padding: 0.3rem 0.5rem;
-		margin-left: 0;
-		flex: 1;
-	}
-
-	.brand__icon {
-		font-size: 1.3rem;
-	}
-
-	.brand__title {
-		font-size: 1rem;
-	}
-
-	.brand__subtitle {
-		font-size: 0.75rem;
-	}
-
-	.brand__logo {
-		height: 28px;
-	}
-
-	/* Hide desktop navigation on mobile */
 	.actions--desktop {
 		display: none;
 	}
 
-	/* Show mobile user menu */
 	.user-menu--mobile {
 		display: block;
 	}
 
-	.icon-btn {
-		width: 40px;
-		height: 40px;
+	.brand__text {
+		display: none;
 	}
 
-	.user-icon-btn {
-		font-size: 1.15rem;
-	}
-
-	/* Mobile dropdown adjustments */
-	.dropdown--mobile {
-		min-width: 220px;
-		right: 0;
-	}
-
-	.dropdown__user-header {
-		padding: 0.9rem 1rem;
-	}
-
-	.dropdown__user-header i {
-		font-size: 1.6rem;
-	}
-
-	.dropdown__user-header span {
-		font-size: 0.9rem;
-	}
-
-	.dropdown__item {
-		padding: 0.85rem 1rem;
-		font-size: 0.95rem;
-	}
-
-	.dropdown__icon {
-		font-size: 1.05rem;
-	}
 }
 
 /* ============================================
-   SMALL MOBILE (≤480px)
+   SMALL MOBILE
    ============================================ */
+
 @media (max-width: 480px) {
+
 	.navbar__inner {
 		padding: 0.6rem 0.75rem;
-		gap: 0.5rem;
-	}
-
-	.brand {
-		gap: 0.45rem;
-		padding: 0.25rem 0.4rem;
-	}
-
-	.brand__icon {
-		font-size: 1.2rem;
-	}
-
-	.brand__title {
-		font-size: 0.85rem;
-	}
-
-	.brand__subtitle {
-		font-size: 0.65rem;
-	}
-
-	.brand__logo {
-		height: 26px;
-	}
-
-	/* En pantallas muy chicas priorizamos el logo */
-	.brand__text {
-		display: none;
 	}
 
 	.icon-btn {
@@ -510,28 +431,4 @@
 		height: 38px;
 	}
 
-	.user-icon-btn {
-		font-size: 1.05rem;
-	}
-
-	.dropdown--mobile {
-		min-width: 200px;
-	}
-
-	.dropdown__user-header {
-		padding: 0.85rem 0.95rem;
-	}
-
-	.dropdown__user-header i {
-		font-size: 1.5rem;
-	}
-
-	.dropdown__user-header span {
-		font-size: 0.85rem;
-	}
-
-	.dropdown__item {
-		padding: 0.8rem 0.95rem;
-		font-size: 0.9rem;
-	}
 }

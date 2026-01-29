@@ -110,6 +110,13 @@
 	transition: all 0.2s ease;
 }
 
+/* Ensure selects fill their grid column without overflowing */
+.filter-select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
 .filter-select:hover:not(:disabled) {
 	border-color: #2e7d32;
 }

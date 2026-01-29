@@ -17,3 +17,121 @@ body {
 button {
 	font: inherit;
 }
+
+/* ==============================
+	 Responsive Base & Utilities
+	 Breakpoints: mobile, tablet, desktop
+	 ============================== */
+
+:root {
+	/* Breakpoints */
+	--bp-mobile-max: 768px;
+	--bp-tablet-max: 1024px;
+
+	/* Container widths */
+	--container-mobile: 100%;
+	--container-tablet: 720px;
+	--container-desktop: 1100px;
+
+	/* Spacing */
+	--gap-sm: 0.5rem;
+	--gap-md: 1rem;
+	--gap-lg: 1.5rem;
+}
+
+/* Fluid container */
+.container {
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 1rem;
+	padding-right: 1rem;
+	box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+	.container {
+		max-width: var(--container-tablet);
+	}
+}
+
+@media (min-width: 1025px) {
+	.container {
+		max-width: var(--container-desktop);
+	}
+}
+
+/* Responsive typography */
+html { font-size: 16px; }
+@media (max-width: 768px) { html { font-size: 15px; } }
+@media (min-width: 1025px) { html { font-size: 17px; } }
+
+/* Use border-box everywhere to avoid components overflowing due to padding/borders */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+/* Fluid images and media */
+img, picture, video, iframe {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+/* Simple responsive grid */
+.row {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--gap-md);
+}
+@media (min-width: 769px) {
+	.row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+	.row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1025px) {
+	.row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Visibility utilities for 3 target sizes */
+.hide-mobile   { display: none; }
+.show-mobile   { display: block; }
+.hide-tablet   { display: none; }
+.show-tablet   { display: none; }
+.hide-desktop  { display: none; }
+.show-desktop  { display: none; }
+
+@media (max-width: 768px) {
+	.hide-mobile { display: none !important; }
+	.show-mobile { display: block !important; }
+	.hide-tablet, .show-tablet { display: none !important; }
+	.hide-desktop { display: none !important; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+	.hide-mobile { display: block !important; }
+	.show-mobile { display: none !important; }
+	.hide-tablet { display: none !important; }
+	.show-tablet { display: block !important; }
+	.hide-desktop { display: none !important; }
+}
+@media (min-width: 1025px) {
+	.hide-mobile { display: block !important; }
+	.show-mobile { display: none !important; }
+	.hide-tablet { display: block !important; }
+	.show-tablet { display: none !important; }
+	.hide-desktop { display: none !important; }
+	.show-desktop { display: block !important; }
+}
+
+/* Small helpers */
+.text-center { text-align: center; }
+.visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
+
+/* Make dropdowns and popovers not be clipped by defaults */
+.dropdown, .popover {
+	z-index: 1200;
+}
+
+/* Encourage components to respect responsive padding */
+.card {
+	padding: var(--gap-md);
+}

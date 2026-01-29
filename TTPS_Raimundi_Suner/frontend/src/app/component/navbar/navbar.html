@@ -33,15 +33,15 @@
 					@if (dropdownOpen()) {
 						<div class="dropdown" role="menu">
 									@if (isAdmin()) {
-										<a class="dropdown__item" routerLink="/admin/usuarios" (click)="closeDropdown()">
+										<a class="dropdown__item dropdown__item--admin" routerLink="/admin/usuarios" (click)="closeDropdown()">
 											<span class="dropdown__icon"><i class="fa-solid fa-users"></i></span>
 											Listado de Usuarios
 										</a>
-										<a class="dropdown__item" routerLink="/admin/mascotas" (click)="closeDropdown()">
+										<a class="dropdown__item dropdown__item--admin" routerLink="/admin/mascotas" (click)="closeDropdown()">
 											<span class="dropdown__icon"><i class="fa-solid fa-paw"></i></span>
 											Listado de Mascotas
 										</a>
-										<div class="dropdown__divider"></div>
+										<div class="dropdown__divider dropdown__divider--admin"></div>
 									}
 							<button
 								class="dropdown__item"
