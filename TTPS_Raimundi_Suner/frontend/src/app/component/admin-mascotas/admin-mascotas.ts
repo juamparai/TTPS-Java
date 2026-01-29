@@ -118,8 +118,20 @@ export class AdminMascotas implements OnInit {
   }
 
   getNombreDueno(mascota: Mascota): string {
-    if (!mascota.usuarioId) return 'Desconocido';
-    const usuario = this.usuarios().get(mascota.usuarioId);
+    // Prefer nested usuario object if present
+    const anyMascota: any = mascota as any;
+    if (anyMascota.usuario && typeof anyMascota.usuario === 'object') {
+      const u = anyMascota.usuario as UsuarioDTO;
+      const full = [u.nombre, u.apellido].filter(Boolean).join(' ').trim();
+      return full || u.email || 'Desconocido';
+    }
+
+    // Fallback to usuarioId numeric field
+    const uid = mascota.usuarioId ?? (anyMascota.usuarioId as any);
+    if (!uid) return 'Desconocido';
+    const idNum = Number(uid);
+    if (!idNum) return 'Desconocido';
+    const usuario = this.usuarios().get(idNum);
     if (!usuario) return 'Desconocido';
     const nombre = [usuario.nombre, usuario.apellido].filter(Boolean).join(' ').trim();
     return nombre || usuario.email || 'Desconocido';

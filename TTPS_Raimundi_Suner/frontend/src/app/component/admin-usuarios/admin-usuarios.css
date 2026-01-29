@@ -146,8 +146,13 @@
 .usuarios-table td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Use a single divider per row so it stays continuous even if a cell wraps */
+.usuarios-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .usuarios-table th:nth-child(1) { width: 20%; }
@@ -234,6 +239,7 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .btn-action {

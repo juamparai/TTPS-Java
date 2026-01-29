@@ -114,6 +114,25 @@
           ></textarea>
         </div>
 
+        @if (isAdmin()) {
+          <div class="form-group">
+            <label for="estado">Estado</label>
+            <select
+              id="estado"
+              name="estado"
+              class="form-control"
+              [(ngModel)]="estadoSeleccionado"
+            >
+              <option value="">-- Mantener estado actual --</option>
+              <option value="PERDIDA_PROPIA">PERDIDA_PROPIA</option>
+              <option value="PERDIDA_AJENA">PERDIDA_AJENA</option>
+              <option value="ENCONTRADA">ENCONTRADA</option>
+              <option value="ADOPTADA">ADOPTADA</option>
+            </select>
+            <small class="form-hint">Solo administradores pueden cambiar el estado.</small>
+          </div>
+        }
+
         <!-- Imagen actual -->
         @if (currentImageUrl()) {
           <div class="foto-preview">

@@ -1,0 +1,85 @@
+<main class="page">
+  <section class="card" aria-label="Editar Usuario">
+    <h1 class="title">Editar Usuario</h1>
+
+    <form class="form" (ngSubmit)="submit()" [formGroup]="form">
+      <div class="grid">
+        <label class="field">
+          <span class="label">Nombre</span>
+          <input class="input" type="text" formControlName="nombre" />
+          @if ((submitted || form.controls.nombre.touched) && form.controls.nombre.invalid) {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+        </label>
+
+        <label class="field">
+          <span class="label">Apellido</span>
+          <input class="input" type="text" formControlName="apellido" />
+          @if ((submitted || form.controls.apellido.touched) && form.controls.apellido.invalid) {
+            <span class="hint error-hint">Campo requerido</span>
+          }
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Email</span>
+        <input class="input" type="email" formControlName="email" />
+      </label>
+
+      <div class="grid">
+        <label class="field">
+          <span class="label">Teléfono</span>
+          <input class="input" type="tel" formControlName="telefono" (input)="sanitizeTelefono()" />
+        </label>
+
+        <label class="field">
+          <span class="label">Provincia</span>
+          <select class="input" formControlName="provincia">
+            <option value="">@if (loadingProvincias()) { Cargando provincias... } @else { Seleccioná una provincia }</option>
+            @for (provincia of provincias(); track provincia.id) {
+              <option [value]="provincia.id">{{ provincia.nombre }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="label">Ciudad / Departamento</span>
+        <select class="input" formControlName="ciudad">
+          <option value="">Seleccioná un departamento</option>
+          @for (depto of departamentos(); track depto.id) {
+            <option [value]="depto.nombre">{{ depto.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="label">Barrio / Localidad</span>
+        <select class="input" formControlName="barrio">
+          <option value="">Seleccioná una localidad</option>
+          @for (localidad of localidades(); track localidad.id) {
+            <option [value]="localidad.nombre">{{ localidad.nombre }}</option>
+          }
+        </select>
+      </label>
+
+      @if (form.controls.puntos.enabled) {
+        <label class="field">
+          <span class="label">Puntos</span>
+          <input class="input" type="number" formControlName="puntos" />
+        </label>
+      }
+
+      @if (errorMsg) {
+        <p class="error">{{ errorMsg }}</p>
+      }
+
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" (click)="location.back()" [disabled]="loading">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          @if (loading) { <span class="spinner"></span> Guardando... } @else { Guardar Cambios }
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

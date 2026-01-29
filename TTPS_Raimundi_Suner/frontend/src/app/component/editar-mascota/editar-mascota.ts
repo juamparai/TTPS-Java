@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { MascotaService, Mascota } from '../../services/mascota.service';
+import { ToastService } from '../../shared/toast/toast.service';
 
 @Component({
   selector: 'app-editar-mascota',
@@ -14,9 +15,19 @@ import { MascotaService, Mascota } from '../../services/mascota.service';
 })
 export class EditarMascota implements OnInit {
   private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
   private readonly mascotaService = inject(MascotaService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+
+  readonly user = this.auth.currentUser;
+  readonly isAdmin = computed(() => {
+    const u = this.user();
+    return u?.rolId === 0;
+  });
+
+  estadoSeleccionado: string | null = null;
 
   readonly loading = signal(false);
   readonly loadingMascota = signal(true);
@@ -25,6 +36,9 @@ export class EditarMascota implements OnInit {
   readonly deleting = signal(false);
 
   mascotaId: number | null = null;
+
+  // preserve original owner id so edits don't reassign the mascota
+  originalUsuarioId: number | null = null;
 
   // Modelo del formulario
   mascota = {
@@ -100,6 +114,10 @@ export class EditarMascota implements OnInit {
           tamanio: mascota.tamanio || '',
           descripcion: mascota.descripcion || ''
         };
+        // guardar estado actual para que el admin pueda modificarlo
+        this.estadoSeleccionado = (mascota.estadoMascota as string) ?? null;
+        // preservar owner
+        this.originalUsuarioId = (mascota.usuarioId as number) ?? null;
 
         const url = mascota.imagenUrl;
         if (url) {
@@ -144,7 +162,9 @@ export class EditarMascota implements OnInit {
       color: this.mascota.color || undefined,
       tamanio: this.mascota.tamanio || undefined,
       descripcion: this.mascota.descripcion || undefined,
-      usuarioId: currentUser?.id
+      // do NOT reassign owner on edit; preserve original owner if present
+      usuarioId: this.originalUsuarioId ?? undefined,
+      estadoMascota: this.isAdmin() && this.estadoSeleccionado ? this.estadoSeleccionado : undefined
     };
 
     const request$ = this.selectedImageFile
@@ -154,11 +174,13 @@ export class EditarMascota implements OnInit {
     request$.subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigateByUrl('/perfil');
+        this.toast.success('Mascota actualizada exitosamente', { title: 'Mascota' });
+        this.location.back();
       },
       error: (err) => {
         console.error('Error al actualizar mascota:', err);
         this.error.set('No se pudo actualizar la mascota. Por favor intenta de nuevo.');
+        this.toast.error('No se pudo actualizar la mascota', { title: 'Error' });
         this.loading.set(false);
       }
     });
@@ -189,11 +211,11 @@ export class EditarMascota implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigateByUrl('/perfil');
+    this.location.back();
   }
 
   volver(): void {
-    this.router.navigateByUrl('/perfil');
+    this.location.back();
   }
 
   abrirModalEliminar(): void {
@@ -212,7 +234,8 @@ export class EditarMascota implements OnInit {
       next: () => {
         this.deleting.set(false);
         this.showDeleteModal.set(false);
-        this.router.navigateByUrl('/perfil');
+        this.toast.success('Mascota eliminada exitosamente');
+        this.location.back();
       },
       error: (err: any) => {
         console.error('Error al eliminar mascota:', err);

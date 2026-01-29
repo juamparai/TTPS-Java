@@ -146,8 +146,18 @@
 .mascotas-table td {
   padding: 0.875rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Single divider per row to keep the line continuous */
+.mascotas-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background 0.15s;
+}
+
+.mascotas-table tbody tr:hover {
+  background: #f8fafc;
 }
 
 .mascotas-table th {
@@ -218,6 +228,7 @@
 .actions-cell {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .btn-action {

@@ -59,6 +59,7 @@ public class JwtFilter implements Filter {
 
         String authHeader = req.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            setCorsHeaders(req, res);
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
             res.getWriter().write("{\"error\":\"Authorization header missing or invalid\"}");
@@ -68,6 +69,7 @@ public class JwtFilter implements Filter {
         String token = authHeader.substring(7);
         try {
             if (!jwtUtil.validateToken(token)) {
+                setCorsHeaders(req, res);
                 res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 res.setContentType("application/json");
                 res.getWriter().write("{\"error\":\"Token inválido\"}");
@@ -80,10 +82,22 @@ public class JwtFilter implements Filter {
 
             chain.doFilter(request, response);
         } catch (Exception e) {
+            setCorsHeaders(req, res);
             res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             res.setContentType("application/json");
             res.getWriter().write("{\"error\":\"Token inválido: " + e.getMessage() + "\"}");
         }
+    }
+
+    private void setCorsHeaders(HttpServletRequest req, HttpServletResponse res) {
+        String origin = req.getHeader("Origin");
+        if (origin == null || origin.isEmpty()) {
+            origin = "http://localhost:4200";
+        }
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH");
     }
 
     private boolean isPublicPath(String path, String method) {
