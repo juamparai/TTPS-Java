@@ -82,7 +82,7 @@
             <tr>
               <td>
                 @if (mascota.imagenUrl) {
-                  <img [src]="mascota.imagenUrl" [alt]="mascota.nombre" class="mascota-img" />
+                  <img [src]="getImageSrc(mascota)" [alt]="mascota.nombre" class="mascota-img" />
                 } @else {
                   <div class="no-img">
                     <i class="fas fa-paw"></i>

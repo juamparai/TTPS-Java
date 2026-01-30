@@ -238,4 +238,12 @@ export class AdminMascotas implements OnInit {
     if (!estado) return '-';
     return estado.replace(/_/g, ' ');
   }
+
+  getImageSrc(mascota: Mascota): string | null {
+    const url = mascota.imagenUrl;
+    if (!url) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `http://localhost:8080${path}`;
+  }
 }
