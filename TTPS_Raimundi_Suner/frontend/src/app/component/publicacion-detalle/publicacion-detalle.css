@@ -118,6 +118,12 @@
   margin-top: 3rem;
 }
 
+/* Si la publicación es de pérdida ajena, dar un poco más de espacio al contenedor */
+.perdida-ajena .detalle-content {
+  min-height: 560px;
+  padding: 2.5rem;
+}
+
 /* Sección izquierda */
 .detalle-izquierda {
   display: flex;

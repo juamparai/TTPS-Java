@@ -169,6 +169,33 @@
               }
             </label>
           }
+
+          <!-- Imagen (solo si NO es mascota propia) -->
+          @if (!form.value.nuevaMascotaEsPropia) {
+            <div class="field">
+              <span class="label">Imagen de la mascota (opcional)</span>
+              <div class="image-upload-area">
+                @if (!imagePreviewUrl()) {
+                  <label class="image-upload-label">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      (change)="onImageSelected($event)"
+                      class="image-upload-input"
+                    />
+                    <span class="image-upload-icon">📷</span>
+                    <span class="image-upload-text">Hacé click para subir una foto</span>
+                    <span class="hint">Solo JPG/JPEG o PNG</span>
+                  </label>
+                } @else {
+                  <div class="image-preview-wrapper">
+                    <img [src]="imagePreviewUrl()" alt="Vista previa" class="image-preview" />
+                    <button type="button" class="btn-remove-image" (click)="removeImage()">✕</button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
 

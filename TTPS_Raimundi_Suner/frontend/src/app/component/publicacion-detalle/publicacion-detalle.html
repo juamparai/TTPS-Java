@@ -1,5 +1,5 @@
 @if (!cargando() && publicacion()) {
-  <div class="detalle-container" [ngClass]="estadoClase">
+  <div class="detalle-container" [ngClass]="[estadoClase, !esPerdidaPropia ? 'perdida-ajena' : '']">
     <!-- Botón atrás arriba a la izquierda -->
     <button class="btn-atras" (click)="volver()">← Atrás</button>
 

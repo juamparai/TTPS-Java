@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import { GeorefService } from '../../services/georef.service';
 import { ToastService } from '../../shared/toast/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { MascotaService, Mascota } from '../../services/mascota.service';
 import { HttpClient } from '@angular/common/http';
 
 const API_BASE = 'http://localhost:8080/api';
@@ -32,11 +33,16 @@ export class CrearPublicacion implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly mascotaService = inject(MascotaService);
   private readonly http = inject(HttpClient);
 
   readonly form: FormGroup;
   readonly submitted = signal(false);
   readonly loading = signal(false);
+
+  // Estado de imagen para mascotas ajenas
+  private selectedImageFile: File | null = null;
+  readonly imagePreviewUrl = signal<string | null>(null);
 
   readonly estadosPublicacion = ['ACTIVA', 'FINALIZADA', 'CANCELADA'];
 
@@ -333,19 +339,24 @@ export class CrearPublicacion implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     const esPropia = this.form.value.nuevaMascotaEsPropia;
 
-    const mascotaPayload = {
+    const mascotaPayload: Mascota = {
       nombre: esPropia ? this.form.value.nuevaMascotaNombre : 'Desconocido',
       tipo: this.form.value.nuevaMascotaTipo,
       color: this.form.value.nuevaMascotaColor,
       descripcion: this.form.value.nuevaMascotaDescripcion,
-      raza: this.form.value.nuevaMascotaRaza || null,
+      raza: this.form.value.nuevaMascotaRaza || undefined,
       tamanio: this.form.value.nuevaMascotaTamanio,
       estadoMascota: esPropia ? 'PERDIDA_PROPIA' : 'PERDIDA_AJENA',
-      usuarioId: esPropia ? currentUser?.id : null,
+      usuarioId: esPropia ? currentUser?.id : undefined,
     };
 
-    this.http.post<any>(`${API_BASE}/mascotas`, mascotaPayload).subscribe({
-      next: (mascotaResponse) => {
+    // Usar createMascotaWithImage si hay imagen seleccionada (solo mascotas ajenas)
+    const request$ = this.selectedImageFile
+      ? this.mascotaService.createMascotaWithImage(mascotaPayload, this.selectedImageFile)
+      : this.mascotaService.createMascota(mascotaPayload);
+
+    request$.subscribe({
+      next: (mascotaResponse: any) => {
         const mascotaId = mascotaResponse.mascota?.id || mascotaResponse.id;
         this.crearPublicacion(mascotaId);
       },
@@ -406,6 +417,36 @@ export class CrearPublicacion implements OnInit {
         this.toast.error('No se pudo obtener la ubicación de las coordenadas ingresadas', { title: 'Error' });
       },
     });
+  }
+
+  // ── Imagen de mascota (solo para mascotas no propias) ──────────────
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] || null;
+
+    this.selectedImageFile = null;
+    this.imagePreviewUrl.set(null);
+
+    if (!file) return;
+
+    // Misma validación que crear-mascota: solo JPG/JPEG o PNG
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    const extension = (file.name.split('.').pop() || '').toLowerCase();
+    const allowedExt = ['jpg', 'jpeg', 'png'];
+
+    if (!allowedTypes.includes(file.type) || !allowedExt.includes(extension)) {
+      this.toast.error('La imagen debe ser JPG/JPEG o PNG', { title: 'Formato inválido' });
+      input.value = '';
+      return;
+    }
+
+    this.selectedImageFile = file;
+    this.imagePreviewUrl.set(URL.createObjectURL(file));
+  }
+
+  removeImage(): void {
+    this.selectedImageFile = null;
+    this.imagePreviewUrl.set(null);
   }
 
   cancelar(): void {
