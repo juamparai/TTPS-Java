@@ -263,6 +263,57 @@ public class UsuarioController {
         }
     }
 
+    /**
+     * Agregar puntos a un usuario
+     * PATCH /api/usuarios/{id}/puntos
+     */
+    @PatchMapping("/{id}/puntos")
+    public ResponseEntity<?> agregarPuntos(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> request) {
+        try {
+            if (id == null || id <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "ID de usuario inválido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            if (request == null || !request.containsKey("puntos")) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "El campo 'puntos' es requerido");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Integer puntos = request.get("puntos");
+            if (puntos == null || puntos <= 0) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Los puntos deben ser un número positivo");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            }
+
+            Usuario usuario = usuarioService.obtenerPorId(id);
+            if (usuario == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Usuario no encontrado");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            usuarioService.agregarPuntos(id, puntos);
+
+            // Obtener el usuario actualizado
+            Usuario usuarioActualizado = usuarioService.obtenerPorId(id);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Puntos agregados exitosamente");
+            response.put("usuario", UsuarioDTO.fromUsuario(usuarioActualizado));
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Error al agregar puntos: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
     @Operation(summary = "Cambiar contraseña de usuario",
                description = "Permite a un usuario cambiar su contraseña actual por una nueva")
     @ApiResponses(value = {

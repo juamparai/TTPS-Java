@@ -37,6 +37,13 @@ export class AdminService {
     );
   }
 
+  agregarPuntosUsuario(id: number, puntos: number): Observable<{ mensaje: string; usuario: UsuarioDTO }> {
+    return this.http.patch<{ mensaje: string; usuario: UsuarioDTO }>(
+      `${API_BASE}/usuarios/${id}/puntos`,
+      { puntos }
+    );
+  }
+
   // Mascotas
   getMascotas(): Observable<Mascota[]> {
     return this.http.get<Mascota[]>(`${API_BASE}/mascotas`);

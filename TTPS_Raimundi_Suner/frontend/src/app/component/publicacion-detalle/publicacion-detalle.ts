@@ -16,6 +16,7 @@ import { PublicacionService } from '../../services/publicacion.service';
 import { MascotaService, Mascota } from '../../services/mascota.service';
 import { GeorefService } from '../../services/georef.service';
 import { AuthService } from '../../services/auth.service';
+import { AdminService } from '../../services/admin.service';
 import { ToastService } from '../../shared/toast/toast.service';
 
 type PublicacionDetalleData = {
@@ -51,6 +52,7 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
   private readonly mascotaService = inject(MascotaService);
   private readonly georefService = inject(GeorefService);
   private readonly authService = inject(AuthService);
+  private readonly adminService = inject(AdminService);
   private readonly toastService = inject(ToastService);
   private readonly location = inject(Location);
 
@@ -314,9 +316,18 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
 
             this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
               next: () => {
-                this.procesandoCancelacion.set(false);
-                this.cerrarModalCancelar();
-                this.router.navigate(['/']);
+                // 3. Sumar puntos si fue recuperada
+                if (mascotaRecuperada && pub.usuarioId) {
+                  this.sumarPuntosAlUsuario(pub.usuarioId, () => {
+                    this.procesandoCancelacion.set(false);
+                    this.cerrarModalCancelar();
+                    this.router.navigate(['/']);
+                  });
+                } else {
+                  this.procesandoCancelacion.set(false);
+                  this.cerrarModalCancelar();
+                  this.router.navigate(['/']);
+                }
               },
               error: (err) => {
                 console.error('Error al cancelar publicación:', err);
@@ -365,9 +376,18 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
 
             this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
               next: () => {
-                this.procesandoRecuperacion.set(false);
-                this.cerrarModal();
-                this.router.navigate(['/']);
+                // 3. Sumar puntos al usuario
+                if (pub.usuarioId) {
+                  this.sumarPuntosAlUsuario(pub.usuarioId, () => {
+                    this.procesandoRecuperacion.set(false);
+                    this.cerrarModal();
+                    this.router.navigate(['/']);
+                  });
+                } else {
+                  this.procesandoRecuperacion.set(false);
+                  this.cerrarModal();
+                  this.router.navigate(['/']);
+                }
               },
               error: (err) => {
                 console.error('Error al finalizar publicación:', err);
@@ -416,9 +436,18 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
 
             this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
               next: () => {
-                this.procesandoRecuperacion.set(false);
-                this.cerrarModal();
-                this.router.navigate(['/']);
+                // 3. Sumar puntos al usuario
+                if (pub.usuarioId) {
+                  this.sumarPuntosAlUsuario(pub.usuarioId, () => {
+                    this.procesandoRecuperacion.set(false);
+                    this.cerrarModal();
+                    this.router.navigate(['/']);
+                  });
+                } else {
+                  this.procesandoRecuperacion.set(false);
+                  this.cerrarModal();
+                  this.router.navigate(['/']);
+                }
               },
               error: (err) => {
                 console.error('Error al finalizar publicación:', err);
@@ -468,9 +497,18 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
 
             this.publicacionService.updatePublicacion(pub.id, publicacionActualizada).subscribe({
               next: () => {
-                this.procesandoCancelacion.set(false);
-                this.cerrarModalCancelar();
-                this.router.navigate(['/']);
+                // 3. Sumar puntos solo si encontró dueño o fue adoptada
+                if (nuevoEstado && pub.usuarioId) {
+                  this.sumarPuntosAlUsuario(pub.usuarioId, () => {
+                    this.procesandoCancelacion.set(false);
+                    this.cerrarModalCancelar();
+                    this.router.navigate(['/']);
+                  });
+                } else {
+                  this.procesandoCancelacion.set(false);
+                  this.cerrarModalCancelar();
+                  this.router.navigate(['/']);
+                }
               },
               error: (err) => {
                 console.error('Error al cancelar publicación:', err);
@@ -490,6 +528,26 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
         console.error('Error al obtener mascota:', err);
         this.procesandoCancelacion.set(false);
         alert('Error al obtener los datos de la mascota');
+      }
+    });
+  }
+
+  private sumarPuntosAlUsuario(usuarioId: number, onSuccess: () => void): void {
+    this.adminService.agregarPuntosUsuario(usuarioId, 10).subscribe({
+      next: (response) => {
+        // Si el usuario que finalizó la publicación es el mismo que está logueado,
+        // actualizar su información en el servicio de autenticación
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser && currentUser.id === usuarioId) {
+          this.authService.setCurrentUser(response.usuario);
+        }
+        this.toastService.success('¡Has ganado 10 puntos!');
+        onSuccess();
+      },
+      error: (err) => {
+        console.error('Error al sumar puntos al usuario:', err);
+        // Continuar con el flujo aunque falle la suma de puntos
+        onSuccess();
       }
     });
   }
