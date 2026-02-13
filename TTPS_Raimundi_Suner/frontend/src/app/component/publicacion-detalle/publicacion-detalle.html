@@ -65,24 +65,22 @@
 
       <!-- Sección derecha: datos del dueño y mapa -->
       <div class="detalle-derecha">
-        <!-- Datos del dueño (solo si es PERDIDAPROPIA) -->
-        @if (esPerdidaPropia) {
-          <div class="detalle-datos-dueno">
-            <h3>Datos de contacto del dueño</h3>
-            <div class="dato-item">
-              <span class="dato-label">Nombre:</span>
-              <span class="dato-valor">{{ publicacion()?.usuarioNombre || 'No disponible' }}</span>
-            </div>
-            <div class="dato-item">
-              <span class="dato-label">Email:</span>
-              <span class="email-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioEmail)">{{ publicacion()?.usuarioEmail || 'No disponible' }}</span>
-            </div>
-            <div class="dato-item">
-              <span class="dato-label">Teléfono:</span>
-              <span class="dato-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioTelefono)">{{ publicacion()?.usuarioTelefono || 'No disponible' }}</span>
-            </div>
+        <!-- Datos del dueño (PERDIDAPROPIA) o del publicador (PERDIDA AJENA) -->
+        <div class="detalle-datos-dueno">
+          <h3>{{ esPerdidaPropia ? 'Datos de contacto del dueño' : 'Datos de contacto del publicador' }}</h3>
+          <div class="dato-item">
+            <span class="dato-label">Nombre:</span>
+            <span class="dato-valor">{{ publicacion()?.usuarioNombre || 'No disponible' }}</span>
           </div>
-        }
+          <div class="dato-item">
+            <span class="dato-label">Email:</span>
+            <span class="email-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioEmail)">{{ publicacion()?.usuarioEmail || 'No disponible' }}</span>
+          </div>
+          <div class="dato-item">
+            <span class="dato-label">Teléfono:</span>
+            <span class="dato-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioTelefono)">{{ publicacion()?.usuarioTelefono || 'No disponible' }}</span>
+          </div>
+        </div>
 
         <!-- Mapa (placeholder) -->
         <div class="detalle-mapa">
