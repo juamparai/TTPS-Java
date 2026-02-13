@@ -241,6 +241,17 @@
   text-transform: capitalize;
 }
 
+.email-valor {
+  color: #555;
+}
+/* Indicador de que el campo es interactivo (copiar) */
+.clickable {
+  cursor: pointer;
+  text-decoration: underline dotted rgba(0,0,0,0.25);
+}
+.clickable:hover {
+  color: #000;
+}
 .detalle-mapa {
   flex: 1;
   display: flex;

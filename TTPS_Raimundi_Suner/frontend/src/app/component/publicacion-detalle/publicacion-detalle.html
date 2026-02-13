@@ -75,11 +75,11 @@
             </div>
             <div class="dato-item">
               <span class="dato-label">Email:</span>
-              <span class="dato-valor">{{ publicacion()?.usuarioEmail || 'No disponible' }}</span>
+              <span class="email-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioEmail)">{{ publicacion()?.usuarioEmail || 'No disponible' }}</span>
             </div>
             <div class="dato-item">
               <span class="dato-label">Teléfono:</span>
-              <span class="dato-valor">{{ publicacion()?.usuarioTelefono || 'No disponible' }}</span>
+              <span class="dato-valor clickable" title="Clic para copiar" (click)="copyToClipboard(publicacion()?.usuarioTelefono)">{{ publicacion()?.usuarioTelefono || 'No disponible' }}</span>
             </div>
           </div>
         }

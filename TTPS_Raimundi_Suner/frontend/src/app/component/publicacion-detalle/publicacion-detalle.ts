@@ -16,6 +16,7 @@ import { PublicacionService } from '../../services/publicacion.service';
 import { MascotaService, Mascota } from '../../services/mascota.service';
 import { GeorefService } from '../../services/georef.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../shared/toast/toast.service';
 
 type PublicacionDetalleData = {
   id: number;
@@ -50,6 +51,7 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
   private readonly mascotaService = inject(MascotaService);
   private readonly georefService = inject(GeorefService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly location = inject(Location);
 
   readonly publicacion = signal<PublicacionDetalleData | null>(null);
@@ -509,6 +511,40 @@ export class PublicacionDetalle implements OnInit, AfterViewInit, OnDestroy {
       this.map.off();
       this.map.remove();
       this.map = null;
+    }
+  }
+
+  copyToClipboard(value?: string | null): void {
+    if (!value) return;
+    // Prefer modern clipboard API
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(() => {
+        this.toastService.success('Copiado al portapapeles');
+      }).catch(() => {
+        // Fallback a método antiguo
+        this.fallbackCopyText(value);
+      });
+    } else {
+      this.fallbackCopyText(value);
+    }
+  }
+
+  private fallbackCopyText(text: string): void {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      this.toastService.success('Copiado al portapapeles');
+    } catch (e) {
+      console.error('No se pudo copiar al portapapeles', e);
+      try {
+        this.toastService.error('No se pudo copiar al portapapeles');
+      } catch {}
     }
   }
 }
